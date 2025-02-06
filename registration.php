@@ -6,6 +6,12 @@
 <title>Registration Form</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 <link rel="stylesheet" href="style.css">
+<script>
+function validateText(event) {
+    const textInput = event.target;
+    textInput.value = textInput.value.replace(/[^a-zA-Z\s]/g, '');
+}
+</script>
 </head>
 <body>
 <div class="container">
@@ -34,7 +40,7 @@
         $sql = "INSERT INTO students (IDNO, Last_Name, First_Name, Mid_Name, Course, Year_lvl, Username, Password) VALUES ('$idno', '$lastname', '$firstname', '$midname', '$course', '$yearlvl', '$username', '$password')";
 
         if ($conn->query($sql) === TRUE) {
-            echo "<div class='alert alert-success'>New Record Added Successfully!</div>";
+            echo "<div class='alert alert-success'>Student Added Successfully!</div>";
         } else {
             echo "Error: " . $sql . "<br>" . $conn->error;
         }
@@ -50,19 +56,24 @@
 </div>
 <header class="text-center">Registration</header>
 <div class="form-group">
-<input type="id" class="form-control" name="idno" placeholder="IDNO: " required>
+<input type="number" class="form-control" name="idno" placeholder="IDNO: " required min="0">
 </div>
 <div class="form-group">
-<input type="text" class="form-control" name="lastname" placeholder="Last Name: " required>
+<input type="text" class="form-control" name="lastname" placeholder="Last Name: " required oninput="validateText(event)">
 </div>
 <div class="form-group">
-<input type="text" class="form-control" name="firstname" placeholder="First Name: " required>
+<input type="text" class="form-control" name="firstname" placeholder="First Name: " required oninput="validateText(event)">
 </div>
 <div class="form-group">
-<input type="text" class="form-control" name="midname" placeholder="Mid Name: " >
+<input type="text" class="form-control" name="midname" placeholder="Mid Name: " oninput="validateText(event)">
 </div>
 <div class="form-group">
-<input type="text" class="form-control" name="course" placeholder="Course: " required>
+<select class="form-control" name="course" required>
+<option value="" disabled selected>Course</option>
+<option value="1">BSIT</option>
+<option value="2">BSCS</option>
+<option value="3">BSCpe</option>
+</select>
 </div>
 <div class="form-group">
 <select class="form-control" name="yearlvl" required>
