@@ -4,7 +4,7 @@
 
 body {
     min-height: 100vh;
-    background-color: #272c39;
+    background-color: #e5e2db; /* Updated */
     color: #fff;
     margin: 0;
     padding: 20px;
@@ -14,9 +14,9 @@ body {
 
 /* Navbar Styling */
 .navbar {
-    background-color: #7269e3 !important;
+    background-color: #ffd481 !important; /* Updated */
     padding: 15px;
-    border-radius: 8px;
+    border-radius: 20px;
     margin-bottom: 30px;
     position: fixed;
     top: 20px;
@@ -26,19 +26,19 @@ body {
 }
 
 .nav-link {
-    color: white !important;
+    color: black !important; /* Updated */
     margin: 0 10px;
 }
 
 .nav-link:hover {
-    color: #98dea3 !important;
+    color: #111111 !important; /* Updated */
 }
 
 /* Main Content */
 header {
     margin-top: 80px;  /* Space for fixed navbar */
     text-align: center;
-    color: white;
+    color: black; /* Updated */
     margin-bottom: 30px;
 }
 
@@ -51,17 +51,26 @@ header h1 {
 .container {
     max-width: 400px !important;
     margin-left: 20px !important;
-    background-color: #7269e3;
+    background-color: #ffd481; /* Updated */
     padding: 20px;
     border-radius: 15px;
     box-shadow: rgba(0, 0, 0, 0.2) 10px 7px 29px 15px;
-    color:black;
+    color: black; /* Updated */
+    text-align: center; /* Add this line to center the content */
 }
 
 .img-fluid {
     width: 100px;
     height: 100px;
     object-fit: cover;
+    margin: 0 auto; /* Add this line to center the image horizontally */
+    display: block; /* Add this line to allow margin auto to work */
+}
+
+/* Add this style to center the h5 element */
+.container h5 {
+    text-align: center;
+    margin-bottom: 10px; /* Add some spacing below the heading */
 }
 
 /* Alert Styling */
@@ -77,9 +86,21 @@ header h1 {
 }
 
 .alert-success {
-    background-color: #98dea3;
-    color: #272c39;
+    background-color: #111111; /* Updated */
+    color: #faf9f6; /* Updated */
     border: none;
+}
+
+.btn-primary {
+    background-color: #111111 !important; /* Updated */
+    border-color: #111111 !important; /* Updated */
+    color: #faf9f6 !important; /* Updated */
+}
+
+.btn-primary:hover {
+    background-color: gray !important; /* Updated */
+    border-color: gray !important; /* Updated */
+    color: #faf9f6 !important; /* Updated */
 }
 
 /* Responsive Design */

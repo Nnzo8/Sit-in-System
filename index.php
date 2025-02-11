@@ -21,13 +21,20 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-
-if (isset($_SESSION['message']) && isset($_SESSION['username'])) {
+// Check if the username is already stored in the session
+if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];
-    echo "<div class='alert alert-success'>" . $_SESSION['message'] . " Welcome $username!</div>";
-    unset($_SESSION['message']);
-    unset($_SESSION['username']);
+} else {
+    // If not, check if it was passed as a GET parameter (e.g., after login)
+    if (isset($_GET['username'])) {
+        $username = $_GET['username'];
+        $_SESSION['username'] = $username; // Store it in the session
+    } else {
+        // If not in session or GET, handle the case where the user is not logged in
+        $username = "Guest"; // Or redirect to login page
+    }
 }
+
 ?>
 <nav class="navbar navbar-expand-lg navbar-light bg-light" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px; border-radius: 8px; margin-bottom: 10px;">
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
@@ -46,18 +53,18 @@ if (isset($_SESSION['message']) && isset($_SESSION['username'])) {
     </div>
 </nav>
 <header>
-    <h1>Welcome to CCS Sit-in Monitoring System</h1>
+    <h1>Welcome to CCS Sit-in Monitoring System, <?php echo $username ?></h1>
 </header>
 <div class="container" style="max-width: 400px; margin-left: 0;">
-    <div class="row align-items-center" style="background-color: #f8f9fa; display: flex; padding: 15px; border-radius: 8px; box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;">
+<h5 style="display: flex;">User Information</h5>
+    <div class="row align-items-center" style="background-color: #f8f9fa; display: flex; padding: 40px; border-radius: 8px; box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;">
         <div class="col-md-8">
         <div class="col-md-4">
             <img src="C:\xampp\htdocs\SIT-IN\imgs\elgato.jpg" alt="User Image" class="img-fluid rounded-circle">
         </div>
-            <h5>User Information</h5>
-            <p>Name: <?php echo $username; ?></p>
-            <p>Name: <?php echo $lastname; ?></p>
-            <p>Name: <?php echo $firstname; ?></p>
+            <p>Name: <?php echo $_SESSION['firstname'] . " " . $_SESSION['lastname']; ?>!</p>
+            <p>Course: <?php echo $_SESSION['course']; ?></p>
+            <p>Year lvl: <?php echo $_SESSION['yearlvl']; ?></p>
         </div>
     </div>
 </div>

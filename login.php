@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (password_verify($password, $row['Password'])) {
             $_SESSION['message'] = "Login successful, ";
             $_SESSION['username'] = $row['First_Name'];
-            $_SESSION['firstname'] = $row['First_Name']; // Add this line
+            $_SESSION['firstname'] = $row['First_Name'];
             $_SESSION['lastname'] = $row['Last_Name'];
             $_SESSION['course'] = $row['Course'];
             $_SESSION['yearlvl'] = $row['Year_lvl'];

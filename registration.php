@@ -70,9 +70,9 @@ function validateText(event) {
 <div class="form-group">
 <select class="form-control" name="course" required>
 <option value="" disabled selected>Course</option>
-<option value="1">BSIT</option>
-<option value="2">BSCS</option>
-<option value="3">BSCpe</option>
+<option value="BSIT">BSIT</option>
+<option value="BSCS">BSCS</option>
+<option value="BSCpe">BSCpe</option>
 </select>
 </div>
 <div class="form-group">
