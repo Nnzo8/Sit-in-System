@@ -12,6 +12,11 @@ function validateText(event) {
     textInput.value = textInput.value.replace(/[^a-zA-Z\s]/g, '');
 }
 </script>
+<style>
+body {
+    background: linear-gradient(to bottom, #291c0e, #e1d4c2);
+}
+</style>
 </head>
 <body>
 <div class="container">
