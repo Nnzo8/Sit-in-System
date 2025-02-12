@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         if (password_verify($password, $row['Password'])) {
-            $_SESSION['message'] = "Login successful, ";
+            $_SESSION['username'] = $username;
             $_SESSION['username'] = $row['First_Name'];
             $_SESSION['firstname'] = $row['First_Name'];
             $_SESSION['lastname'] = $row['Last_Name'];

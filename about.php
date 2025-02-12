@@ -24,6 +24,9 @@
                     <a class="nav-link" href="about.php">About</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="edit_profile.php">Edit</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="login.php">Logout</a>
                 </li>
             </ul>
