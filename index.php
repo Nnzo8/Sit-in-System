@@ -36,8 +36,15 @@ if (isset($_SESSION['username'])) {
 }
 
 ?>
-<nav class="navbar navbar-expand-lg navbar-light bg-light" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px; border-radius: 8px; margin-bottom: 10px;">
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+<!-- Add the overlay div -->
+<div class="nav-overlay" onclick="closeNav()"></div>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" onclick="toggleNav()" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" href="index.php">Home</a>
@@ -52,19 +59,39 @@ if (isset($_SESSION['username'])) {
         </div>
     </div>
 </nav>
+
+<!-- Add this script before the closing body tag -->
+<script>
+function toggleNav() {
+    document.getElementById('navbarNav').classList.toggle('show');
+    document.querySelector('.nav-overlay').classList.toggle('show');
+}
+
+function closeNav() {
+    document.getElementById('navbarNav').classList.remove('show');
+    document.querySelector('.nav-overlay').classList.remove('show');
+}
+
+// Close nav when clicking outside
+document.addEventListener('click', function(event) {
+    const nav = document.getElementById('navbarNav');
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    if (!nav.contains(event.target) && !toggleBtn.contains(event.target)) {
+        closeNav();
+    }
+});
+</script>
 <header>
     <h1>Welcome to CCS Sit-in Monitoring System, <?php echo $username ?></h1>
 </header>
 <div class="container" style="max-width: 400px; margin-left: 0;">
 <h5 style="display: flex;">User Information</h5>
-    <div class="row align-items-center" style="background-color: #f8f9fa; display: flex; padding: 40px; border-radius: 8px; box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;">
+    
         <div class="col-md-8">
-        <div class="col-md-4">
-            <img src="C:\xampp\htdocs\SIT-IN\imgs\elgato.jpg" alt="User Image" class="img-fluid rounded-circle">
-        </div>
-            <p>Name: <?php echo $_SESSION['firstname'] . " " . $_SESSION['lastname']; ?>!</p>
-            <p>Course: <?php echo $_SESSION['course']; ?></p>
-            <p>Year lvl: <?php echo $_SESSION['yearlvl']; ?></p>
+            <img src="https://cdn-icons-png.flaticon.com/512/2815/2815428.png" alt="User Image" class="img-fluid rounded-circle">
+            <p><b>Name:</b> <?php echo $_SESSION['firstname'] . " " . $_SESSION['lastname']; ?></p>
+            <p><b>Course:</b> <?php echo $_SESSION['course']; ?></p>
+            <p><b>Year Level:</b> <?php echo $_SESSION['yearlvl']; ?></p>
         </div>
     </div>
 </div>

@@ -4,8 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="homestyle.css">
 </head>
 <body>
-    
+<div class="nav-overlay" onclick="closeNav()"></div>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" onclick="toggleNav()" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.php">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="about.php">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="login.php">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Add this script before the closing body tag -->
+<script>
+function toggleNav() {
+    document.getElementById('navbarNav').classList.toggle('show');
+    document.querySelector('.nav-overlay').classList.toggle('show');
+}
+
+function closeNav() {
+    document.getElementById('navbarNav').classList.remove('show');
+    document.querySelector('.nav-overlay').classList.remove('show');
+}
+
+// Close nav when clicking outside
+document.addEventListener('click', function(event) {
+    const nav = document.getElementById('navbarNav');
+    const toggleBtn = document.querySelector('.navbar-toggler');
+    if (!nav.contains(event.target) && !toggleBtn.contains(event.target)) {
+        closeNav();
+    }
+});
+</script>
 </body>
 </html>

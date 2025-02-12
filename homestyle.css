@@ -15,19 +15,67 @@ body {
 /* Navbar Styling */
 .navbar {
     background-color: #ffd481 !important; /* Updated */
-    padding: 15px;
-    border-radius: 20px;
-    margin-bottom: 30px;
+    padding: 5px 10px; /* Reduced padding */
+    border-radius: 10px;
+    margin-bottom: 10px;
     position: fixed;
-    top: 20px;
-    left: 20px;
-    right: 20px;
+    top: 5px;
+    left: 5px;
+    right: 5px;
     z-index: 1000;
+}
+
+.navbar .container-fluid {
+    justify-content: flex-end;
+}
+
+.navbar-brand {
+    font-size: 1.25rem;
+}
+
+.navbar-toggler {
+    border: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 1.25rem;
+    line-height: 1;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+.navbar-toggler:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0, 0, 0, 0.5)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+.navbar-collapse {
+    justify-content: flex-end !important;
+    flex-grow: 0;
+    justify-content: flex-end;
+}
+
+.navbar-nav {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    align-items: center;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    
 }
 
 .nav-link {
     color: black !important; /* Updated */
-    margin: 0 10px;
+    margin: 0 5px; /* Reduced margin */
+    font-size: 14px; /* Reduced font size */
+    display: right;
 }
 
 .nav-link:hover {
@@ -49,6 +97,8 @@ header h1 {
 
 /* User Information Container */
 .container {
+    width: fit-content !important;
+    min-width: 300px !important;
     max-width: 400px !important;
     margin-left: 20px !important;
     background-color: #ffd481; /* Updated */
@@ -56,15 +106,32 @@ header h1 {
     border-radius: 15px;
     box-shadow: rgba(0, 0, 0, 0.2) 10px 7px 29px 15px;
     color: black; /* Updated */
-    text-align: center; /* Add this line to center the content */
+    text-align: center; /* Center content within the container */
+}
+
+.container .row {
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+}
+
+.col-md-8 {
+    width: 100%;
+    padding: 0;
+}
+
+.col-md-8 p {
+    margin-bottom: 0.5rem;
+    word-break: break-word;
 }
 
 .img-fluid {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
+    width: 120px; /* Fixed width */
+    height: 120px; /* Fixed height */
+    object-fit: cover; /* Add this line */
     margin: 0 auto; /* Add this line to center the image horizontally */
     display: block; /* Add this line to allow margin auto to work */
+    margin-bottom: 1rem;
 }
 
 /* Add this style to center the h5 element */
@@ -103,13 +170,148 @@ header h1 {
     color: #faf9f6 !important; /* Updated */
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .container {
-        margin: 20px auto !important;
+/* Style the edit button */
+.edit-profile-button {
+    background-color: #111111;
+    color: #faf9f6;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: inline-block; /* Ensure it respects margin */
+}
+
+.edit-profile-button:hover {
+    background-color: gray;
+}
+
+
+
+/* Enhanced Navbar Responsive Styling */
+@media (max-width: 950px) {
+    .navbar-collapse {
+        background-color: #ffd481;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        padding: 1rem;
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        justify-content: flex-start !important;
+        flex-grow: 1;
+        justify-content: flex-start;
     }
-    
-    body {
-        padding: 10px;
+
+    .navbar-nav {
+        margin: 0;
+        margin-left: 0;
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .nav-item {
+        width: 100%;
+        text-align: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-item:last-child {
+        border-bottom: none;
+    }
+
+    .nav-link {
+        display: block;
+        padding: 0.5rem 1rem;
+        transition: background-color 0.3s;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+    }
+
+    .navbar-toggler {
+        display: block;
+    }
+
+    .navbar-collapse:not(.show) {
+        display: none;
+    }
+}
+
+/* Side Navbar Styling */
+@media (max-width: 950px) {
+    .navbar-collapse {
+        position: fixed;
+        top: 0;
+        right: -300px; /* Start off-screen */
+        width: 300px;
+        height: 100%;
+        background-color: #ffd481;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        z-index: 1050;
+    }
+
+    .navbar-collapse.show {
+        right: 0;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-nav {
+        margin-top: 4rem;
+    }
+
+    .nav-item {
+        margin: 1rem 0;
+    }
+
+    /* Remove the previous overlay styles and add new ones */
+    .nav-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1040;
+    }
+
+    .nav-overlay.show {
+        display: block;
+    }
+
+    .navbar-toggler {
+        z-index: 1050;
+        position: relative;
+    }
+
+}
+
+@media (max-width: 576px) {
+    .navbar-brand {
+        font-size: 1rem;
+    }
+
+    .container {
+        min-width: 250px !important;
+        margin: 0 auto !important;
+        padding: 15px;
+    }
+
+    .container .row {
+        padding: 15px;
+    }
+
+    .nav-link {
+        font-size: 0.9rem;
+    }
+
+    .img-fluid {
+        width: 100px;
+        height: 100px;
     }
 }
