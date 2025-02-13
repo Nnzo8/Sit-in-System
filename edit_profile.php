@@ -54,6 +54,32 @@ document.addEventListener('click', function(event) {
         closeNav();
     }
 });
+
+document.getElementById('profileForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const formData = new FormData(this);
+
+    // Perform an AJAX POST request
+    fetch('edit_profile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text()) // Handle text response
+    .then(data => {
+        // Check if the response contains a success message
+        if (data.includes('Profile updated successfully')) {
+            // Display success message
+            const successMessage = document.getElementById('success-message');
+            successMessage.classList.remove('d-none');
+            successMessage.textContent = 'Profile updated successfully!';
+        }
+    })
+    .catch(error => {
+        console.error('Error updating profile:', error);
+    });
+});
+
 </script>
 
 <?php
@@ -142,16 +168,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['Course'] = $newcourse;
         $_SESSION['Year_lvl'] = $newyearlvl;
         $_SESSION['IDNO'] = $newidno;
-        $message = "Profile updated successfully!";
-        $messageType = "success";
+
+        // Store the success message in the session
+        $_SESSION['success_message'] = "Profile updated successfully!";
         
-        // Redirect to refresh the page with new data
+        // Redirect to refresh the page
         header("Location: edit_profile.php");
         exit();
     } else {
         $message = "Error updating profile: " . $conn->error;
         $messageType = "danger";
     }
+}
+
+// Display success message if available
+if (isset($_SESSION['success_message'])) {
+    $message = $_SESSION['success_message'];
+    $messageType = "success";
+    unset($_SESSION['success_message']); // Clear the message after displaying it
 }
 
 // Get current user data
@@ -174,6 +208,9 @@ $_SESSION['course'] = $user['Course'];
 $_SESSION['yearlvl'] = $user['Year_lvl'];
 
 ?>
+<div id="success-message" class="alert alert-success d-none" role="alert">
+    Profile updated successfully!
+</div>
 
 <div class="editcontainer">
     <h2 class="text-center mb-4">Edit Profile</h2>
@@ -182,7 +219,7 @@ $_SESSION['yearlvl'] = $user['Year_lvl'];
             <?php echo $message; ?>
         </div>
     <?php endif; ?>
-    <form method="POST" enctype="multipart/form-data">
+    <form id="profileForm" method="POST" enctype="multipart/form-data">
         <div class="form-group mb-3 text-center">
             <label for="profile_image">Profile Picture</label>
             <div class="profile-image-container">

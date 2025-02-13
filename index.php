@@ -105,8 +105,9 @@ document.addEventListener('click', function(event) {
     <h1>Welcome to CCS Sit-in Monitoring System, <?php echo $username ?></h1>
 </header>
 <div class="container" style="max-width: 400px; margin-left: 0;">
-<h5 style="display: flex;">User Information</h5>
-    
+<div class="center-container">
+    <h5>User Information</h5>
+</div>
         <div class="col-md-8">
         <img src="<?php echo htmlspecialchars($profileImage); ?>" class="img-fluid rounded-circle">
             <p><b>Name:</b> <?php echo $_SESSION['firstname'] . " " . $_SESSION['lastname']; ?></p>
