@@ -108,16 +108,16 @@ select.form-control {
 }
 
 .btn-primary {
-    background-color: #111111 !important;
-    border-color: #111111 !important;
-    color: #faf9f6 !important;
+    background-color: #111111 ;
+    border-color: #111111 ;
+    color: #faf9f6 ;
     padding: 0.5rem 1rem;
     border-radius: 0.25rem;
 }
 
 .btn-primary:hover {
-    background-color: gray !important;
-    border-color: gray !important;
-    color: #faf9f6 !important;
+    background-color: gray ;
+    border-color: gray ;
+    color: #faf9f6 ;
 }
 

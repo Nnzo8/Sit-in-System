@@ -16,15 +16,18 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+        <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="history.php">History</a>
+                    <a class="nav-link" href="edit_profile.php">Edit</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="edit_profile.php">Edit</a>
+                    <a class="nav-link" href="reservation.php">Reservation</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="history.php">History</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="login.php">Logout</a>

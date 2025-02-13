@@ -13,7 +13,7 @@ body {
 }
 
 .navbar {
-    background-color: #ffd481 !important; 
+    background-color: #ffd481; 
     padding: 5px 10px; 
     border-radius: 10px;
     margin-bottom: 10px;
@@ -52,7 +52,7 @@ body {
 }
 
 .navbar-collapse {
-    justify-content: flex-end !important;
+    justify-content: flex-end;
     flex-grow: 0;
     justify-content: flex-end;
 }
@@ -71,14 +71,14 @@ body {
 }
 
 .nav-link {
-    color: black !important; 
+    color: black; 
     margin: 0 5px; /* Reduced margin */
     font-size: 14px; /* Reduced font size */
     display: right;
 }
 
 .nav-link:hover {
-    color: #111111 !important; 
+    color: #111111; 
 }
 
 /* Main Content */
@@ -93,13 +93,15 @@ header h1 {
     font-size: 2em;
     font-weight: bold;
 }
-
+.maincontainer{
+    display: inline-block;
+}
 /* User Information Container */
 .container {
-    height: fit-content !important;
-    min-width: 300px !important;
-    max-width: 400px !important;
-    margin-left: 20px !important;
+    height: fit-content;
+    min-width: 300px;
+    max-width: 400px;
+    margin-left: 20px;
     background-color: #ffd481; 
     padding: 20px;
     border-radius: 15px;
@@ -145,10 +147,10 @@ header h1 {
 
 /* User Information Container */
 .editcontainer {
-    height: fit-content !important;
-    min-width: 300px !important;
-    max-width: 400px !important;
-    margin: 80px auto 0 auto !important; /* Center horizontally and add top margin */
+    height: fit-content;
+    min-width: 300px;
+    max-width: 400px;
+    margin: 80px auto 0 auto; /* Center horizontally and add top margin */
     background-color: #ffd481; 
     padding: 20px;
     border-radius: 15px;
@@ -210,15 +212,15 @@ header h1 {
 }
 
 .btn-primary {
-    background-color: #111111 !important; 
-    border-color: #111111 !important; 
-    color: #faf9f6 !important; 
+    background-color: #111111; 
+    border-color: #111111; 
+    color: #faf9f6; 
 }
 
 .btn-primary:hover {
-    background-color: gray !important; 
-    border-color: gray !important; 
-    color: #faf9f6 !important; 
+    background-color: gray; 
+    border-color: gray; 
+    color: #faf9f6; 
 }
 
 /* Style the edit button */
@@ -250,7 +252,7 @@ header h1 {
         padding: 1rem;
         border-radius: 0 0 10px 10px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        justify-content: flex-start !important;
+        justify-content: flex-start;
         flex-grow: 1;
         justify-content: flex-start;
     }
@@ -348,8 +350,8 @@ header h1 {
     }
 
     .container {
-        min-width: 250px !important;
-        margin: 0 auto !important;
+        min-width: 250px;
+        margin: 0 auto;
         padding: 15px;
     }
 
