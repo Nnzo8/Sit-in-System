@@ -21,7 +21,7 @@
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="about.php">About</a>
+                    <a class="nav-link" href="history.php">History</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="edit_profile.php">Edit</a>
@@ -144,9 +144,8 @@ $user = $result->fetch_assoc();
 
 ?>
 
-<div class="container">
+<div class="editcontainer">
     <h2 class="text-center mb-4">Edit Profile</h2>
-    
     <?php if ($message): ?>
         <div class="alert alert-<?php echo $messageType; ?>" role="alert">
             <?php echo $message; ?>
@@ -192,6 +191,13 @@ $user = $result->fetch_assoc();
                 <option value="">Select Course</option>
                 <option value="BSIT" <?php echo (isset($user['Course']) && $user['Course'] == 'BSIT') ? 'selected' : ''; ?>>BSIT</option>
                 <option value="BSCS" <?php echo (isset($user['Course']) && $user['Course'] == 'BSCS') ? 'selected' : ''; ?>>BSCS</option>
+                <option value="BSHM" <?php echo (isset($user['Course']) && $user['Course'] == 'BSHM') ? 'selected' : ''; ?>>BSHM</option>
+                <option value="BSBA" <?php echo (isset($user['Course']) && $user['Course'] == 'BSBA') ? 'selected' : ''; ?>>BSBA</option>
+                <option value="College of Customs Administration" <?php echo (isset($user['Course']) && $user['Course'] == 'College of Customs Administration') ? 'selected' : ''; ?>>College of Customs Administration</option>
+                <option value="College of Education" <?php echo (isset($user['Course']) && $user['Course'] == 'College of Education') ? 'selected' : ''; ?>>College of Education</option>
+                <option value="College of Engineering" <?php echo (isset($user['Course']) && $user['Course'] == 'College of Engineering') ? 'selected' : ''; ?>>College of Engineering</option>
+                <option value="College of Arts and Sciences" <?php echo (isset($user['Course']) && $user['Course'] == 'College of Arts and Sciences') ? 'selected' : ''; ?>>College of Arts and Sciences</option>
+                <option value="College of Nursing" <?php echo (isset($user['Course']) && $user['Course'] == 'College of Nursing') ? 'selected' : ''; ?>>College of Nursing</option>
             </select>
         </div>
 

@@ -72,7 +72,13 @@ function validateText(event) {
 <option value="" disabled selected>Course</option>
 <option value="BSIT">BSIT</option>
 <option value="BSCS">BSCS</option>
-<option value="BSCpe">BSCpe</option>
+<option value="BSHM">BSHM</option>
+<option value="BSBA">BSBA</option>
+<option value="College of Customs Administration">College of Customs Administration</option>
+<option value="College of Education">College of Education</option>
+<option value="College of Engineering">College of Engineering</option>
+<option value="College of Arts and Sciences">College of Arts and Sciences</option>
+<option value="College of Nursing">College of Nursing</option>
 </select>
 </div>
 <div class="form-group">

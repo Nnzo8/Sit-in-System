@@ -4,7 +4,7 @@
 
 body {
     min-height: 100vh;
-    background-color: #e5e2db; /* Updated */
+    background-color: #e5e2db; 
     color: #fff;
     margin: 0;
     padding: 20px;
@@ -12,10 +12,9 @@ body {
     flex-direction: column;
 }
 
-/* Navbar Styling */
 .navbar {
-    background-color: #ffd481 !important; /* Updated */
-    padding: 5px 10px; /* Reduced padding */
+    background-color: #ffd481 !important; 
+    padding: 5px 10px; 
     border-radius: 10px;
     margin-bottom: 10px;
     position: fixed;
@@ -72,21 +71,21 @@ body {
 }
 
 .nav-link {
-    color: black !important; /* Updated */
+    color: black !important; 
     margin: 0 5px; /* Reduced margin */
     font-size: 14px; /* Reduced font size */
     display: right;
 }
 
 .nav-link:hover {
-    color: #111111 !important; /* Updated */
+    color: #111111 !important; 
 }
 
 /* Main Content */
 header {
-    margin-top: 80px;  /* Space for fixed navbar */
+    margin-top: 80px;  
     text-align: center;
-    color: black; /* Updated */
+    color: black; 
     margin-bottom: 30px;
 }
 
@@ -97,22 +96,38 @@ header h1 {
 
 /* User Information Container */
 .container {
-    width: fit-content !important;
+    height: fit-content !important;
     min-width: 300px !important;
     max-width: 400px !important;
     margin-left: 20px !important;
-    background-color: #ffd481; /* Updated */
+    background-color: #ffd481; 
     padding: 20px;
     border-radius: 15px;
     box-shadow: rgba(0, 0, 0, 0.2) 10px 7px 29px 15px;
-    color: black; /* Updated */
-    text-align: center; /* Center content within the container */
+    color: black; 
+    text-align: center; 
 }
-
+/* User Information Container */
+.editcontainer {
+    height: fit-content !important;
+    min-width: 300px !important;
+    max-width: 400px !important;
+    margin: 80px auto 0 auto !important; /* Center horizontally and add top margin */
+    background-color: #ffd481; 
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: rgba(0, 0, 0, 0.2) 10px 7px 29px 15px;
+    color: black; 
+    text-align: center; /* Center content within the container */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 .container .row {
     width: 100%;
     margin: 0;
-    padding: 20px;
+    padding: 10px;
 }
 
 .col-md-8 {
@@ -153,21 +168,21 @@ header h1 {
 }
 
 .alert-success {
-    background-color: #111111; /* Updated */
-    color: #faf9f6; /* Updated */
+    background-color: #111111; 
+    color: #faf9f6; 
     border: none;
 }
 
 .btn-primary {
-    background-color: #111111 !important; /* Updated */
-    border-color: #111111 !important; /* Updated */
-    color: #faf9f6 !important; /* Updated */
+    background-color: #111111 !important; 
+    border-color: #111111 !important; 
+    color: #faf9f6 !important; 
 }
 
 .btn-primary:hover {
-    background-color: gray !important; /* Updated */
-    border-color: gray !important; /* Updated */
-    color: #faf9f6 !important; /* Updated */
+    background-color: gray !important; 
+    border-color: gray !important; 
+    color: #faf9f6 !important; 
 }
 
 /* Style the edit button */
