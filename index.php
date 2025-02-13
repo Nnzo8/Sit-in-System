@@ -34,7 +34,24 @@ if (isset($_SESSION['username'])) {
         $username = "Guest"; // Or redirect to login page
     }
 }
+// Get current user data
+$firstname = $_SESSION['firstname'];
+$sql = "SELECT profile_image FROM students WHERE First_Name = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $firstname);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
 
+if (!$user) {
+    echo "User not found!";
+    exit();
+}
+
+$profileImage = !empty($user['profile_image']) && file_exists($user['profile_image']) 
+    ? $user['profile_image'] 
+    : "https://cdn-icons-png.flaticon.com/512/2815/2815428.png";
+?>
 ?>
 <!-- Add the overlay div -->
 <div class="nav-overlay" onclick="closeNav()"></div>
@@ -91,7 +108,7 @@ document.addEventListener('click', function(event) {
 <h5 style="display: flex;">User Information</h5>
     
         <div class="col-md-8">
-            <img src="https://cdn-icons-png.flaticon.com/512/2815/2815428.png" alt="User Image" class="img-fluid rounded-circle">
+        <img src="<?php echo htmlspecialchars($profileImage); ?>" class="img-fluid rounded-circle">
             <p><b>Name:</b> <?php echo $_SESSION['firstname'] . " " . $_SESSION['lastname']; ?></p>
             <p><b>Course:</b> <?php echo $_SESSION['course']; ?></p>
             <p><b>Year Level:</b> <?php echo $_SESSION['yearlvl']; ?></p>
