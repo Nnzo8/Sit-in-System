@@ -93,21 +93,31 @@ header h1 {
     font-size: 2em;
     font-weight: bold;
 }
-.maincontainer{
-    display: inline-block;
+
+/* Flex parent for horizontal alignment */
+.flex-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* Adjust spacing between the containers */
+    flex-wrap: wrap; /* Ensure it wraps on smaller screens */
+    gap: 20px; /* Optional: Adds spacing between items */
 }
 /* User Information Container */
 .container {
     height: fit-content;
     min-width: 300px;
     max-width: 400px;
-    margin-left: 20px;
-    background-color: #ffd481; 
+    margin: 0 !important; /* Override previous margin */
+    background-color: red; 
     padding: 20px;
     border-radius: 15px;
     box-shadow: rgba(0, 0, 0, 0.2) 10px 7px 29px 15px;
-    color: black; 
+    color: white;
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
 }
+
 .center-container {
     display: flex;
     justify-content: center; /* Centers horizontally */
@@ -366,5 +376,26 @@ header h1 {
     .img-fluid {
         width: 100px;
         height: 100px;
+    }
+}
+
+/* Add responsive behavior */
+@media (max-width: 1200px) {
+    .maincontainer {
+        padding: 0 20px;
+    }
+    .container {
+        flex: 0 1 calc(50% - 20px);
+    }
+}
+
+@media (max-width: 768px) {
+    .maincontainer {
+        flex-direction: column;
+        align-items: center;
+    }
+    .container {
+        width: 100%;
+        margin-bottom: 20px !important;
     }
 }
