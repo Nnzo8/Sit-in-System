@@ -112,7 +112,7 @@ header h1 {
     padding: 20px;
     border-radius: 15px;
     box-shadow: rgba(0, 0, 0, 0.2) 10px 7px 29px 15px;
-    color: white;
+    color: #493628 !important; /* Change text color to dark brown */
     flex: 1;
     min-width: 300px;
     max-width: 400px;
@@ -165,7 +165,7 @@ header h1 {
     padding: 20px;
     border-radius: 15px;
     box-shadow: rgba(0, 0, 0, 0.2) 10px 7px 29px 15px;
-    color: black; 
+    color: #493628 !important; /* Change text color to dark brown */
     text-align: center; /* Center content within the container */
     display: flex;
     flex-direction: column;
@@ -249,7 +249,33 @@ header h1 {
     background-color: gray;
 }
 
+/* Container text colors */
+.container, 
+.editcontainer {
+    color: #493628 !important; /* Change text color to dark brown */
+}
 
+/* Update all text elements inside containers */
+.container h5,
+.container p,
+.container li,
+.container .card-title,
+.container .card-text,
+.editcontainer h5,
+.editcontainer label,
+.center-container h5 {
+    color: #493628 !important;
+}
+
+/* Card specific styles */
+.card {
+    background: transparent;
+    border: none;
+}
+
+.card-body {
+    padding: 0;
+}
 
 /* Enhanced Navbar Responsive Styling */
 @media (max-width: 950px) {
