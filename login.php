@@ -1,18 +1,20 @@
-<?php
+<?php 
 session_start();
+include 'header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSS Sit-in Monitoring System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-    <?php
+
+<div class="min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <div class="flex justify-center space-x-4 mb-6">
+            <img src="imgs/uc.png" alt="UC Logo" class="h-20">
+            <img src="imgs/ccs.png" alt="CCS Logo" class="h-20">
+        </div>
+        
+        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">
+            CCS Sit-in Monitoring System
+        </h1>
+
+        <?php
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -52,27 +54,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 $conn->close();
 ?>
-        <div class="logo-container">
-        <img src="imgs/uc.png" alt="Logo" class="logo uclogo">
-        <img src="imgs/ccs.png" alt="Logo" class="logo">
-        </div>
-        <header class="">CCS Sit-in Monitoring System</header>
-            <form action="login.php" method="post">
-            <div class="form-group">
-            <input type="username" class="form-control" name="username" placeholder="Username " required>
+
+        <form action="login.php" method="post" class="space-y-4">
+            <div>
+                <input type="text" name="username" placeholder="Username" 
+                    class="form-control" required>
             </div>
-            <div class="form-group">
-            <input type="password" class="form-control" name="password" placeholder="Password " required>
+            <div>
+                <input type="password" name="password" placeholder="Password" 
+                    class="form-control" required>
             </div>
-            <div class="btns">
-            <div class="form-btn">
-            <input type="submit" class="btn btn-primary" value="Login" name="submit">
-            </div>
-            <div class="text">
-            <a href="registration.php" class="register-link">Register</a>
-            </div>
+            <div class="flex flex-col items-center space-y-4">
+                <button type="submit" name="submit" 
+                    class="btn-primary w-full">Login</button>
+                <a href="registration.php" 
+                    class="text-primary hover:text-blue-700">Register</a>
             </div>
         </form>
     </div>
+</div>
 </body>
 </html>

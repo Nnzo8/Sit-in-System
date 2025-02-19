@@ -103,6 +103,7 @@ header h1 {
     gap: 20px; /* Optional: Adds spacing between items */
 }
 /* User Information Container */
+
 .container {
     height: fit-content;
     min-width: 300px;
@@ -112,12 +113,12 @@ header h1 {
     padding: 20px;
     border-radius: 15px;
     box-shadow: rgba(0, 0, 0, 0.2) 10px 7px 29px 15px;
-    color: #493628 !important; /* Change text color to dark brown */
     flex: 1;
     min-width: 300px;
     max-width: 400px;
+    border: none;
+    color: #493628 !important; /* Change text color to dark brown */
 }
-
 .center-container {
     display: flex;
     justify-content: center; /* Centers horizontally */

@@ -1,110 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registration Form</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<link rel="stylesheet" href="style.css">
-<script>
-function validateText(event) {
-    const textInput = event.target;
-    textInput.value = textInput.value.replace(/[^a-zA-Z\s]/g, '');
-}
-</script>
-</head>
-<body>
-<div class="container">
-<?php
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $database = "users";
-    
-    $conn = new mysqli($servername, $username, $password, $database);
-    
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-    
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $idno = $_POST['idno'];
-        $lastname = $_POST['lastname'];
-        $firstname = $_POST['firstname'];
-        $midname = $_POST['midname'];
-        $course = $_POST['course'];
-        $yearlvl = $_POST['yearlvl'];
-        $username = $_POST['username'];
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+<?php include 'header.php'; ?>
 
-        $sql = "INSERT INTO students (IDNO, Last_Name, First_Name, Mid_Name, Course, Year_lvl, Username, Password) VALUES ('$idno', '$lastname', '$firstname', '$midname', '$course', '$yearlvl', '$username', '$password')";
+<div class="min-h-screen flex items-center justify-center py-12 px-4">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <div class="flex justify-center space-x-4 mb-6">
+            <img src="imgs/uc.png" alt="UC Logo" class="h-20">
+            <img src="imgs/ccs.png" alt="CCS Logo" class="h-20">
+        </div>
 
-        if ($conn->query($sql) === TRUE) {
-            echo "<div class='alert alert-success'>Student Added Successfully!</div>";
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
-        }
-    }
-    
-    $conn->close();
-    
-?>
-<form action="registration.php" method="post">
-<div class="logo-container">
-    <img src="imgs/uc.png" alt="Logo" class="logo uclogo">
-    <img src="imgs/ccs.png" alt="Logo" class="logo">
-</div>
-<header class="text-center">Registration</header>
-<div class="form-group">
-<input type="number" class="form-control" name="idno" placeholder="IDNO: " required min="0">
-</div>
-<div class="form-group">
-<input type="text" class="form-control" name="lastname" placeholder="Last Name: " required oninput="validateText(event)">
-</div>
-<div class="form-group">
-<input type="text" class="form-control" name="firstname" placeholder="First Name: " required oninput="validateText(event)">
-</div>
-<div class="form-group">
-<input type="text" class="form-control" name="midname" placeholder="Mid Name: " oninput="validateText(event)">
-</div>
-<div class="form-group">
-<select class="form-control" name="course" required>
-<option value="" disabled selected>Course</option>
-<option value="BSIT">BSIT</option>
-<option value="BSCS">BSCS</option>
-<option value="BSHM">BSHM</option>
-<option value="BSBA">BSBA</option>
-<option value="College of Customs Administration">College of Customs Administration</option>
-<option value="College of Education">College of Education</option>
-<option value="College of Engineering">College of Engineering</option>
-<option value="College of Arts and Sciences">College of Arts and Sciences</option>
-<option value="College of Nursing">College of Nursing</option>
-</select>
-</div>
-<div class="form-group">
-<select class="form-control" name="yearlvl" required>
-<option value="" disabled selected>Year Level</option>
-<option value="1">1st Year</option>
-<option value="2">2nd Year</option>
-<option value="3">3rd Year</option>
-<option value="4">4th Year</option>
-</select>
-</div>
-<div class="form-group">
-<input type="text" class="form-control" name="username" placeholder="Username: " required>
-</div>
-<div class="form-group">
-<input type="password" class="form-control" name="password" placeholder="Password: " required>
-</div>
-<div class="btns">
-<div class="form-btn">
-<input type="submit" class="btn btn-primary" value="Register" name="submit">
-</div>
-<div class="text">
-<a href="login.php" class="register-link">Login</a>
-</div>
-</div>
-</form>
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Registration</h2>
+
+        <?php
+            $servername = "localhost";
+            $username = "root";
+            $password = "";
+            $database = "users";
+            
+            $conn = new mysqli($servername, $username, $password, $database);
+            
+            if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
+            }
+            
+            if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                $idno = $_POST['idno'];
+                $lastname = $_POST['lastname'];
+                $firstname = $_POST['firstname'];
+                $midname = $_POST['midname'];
+                $course = $_POST['course'];
+                $yearlvl = $_POST['yearlvl'];
+                $username = $_POST['username'];
+                $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        
+                $sql = "INSERT INTO students (IDNO, Last_Name, First_Name, Mid_Name, Course, Year_lvl, Username, Password) VALUES ('$idno', '$lastname', '$firstname', '$midname', '$course', '$yearlvl', '$username', '$password')";
+        
+                if ($conn->query($sql) === TRUE) {
+                    echo "<div class='alert alert-success'>Student Added Successfully!</div>";
+                } else {
+                    echo "Error: " . $sql . "<br>" . $conn->error;
+                }
+            }
+            
+            $conn->close();
+        ?>
+
+        <form action="registration.php" method="post" class="space-y-4">
+            <input type="number" name="idno" placeholder="IDNO" 
+                class="form-control" required min="0">
+            <input type="text" name="lastname" placeholder="Last Name" 
+                class="form-control" required oninput="validateText(event)">
+            <input type="text" name="firstname" placeholder="First Name" 
+                class="form-control" required oninput="validateText(event)">
+            <input type="text" name="midname" placeholder="Middle Name" 
+                class="form-control" oninput="validateText(event)">
+            
+            <select name="course" class="form-control" required>
+                <option value="" disabled selected>Course</option>
+                <option value="BSIT">BSIT</option>
+                <option value="BSCS">BSCS</option>
+                <option value="BSHM">BSHM</option>
+                <option value="BSBA">BSBA</option>
+                <option value="College of Customs Administration">College of Customs Administration</option>
+                <option value="College of Education">College of Education</option>
+                <option value="College of Engineering">College of Engineering</option>
+                <option value="College of Arts and Sciences">College of Arts and Sciences</option>
+                <option value="College of Nursing">College of Nursing</option>
+            </select>
+
+            <select name="yearlvl" class="form-control" required>
+                <option value="" disabled selected>Year Level</option>
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+            </select>
+
+            <input type="text" name="username" placeholder="Username" 
+                class="form-control" required>
+            <input type="password" name="password" placeholder="Password" 
+                class="form-control" required>
+
+            <div class="flex flex-col items-center space-y-4">
+                <button type="submit" name="submit" 
+                    class="btn-primary w-full">Register</button>
+                <a href="login.php" 
+                    class="text-primary hover:text-blue-700">Login</a>
+            </div>
+        </form>
+    </div>
 </div>
 </body>
 </html>
