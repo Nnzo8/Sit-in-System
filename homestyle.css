@@ -25,7 +25,8 @@ body {
 }
 
 .navbar .container-fluid {
-    justify-content: flex-end;
+    justify-content: flex-end !important;
+    width: 100%;
 }
 
 .navbar-brand {
@@ -61,7 +62,8 @@ body {
     margin-left: auto;
     display: flex;
     align-items: center;
-    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
 }
 
 .nav-item {
@@ -87,11 +89,16 @@ header {
     text-align: center;
     color: black; 
     margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 header h1 {
     font-size: 2em;
     font-weight: bold;
+    text-align: center;
+    width: 100%;
 }
 
 /* Flex parent for horizontal alignment */
@@ -159,20 +166,32 @@ header h1 {
 /* User Information Container */
 .editcontainer {
     height: fit-content;
-    min-width: 300px;
-    max-width: 400px;
-    margin: 80px auto 0 auto; /* Center horizontally and add top margin */
+    min-width: 250px;
+    max-width: 350px;  /* Reduced from 400px */
+    margin: 80px auto 0 auto;
     background-color: #ffd481; 
-    padding: 20px;
+    padding: 15px;     /* Reduced from 20px */
     border-radius: 15px;
     box-shadow: rgba(0, 0, 0, 0.2) 10px 7px 29px 15px;
-    color: #493628 !important; /* Change text color to dark brown */
-    text-align: center; /* Center content within the container */
+    color: #493628 !important;
+    text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
+
+.editcontainer form {
+    width: 100%;
+    max-width: 300px;  /* Add max-width to form */
+    margin: 0 auto;
+}
+
+.editcontainer .form-control {
+    font-size: 0.9rem;  /* Slightly smaller font size */
+    padding: 0.5rem;    /* Reduced padding */
+}
+
 .container .row {
     width: 100%;
     margin: 0;

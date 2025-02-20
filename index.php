@@ -81,10 +81,8 @@ $profileImage = !empty($user['profile_image']) && file_exists($user['profile_ima
 
 <!-- Header -->
 <header class="bg-primary text-white py-6">
-    <div class="max-w-7xl mx-auto px-4">
-        <h1 class="text-3xl font-bold">
-            Welcome to CCS Sit-in Monitoring System, <?php echo htmlspecialchars($username) ?>
-        </h1>
+    <div class="container text-center">
+        <h1>Welcome to CCS Sit-in Monitoring System, <?php echo htmlspecialchars($username) ?></h1>
     </div>
 </header>
 
@@ -98,9 +96,12 @@ $profileImage = !empty($user['profile_image']) && file_exists($user['profile_ima
                 <img src="<?php echo htmlspecialchars($profileImage); ?>" 
                      alt="Profile" 
                      class="w-32 h-32 rounded-full mb-4 object-cover">
+                <p class="mb-2"><span class="font-semibold">ID Number:</span> <?php echo htmlspecialchars($_SESSION['IDNO']); ?></p>
                 <p class="mb-2"><span class="font-semibold">Name:</span> <?php echo htmlspecialchars($_SESSION['firstname'] . " " . $_SESSION['lastname']); ?></p>
                 <p class="mb-2"><span class="font-semibold">Course:</span> <?php echo htmlspecialchars($_SESSION['course']); ?></p>
                 <p class="mb-2"><span class="font-semibold">Year Level:</span> <?php echo htmlspecialchars($_SESSION['yearlvl']); ?></p>
+                <p class="mb-2"><span class="font-semibold">Email:</span> <?php echo htmlspecialchars($_SESSION['Email']); ?></p>
+                <p class="mb-2"><span class="font-semibold">Address:</span> <?php echo htmlspecialchars($_SESSION['Address']); ?></p>
             </div>
         </div>
 

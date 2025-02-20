@@ -30,18 +30,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $sql = "SELECT Password, First_Name, Last_Name, Course, Year_lvl FROM students WHERE Username='$username'";
+    $sql = "SELECT Password, First_Name, Last_Name, Course, Year_lvl, IDNO, Email, Address FROM students WHERE Username='$username'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         if (password_verify($password, $row['Password'])) {
             $_SESSION['username'] = $username;
-            $_SESSION['username'] = $row['First_Name'];
             $_SESSION['firstname'] = $row['First_Name'];
             $_SESSION['lastname'] = $row['Last_Name'];
             $_SESSION['course'] = $row['Course'];
             $_SESSION['yearlvl'] = $row['Year_lvl'];
+            $_SESSION['IDNO'] = $row['IDNO'];
+            $_SESSION['Email'] = $row['Email'];
+            $_SESSION['Address'] = $row['Address'];
             header("Location: index.php");
             exit();
         } else {
