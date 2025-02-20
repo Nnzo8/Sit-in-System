@@ -100,8 +100,8 @@ $profileImage = !empty($user['profile_image']) && file_exists($user['profile_ima
                 <p class="mb-2"><span class="font-semibold">Name:</span> <?php echo htmlspecialchars($_SESSION['firstname'] . " " . $_SESSION['lastname']); ?></p>
                 <p class="mb-2"><span class="font-semibold">Course:</span> <?php echo htmlspecialchars($_SESSION['course']); ?></p>
                 <p class="mb-2"><span class="font-semibold">Year Level:</span> <?php echo htmlspecialchars($_SESSION['yearlvl']); ?></p>
-                <p class="mb-2"><span class="font-semibold">Email:</span> <?php echo htmlspecialchars($_SESSION['Email']); ?></p>
-                <p class="mb-2"><span class="font-semibold">Address:</span> <?php echo htmlspecialchars($_SESSION['Address']); ?></p>
+                <p class="mb-2"><span class="font-semibold">Email:</span> <?php echo htmlspecialchars($_SESSION['Email'] ?? 'Not set'); ?></p>
+                <p class="mb-2"><span class="font-semibold">Address:</span> <?php echo htmlspecialchars($_SESSION['Address'] ?? 'Not set'); ?></p>
             </div>
         </div>
 
