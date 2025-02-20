@@ -41,8 +41,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $newcourse = $_POST['Course'];
     $newyearlvl = $_POST['Year_lvl'];
     $newidno = $_POST['IDNO'];
-    $newemail = $_POST['Email'];
-    $newaddress = $_POST['Address'];
     
     // Get current user data to check existing profile image
     $currentUserQuery = "SELECT profile_image FROM students WHERE First_Name = ?";
@@ -73,9 +71,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $target_file)) {
                 // Update with new image
-                $sql = "UPDATE students SET IDNO=?, Last_Name=?, First_Name=?, Mid_Name=?, Course=?, Year_lvl=?, profile_image=?, Email=?, Address=? WHERE First_Name=?";
+                $sql = "UPDATE students SET IDNO=?, Last_Name=?, First_Name=?, Mid_Name=?, Course=?, Year_lvl=?, profile_image=? WHERE First_Name=?";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("issssssssss", $newidno, $newlastname, $newfirstname, $newmidname, $newcourse, $newyearlvl, $target_file, $newemail, $newaddress, $firstname);
+                $stmt->bind_param("isssssss", $newidno, $newlastname, $newfirstname, $newmidname, $newcourse, $newyearlvl, $target_file, $firstname);
             } else {
                 $message = "Error uploading file.";
                 $messageType = "danger";
@@ -86,9 +84,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } else {
         // Update without changing the image
-        $sql = "UPDATE students SET IDNO=?, Last_Name=?, First_Name=?, Mid_Name=?, Course=?, Year_lvl=?, Email=?, Address=? WHERE First_Name=?";
+        $sql = "UPDATE students SET IDNO=?, Last_Name=?, First_Name=?, Mid_Name=?, Course=?, Year_lvl=? WHERE First_Name=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("issssssss", $newidno, $newlastname, $newfirstname, $newmidname, $newcourse, $newyearlvl, $newemail, $newaddress, $firstname);
+        $stmt->bind_param("issssss", $newidno, $newlastname, $newfirstname, $newmidname, $newcourse, $newyearlvl, $firstname);
     }
 
     if (isset($stmt) && $stmt->execute()) {
@@ -99,8 +97,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['Course'] = $newcourse;
         $_SESSION['Year_lvl'] = $newyearlvl;
         $_SESSION['IDNO'] = $newidno;
-        $_SESSION['Email'] = $newemail;
-        $_SESSION['Address'] = $newaddress;
 
         // Store the success message in the session
         $_SESSION['success_message'] = "Profile updated successfully!";
@@ -242,7 +238,7 @@ $_SESSION['yearlvl'] = $user['Year_lvl'];
 
             <div class="form-group mb-3">
                 <label for="Email">Email</label>
-                <input type="Email" class="form-control" id="Email" name="Email"
+                <input type="mail" class="form-control" id="Email" name="Email"
                     value="<?php echo isset($user['Email']) ? htmlspecialchars($user['Email']) : ''; ?>" required>
             </div>
 
