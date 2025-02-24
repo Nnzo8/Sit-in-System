@@ -90,23 +90,25 @@ $profileImage = !empty($user['profile_image']) && file_exists($user['profile_ima
 <div class="max-w-7xl mx-auto px-4 py-8">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- User Information Card -->
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white rounded-lg shadow-md p-6 h-fit"> 
             <h5 class="text-xl font-semibold mb-4 text-center">User Information</h5>
             <div class="flex flex-col items-center">
                 <img src="<?php echo htmlspecialchars($profileImage); ?>" 
                      alt="Profile" 
-                     class="w-32 h-32 rounded-full mb-4 object-cover">
-                <p class="mb-2"><span class="font-semibold">ID Number:</span> <?php echo htmlspecialchars($_SESSION['IDNO']); ?></p>
-                <p class="mb-2"><span class="font-semibold">Name:</span> <?php echo htmlspecialchars($_SESSION['firstname'] . " " . $_SESSION['lastname']); ?></p>
-                <p class="mb-2"><span class="font-semibold">Course:</span> <?php echo htmlspecialchars($_SESSION['course']); ?></p>
-                <p class="mb-2"><span class="font-semibold">Year Level:</span> <?php echo htmlspecialchars($_SESSION['yearlvl']); ?></p>
-                <p class="mb-2"><span class="font-semibold">Email:</span> <?php echo htmlspecialchars($_SESSION['Email'] ?? 'Not set'); ?></p>
-                <p class="mb-2"><span class="font-semibold">Address:</span> <?php echo htmlspecialchars($_SESSION['Address'] ?? 'Not set'); ?></p>
+                     class="w-24 h-24 rounded-full mb-3 object-cover">
+                <div class="space-y-1">
+                    <p><span class="font-semibold">ID:</span> <?php echo htmlspecialchars($_SESSION['IDNO']); ?></p>
+                    <p><span class="font-semibold">Name:</span> <?php echo htmlspecialchars($_SESSION['firstname'] . " " . $_SESSION['lastname']); ?></p>
+                    <p><span class="font-semibold">Course:</span> <?php echo htmlspecialchars($_SESSION['course']); ?></p>
+                    <p><span class="font-semibold">Year:</span> <?php echo htmlspecialchars($_SESSION['yearlvl']); ?></p>
+                    <p><span class="font-semibold">Email:</span> <?php echo htmlspecialchars($_SESSION['Email'] ?? 'Not set'); ?></p>
+                    <p class="max-w-xs break-words"><span class="font-semibold">Address:</span> <?php echo htmlspecialchars($_SESSION['Address'] ?? 'Not set'); ?></p>
+                </div>
             </div>
         </div>
 
         <!-- Announcements Card -->
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white rounded-lg shadow-md p-6 h-fit">
             <h5 class="text-xl font-semibold mb-4 text-center">Announcements</h5>
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h6 class="font-semibold text-blue-800 mb-2">First Semester Enrollment</h6>
@@ -115,7 +117,7 @@ $profileImage = !empty($user['profile_image']) && file_exists($user['profile_ima
         </div>
 
         <!-- Rules and Regulations Card -->
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white rounded-lg shadow-md p-6 h-fit">
             <h5 class="text-xl font-semibold mb-4 text-center">Laboratory Rules and Regulations</h5>
             <div class="space-y-2 text-sm">
                 <p class="font-semibold mb-2">University of Cebu - College of Information & Computer Studies</p>
