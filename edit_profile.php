@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // Handle image upload
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
-        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'jfif'];
         $filename = $_FILES['profile_image']['name'];
         $filetype = pathinfo($filename, PATHINFO_EXTENSION);
         

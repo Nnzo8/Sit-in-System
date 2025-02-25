@@ -183,11 +183,7 @@ $remainingSessions = isset($user['remaining_sessions']) ? $user['remaining_sessi
                 <ul class="list-decimal pl-5 space-y-2">
                     <li>First Offense - The Head or the Dean or OIC recommends to the Guidance Center for a suspension from classes for each offender.</li>
                     <li>Second and Subsequent Offenses - A recommendation for a heavier sanction will be endorsed to the Guidance Center.</li>
-                </ul>
-                <hr>
-                <p class="font-semibold mb-2">Sit-in Rules: </p>
-                
-                
+                </ul>       
             </div>
         </div>
     </div>
