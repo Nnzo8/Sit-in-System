@@ -125,7 +125,7 @@ $remainingSessions = isset($user['remaining_sessions']) ? $user['remaining_sessi
 <div class="max-w-7xl mx-auto px-4 py-8">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- User Information Card -->
-        <div class="bg-white rounded-lg shadow-md p-6 h-fit"> 
+        <div class="bg-white rounded-lg shadow-lg p-6 h-fit"> 
             <h5 class="text-xl font-semibold mb-4 text-center">User Information</h5>
             <div class="flex flex-col items-center">
                 <img src="<?php echo htmlspecialchars($profileImage); ?>" 
@@ -145,7 +145,7 @@ $remainingSessions = isset($user['remaining_sessions']) ? $user['remaining_sessi
         </div>
 
         <!-- Announcements Card -->
-        <div class="bg-white rounded-lg shadow-md p-6 h-fit">
+        <div class="bg-white rounded-lg shadow-lg p-6 h-fit">
             <h5 class="text-xl font-semibold mb-4 text-center">Announcements</h5>
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h6 class="font-semibold text-blue-800 mb-2">UC-CCS ADMIN</h6>
@@ -154,7 +154,7 @@ $remainingSessions = isset($user['remaining_sessions']) ? $user['remaining_sessi
         </div>
 
         <!-- Rules and Regulations Card -->
-        <div class="bg-white rounded-lg shadow-md p-6 h-fit">
+        <div class="bg-white rounded-lg shadow-lg p-6 h-fit">
             <h5 class="text-xl font-semibold mb-4 text-center">Laboratory Rules and Regulations</h5>
             <div class="space-y-2 text-sm scrollable-content">
                 <p class="font-semibold mb-2">University of Cebu - College of Information & Computer Studies</p>
