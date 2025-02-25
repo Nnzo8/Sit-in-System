@@ -9,7 +9,7 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#1e40af',
+                        primary: '#000080',
                         secondary: '#1e293b'
                     }
                 }
@@ -19,7 +19,7 @@
     <style type="text/tailwindcss">
         @layer utilities {
             .nav-link {
-                @apply px-4 py-2 text-gray-700 hover:text-primary transition-colors;
+                @apply px-4 py-2 text-white hover:text-white transition-colors;
             }
             .btn-primary {
                 @apply bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors;

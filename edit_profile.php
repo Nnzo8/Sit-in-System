@@ -157,16 +157,16 @@ $_SESSION['yearlvl'] = $user['Year_lvl'];
 </div>
 
 <!-- Navigation -->
-<nav class="bg-white shadow-lg">
+<nav class="bg-primary shadow-lg">
     <div class="max-w-7xl mx-auto px-4">
-        <div class="flex justify-between">
+        <div class="flex justify-end">
             <div class="flex space-x-4">
                 <div class="hidden md:flex items-center space-x-4">
-                    <a href="index.php" class="nav-link">Home</a>
-                    <a href="edit_profile.php" class="nav-link">Edit</a>
-                    <a href="reservation.php" class="nav-link">Reservation</a>
-                    <a href="history.php" class="nav-link">History</a>
-                    <a href="login.php" class="nav-link">Logout</a>
+                    <a href="index.php" class="nav-link text-white hover:text-gray-200">Home</a>
+                    <a href="edit_profile.php" class="nav-link text-white hover:text-gray-200">Edit</a>
+                    <a href="reservation.php" class="nav-link text-white hover:text-gray-200">Reservation</a>
+                    <a href="history.php" class="nav-link text-white hover:text-gray-200">History</a>
+                    <a href="login.php" class="nav-link text-white hover:text-gray-200">Logout</a>
                 </div>
             </div>
             <!-- Mobile menu button -->
@@ -195,7 +195,6 @@ $_SESSION['yearlvl'] = $user['Year_lvl'];
 <div class="max-w-4xl mx-auto px-4 py-8">
     <div class="bg-white rounded-lg shadow-md p-6">
         <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Edit Profile</h2>
-        
         <form id="profileForm" method="POST" enctype="multipart/form-data" class="space-y-6">
             <div class="form-group mb-3 text-center">
                 <label for="profile_image">Profile Picture</label>

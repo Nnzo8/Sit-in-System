@@ -4,16 +4,16 @@ include 'header.php';
 ?>
 
 <!-- Navigation -->
-<nav class="bg-white shadow-lg">
+<nav class="bg-primary shadow-lg">
     <div class="max-w-7xl mx-auto px-4">
-        <div class="flex justify-between">
+        <div class="flex justify-end">
             <div class="flex space-x-4">
                 <div class="hidden md:flex items-center space-x-4">
-                    <a href="index.php" class="nav-link">Home</a>
-                    <a href="edit_profile.php" class="nav-link">Edit</a>
-                    <a href="reservation.php" class="nav-link">Reservation</a>
-                    <a href="history.php" class="nav-link">History</a>
-                    <a href="login.php" class="nav-link">Logout</a>
+                    <a href="index.php" class="nav-link text-white hover:text-gray-200">Home</a>
+                    <a href="edit_profile.php" class="nav-link text-white hover:text-gray-200">Edit</a>
+                    <a href="reservation.php" class="nav-link text-white hover:text-gray-200">Reservation</a>
+                    <a href="history.php" class="nav-link text-white hover:text-gray-200">History</a>
+                    <a href="login.php" class="nav-link text-white hover:text-gray-200">Logout</a>
                 </div>
             </div>
             <!-- Mobile menu button -->
