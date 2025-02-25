@@ -103,6 +103,7 @@ $profileImage = !empty($user['profile_image']) && file_exists($user['profile_ima
                     <p><span class="font-semibold">Year:</span> <?php echo htmlspecialchars($_SESSION['yearlvl']); ?></p>
                     <p><span class="font-semibold">Email:</span> <?php echo htmlspecialchars($_SESSION['Email'] ?? 'Not set'); ?></p>
                     <p class="max-w-xs break-words"><span class="font-semibold">Address:</span> <?php echo htmlspecialchars($_SESSION['Address'] ?? 'Not set'); ?></p>
+                    <p><span class="font-semibold">Remaining Sessions: </span> 30</p><!-- Not done -->
                 </div>
             </div>
         </div>
