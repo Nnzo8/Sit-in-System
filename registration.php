@@ -1,6 +1,6 @@
 <?php include 'header.php'; ?>
 
-<div class="min-h-screen flex items-center justify-center py-12 px-4">
+<div class="min-h-screen flex items-center justify-center py-12 px-4 slide-in-top">
     <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
         <div class="flex justify-center space-x-4 mb-6">
             <img src="imgs/uc.png" alt="UC Logo" class="h-20">

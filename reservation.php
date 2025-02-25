@@ -40,7 +40,7 @@ include 'header.php';
 
 
 <div class="max-w-7xl mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="bg-white rounded-lg shadow-md p-6 slide-in-top">
         <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Make a Reservation</h2>
 
         <form action="reservation.php" method="post" class="space-y-6">

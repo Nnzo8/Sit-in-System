@@ -27,6 +27,31 @@
             .form-control {
                 @apply w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary;
             }
+            .slide-in-top {
+                opacity: 0;
+                transform: translateY(-50px);
+                animation: slideIn 0.6s ease-out forwards;
+            }
+
+            @keyframes slideIn {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .animation-delay-100 {
+                animation-delay: 100ms;
+            }
+            .animation-delay-200 {
+                animation-delay: 200ms;
+            }
+            .animation-delay-300 {
+                animation-delay: 300ms;
+            }
+            .animation-delay-400 {
+                animation-delay: 400ms;
+            }
         }
     </style>
 </head>

@@ -27,7 +27,10 @@ if (isset($_SESSION['username'])) {
 }
 // Get current user data
 $firstname = $_SESSION['firstname'];
-$sql = "SELECT profile_image, remaining_sessions FROM students WHERE First_Name = ?";
+$sql = "SELECT s.profile_image, ss.remaining_sessions 
+        FROM students s 
+        LEFT JOIN student_session ss ON s.IDNO = ss.id_number 
+        WHERE s.First_Name = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $firstname);
 $stmt->execute();
@@ -43,7 +46,8 @@ $profileImage = !empty($user['profile_image']) && file_exists($user['profile_ima
     ? $user['profile_image'] 
     : "https://cdn-icons-png.flaticon.com/512/2815/2815428.png";
     
-$remainingSessions = isset($user['remaining_sessions']) ? $user['remaining_sessions'] : 30;
+// Set default value of 30 if no sessions are found
+$remainingSessions = $user['remaining_sessions'] ?? 30;
 ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -115,7 +119,7 @@ $remainingSessions = isset($user['remaining_sessions']) ? $user['remaining_sessi
 </nav>
 
 <!-- Header -->
-<header class="text-black py-6">
+<header class="text-black py-6 slide-in-top">
     <div class="container text-center">
         <h1>Welcome to CCS Sit-in Monitoring System, <?php echo htmlspecialchars($firstname) ?></h1>
     </div>
@@ -125,7 +129,7 @@ $remainingSessions = isset($user['remaining_sessions']) ? $user['remaining_sessi
 <div class="max-w-7xl mx-auto px-4 py-8">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- User Information Card -->
-        <div class="bg-white rounded-lg shadow-lg p-6 h-fit"> 
+        <div class="bg-white rounded-lg shadow-lg p-6 h-fit slide-in-top animation-delay-100"> 
             <h5 class="text-xl font-semibold mb-4 text-center">User Information</h5>
             <div class="flex flex-col items-center">
                 <img src="<?php echo htmlspecialchars($profileImage); ?>" 
@@ -145,7 +149,7 @@ $remainingSessions = isset($user['remaining_sessions']) ? $user['remaining_sessi
         </div>
 
         <!-- Announcements Card -->
-        <div class="bg-white rounded-lg shadow-lg p-6 h-fit">
+        <div class="bg-white rounded-lg shadow-lg p-6 h-fit slide-in-top animation-delay-200">
             <h5 class="text-xl font-semibold mb-4 text-center">Announcements</h5>
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h6 class="font-semibold text-blue-800 mb-2">UC-CCS ADMIN</h6>
@@ -154,7 +158,7 @@ $remainingSessions = isset($user['remaining_sessions']) ? $user['remaining_sessi
         </div>
 
         <!-- Rules and Regulations Card -->
-        <div class="bg-white rounded-lg shadow-lg p-6 h-fit">
+        <div class="bg-white rounded-lg shadow-lg p-6 h-fit slide-in-top animation-delay-300">
             <h5 class="text-xl font-semibold mb-4 text-center">Laboratory Rules and Regulations</h5>
             <div class="space-y-2 text-sm scrollable-content">
                 <p class="font-semibold mb-2">University of Cebu - College of Information & Computer Studies</p>
