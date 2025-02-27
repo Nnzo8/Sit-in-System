@@ -1,6 +1,33 @@
 <?php
 session_start();
 include 'header.php';
+
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "users";
+
+$conn = new mysqli($servername, $username, $password, $database);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Get student's remaining sessions
+$idno = $_SESSION['IDNO'];
+$sql = "SELECT remaining_sessions FROM student_session WHERE id_number = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $idno);
+$stmt->execute();
+$result = $stmt->get_result();
+$sessions = $result->fetch_assoc();
+
+// Set default value if no record found
+$remainingSessions = $sessions['remaining_sessions'] ?? 30;
+
+// Get student info for the form
+$studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
 ?>
 
 <!-- Navigation -->
@@ -47,15 +74,20 @@ include 'header.php';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">IDNO: </label>
-                    <input type="lab" class="form-control" rows="1" required></textarea>
+                    <input type="text" name="idno" class="form-control" value="<?php echo htmlspecialchars($idno); ?>" readonly>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Lab Room: </label>
-                    <input type="lab" class="form-control" rows="1" required></textarea>
+                    <select name="lab_room" class="form-control" required>
+                        <option value="">Select Lab Room</option>
+                        <option value="Lab 522">Lab 522</option>
+                        <option value="Lab 524">Lab 524</option>
+                        <option value="Lab 530">Lab 530</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Student Name: </label>
-                    <input type="lab" class="form-control" rows="1" required></textarea>
+                    <input type="text" name="student_name" class="form-control" value="<?php echo htmlspecialchars($studentName); ?>" readonly>
                 </div>
 
                 <div>
@@ -65,26 +97,38 @@ include 'header.php';
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Time In: </label>
-                    <select name="time_slot" class="form-control" required>
-                        <option value="">Select Time Slot</option>
-                        <option value="08:00 AM - 09:00 AM">08:00 AM - 09:00 AM</option>
-                        <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
-                        <!-- Add more time slots -->
-                    </select>
+                    <input type="time" name="time_in" class="form-control" 
+                        min="07" max="20" step="3600" required> 
+                    <small class="text-gray-500">Lab hours: 7:30 AM - 8:00 PM</small>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Purpose: </label>
                     <textarea name="purpose" class="form-control" rows="3" required></textarea>
                 </div>
-                <div class="">
-                    <label class="block">Remaining Sessions: </label>
+                <div class="bg-blue-50 p-4 rounded-lg col-span-2">
+                    <label class="block text-sm font-medium text-blue-700">Remaining Sessions: </label>
+                    <p class="text-2xl font-bold text-blue-800"><?php echo $remainingSessions; ?></p>
+                    <?php if ($remainingSessions <= 5): ?>
+                        <p class="text-sm text-red-600 mt-1">⚠️ Low sessions remaining!</p>
+                    <?php endif; ?>
                 </div>
             </div>
 
-            <button type="submit" class="w-full btn-primary">
-                Submit Reservation
+            <button type="submit" class="w-full btn-primary" <?php echo $remainingSessions <= 0 ? 'disabled' : ''; ?>>
+                <?php echo $remainingSessions <= 0 ? 'No Sessions Available' : 'Submit Reservation'; ?>
             </button>
         </form>
     </div>
 </div>
+
+<script>
+// Add form submission handling
+document.querySelector('form').addEventListener('submit', function(e) {
+    if (<?php echo $remainingSessions; ?> <= 0) {
+        e.preventDefault();
+        alert('You have no remaining sessions available.');
+        return false;
+    }
+});
+</script>
