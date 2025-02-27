@@ -119,7 +119,7 @@ $remainingSessions = $user['remaining_sessions'] ?? 30;
 </nav>
 
 <!-- Header -->
-<header class="text-black py-6 slide-in-top">
+<header class="text-black py-6 slide-in-top text-center">
     <div class="container text-center">
         <h1>Welcome to CCS Sit-in Monitoring System, <?php echo htmlspecialchars($firstname) ?></h1>
     </div>
