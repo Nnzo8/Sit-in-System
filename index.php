@@ -82,7 +82,7 @@ $remainingSessions = $user['remaining_sessions'] ?? 30;
         border-radius: 4px;
     }
 </style>
-
+<title>Home</title>
 <!-- Navigation -->
 <nav class="bg-primary shadow-lg">
     <div class="max-w-7xl mx-auto px-4">

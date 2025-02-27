@@ -2,7 +2,7 @@
 session_start();
 include 'header.php';
 ?>
-
+<title>Login</title>
 <div class="min-h-screen flex items-center justify-center slide-in-top">
     <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
         <div class="flex justify-center space-x-4 mb-6">

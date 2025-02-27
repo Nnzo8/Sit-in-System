@@ -29,7 +29,7 @@ $remainingSessions = $sessions['remaining_sessions'] ?? 30;
 // Get student info for the form
 $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
 ?>
-
+<title>Reservation</title>
 <!-- Navigation -->
 <nav class="bg-primary shadow-lg">
     <div class="max-w-7xl mx-auto px-4">

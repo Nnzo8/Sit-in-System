@@ -42,7 +42,7 @@
             
             $conn->close();
         ?>
-
+        <title>Registration</title>
         <form action="registration.php" method="post" class="space-y-4">
             <input type="number" name="idno" placeholder="IDNO" 
                 class="form-control" required min="0">
