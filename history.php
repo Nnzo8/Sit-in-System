@@ -105,6 +105,7 @@ if (!$user) {
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Log out</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     </tr>
+                    <?php ?>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                 </tbody>
