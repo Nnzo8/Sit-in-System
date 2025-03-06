@@ -30,6 +30,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
+    // Check for admin login
+    if ($username === 'admin' && $password === 'admin') {
+        $_SESSION['is_admin'] = true;
+        header("Location: admin/dashboard.php");
+        exit();
+    }
+
+    // Regular student login
     $sql = "SELECT Password, First_Name, Last_Name, Course, Year_lvl, IDNO, Email, Address FROM students WHERE Username='$username'";
     $result = $conn->query($sql);
 
