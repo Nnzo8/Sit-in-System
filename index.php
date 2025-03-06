@@ -48,6 +48,18 @@ $profileImage = !empty($user['profile_image']) && file_exists($user['profile_ima
     
 // Set default value of 30 if no sessions are found
 $remainingSessions = $user['remaining_sessions'] ?? 30;
+
+// Fetch announcements from database
+$sql = "SELECT * FROM announcements ORDER BY date DESC LIMIT 10";
+$result = $conn->query($sql);
+$announcements = [];
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $announcements[] = $row;
+    }
+}
+
 ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -152,9 +164,30 @@ $remainingSessions = $user['remaining_sessions'] ?? 30;
         <!-- Announcements Card -->
         <div class="bg-white rounded-lg shadow-lg p-6 h-fit slide-in-top animation-delay-200">
             <h5 class="text-xl font-semibold mb-4 text-center">Announcements</h5>
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h6 class="font-semibold text-blue-800 mb-2">UC-CCS ADMIN</h6>
-                <p class="text-blue-600">The College of Computer Studies will open the registration of students for the Sit-in privilege starting tomorrow. Thank you! Lab Supervisor</p>
+            <div class="space-y-4 scrollable-content max-h-64">
+                <?php if (empty($announcements)): ?>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h6 class="font-semibold text-blue-800 mb-2">UC-CCS ADMIN</h6>
+                        <p class="text-blue-600">No announcements available at this time.</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($announcements as $index => $announcement): 
+                        // Determine if this is a new announcement (less than 1 day old)
+                        $isNew = (strtotime($announcement['date']) > strtotime('-1 day'));
+                        $class = $isNew ? 'new-announcement' : '';
+                    ?>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 <?php echo $class; ?>">
+                            <h6 class="font-semibold text-blue-800 mb-2">
+                                UC-CCS ADMIN 
+                                <?php if($isNew): ?>
+                                    <span class="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">New</span>
+                                <?php endif; ?>
+                            </h6>
+                            <p class="text-gray-500 text-xs mb-1"><?php echo date('Y-M-d', strtotime($announcement['date'])); ?></p>
+                            <p class="text-blue-600"><?php echo htmlspecialchars($announcement['message']); ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
 
