@@ -43,7 +43,6 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         <a href="sitin.php" class="nav-link text-white hover:text-gray-200">Sit-in</a>
                         <a href="sit_in_records.php" class="nav-link text-white hover:text-gray-200">View Sit-in Records</a>
                         <a href="sit_in_reports.php" class="nav-link text-white hover:text-gray-200">Sit-in Reports</a>
-                        <a href="announcements.php" class="nav-link text-white hover:text-gray-200">Announcements</a>
                         <a href="../logout.php" class="nav-link text-white hover:text-gray-200">Logout</a>
                     </div>
                 </div>
@@ -88,6 +87,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             </div>
         </div>
     </div>
+
+    <div class="container">Announcements</div>
+
 
     <script>
         function toggleNav() {

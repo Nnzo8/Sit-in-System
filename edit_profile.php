@@ -159,7 +159,8 @@ $_SESSION['yearlvl'] = $user['Year_lvl'];
 <!-- Navigation -->
 <nav class="bg-primary shadow-lg">
     <div class="max-w-7xl mx-auto px-4">
-        <div class="flex justify-end">
+        <div class="flex justify-between items-center">
+        <span class="text-white text-xl font-bold py-4">Edit Profile</span>
             <div class="flex space-x-4">
                 <div class="hidden md:flex items-center space-x-4">
                     <a href="index.php" class="nav-link text-white hover:text-gray-200">Home</a>
