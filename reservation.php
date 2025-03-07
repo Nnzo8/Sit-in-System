@@ -81,9 +81,11 @@ $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
                     <label class="block text-sm font-medium text-gray-700">Lab Room: </label>
                     <select name="lab_room" class="form-control" required>
                         <option value="">Select Lab Room</option>
-                        <option value="Lab 522">Lab 522</option>
                         <option value="Lab 524">Lab 524</option>
+                        <option value="Lab 526">Lab 526</option>
+                        <option value="Lab 528">Lab 528</option>
                         <option value="Lab 530">Lab 530</option>
+                        <option value="Lab 542">Lab 542</option>
                     </select>
                 </div>
                 <div>

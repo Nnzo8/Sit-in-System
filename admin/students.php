@@ -1,7 +1,12 @@
 <?php
 session_start();
 
-/*
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "users";
+
+$conn = new mysqli($servername, $username, $password, $database);
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 
 if ($search) {
@@ -15,7 +20,7 @@ if ($search) {
     $sql = "SELECT * FROM students ORDER BY Last_Name";
     $result = $conn->query($sql);
 }
-    */
+    
 ?>
 
 <!DOCTYPE html>
@@ -99,7 +104,6 @@ if ($search) {
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Year</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -111,10 +115,7 @@ if ($search) {
                             </td>
                             <td class="px-6 py-4"><?= htmlspecialchars($row['Course']) ?></td>
                             <td class="px-6 py-4"><?= htmlspecialchars($row['Year_lvl']) ?></td>
-                            <td class="px-6 py-4">
-                                <a href="view_student.php?id=<?= $row['IDNO'] ?>" 
-                                   class="text-blue-500">View Details</a>
-                            </td>
+                            
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
