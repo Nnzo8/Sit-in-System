@@ -1,10 +1,46 @@
 <?php
 session_start();
+require_once '../includes/sitin_functions.php';
 
 // Check if user is admin
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header("Location: ../login.php");
     exit();
+}
+
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "users";
+
+$conn = new mysqli($servername, $username, $password, $database);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Handle record completion
+if(isset($_POST['complete_sitin'])) {
+    $record_id = $_POST['record_id'];
+    $time_out = date('Y-m-d H:i:s');
+    
+    if(updateSitInRecord($conn, $record_id, $time_out)) {
+        $success = "Sit-in session completed successfully!";
+    } else {
+        $error = "Error updating record.";
+    }
+}
+
+// Fetch all sit-in records
+$sql = "SELECT sir.*, s.First_Name, s.Last_Name, s.Course 
+        FROM sit_in_records sir 
+        JOIN students s ON sir.id_number = s.IDNO 
+        ORDER BY sir.time_in DESC";
+$result = $conn->query($sql);
+
+if (!$result) {
+    die("Error fetching records: " . $conn->error);
 }
 ?>
 
