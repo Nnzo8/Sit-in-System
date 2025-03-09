@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 06, 2025 at 03:36 AM
+-- Generation Time: Mar 09, 2025 at 04:15 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -34,6 +34,13 @@ CREATE TABLE `announcements` (
   `message` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `announcements`
+--
+
+INSERT INTO `announcements` (`announce_id`, `admin_username`, `date`, `message`) VALUES
+(0, 'qweqwe', '2025-03-06', 'Hatdog ka?');
+
 -- --------------------------------------------------------
 
 --
@@ -57,12 +64,37 @@ CREATE TABLE `feedback` (
 CREATE TABLE `reservation` (
   `reservation_id` int(11) NOT NULL,
   `reservation_date` varchar(25) NOT NULL,
-  `reservation_time` varchar(25) NOT NULL,
+  `time_in` int(11) NOT NULL,
+  `time_out` int(11) NOT NULL,
   `pc` int(11) NOT NULL,
   `lab` varchar(25) NOT NULL,
   `purpose` varchar(100) NOT NULL,
   `IDNO` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sit_in_records`
+--
+
+CREATE TABLE `sit_in_records` (
+  `id` int(11) NOT NULL,
+  `IDNO` varchar(20) NOT NULL,
+  `lab_room` varchar(50) NOT NULL,
+  `pc_number` int(11) NOT NULL,
+  `purpose` int(11) NOT NULL,
+  `time_in` datetime NOT NULL,
+  `time_out` datetime NOT NULL,
+  `status` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `sit_in_records`
+--
+
+INSERT INTO `sit_in_records` (`id`, `IDNO`, `lab_room`, `pc_number`, `purpose`, `time_in`, `time_out`, `status`) VALUES
+(0, '888', 'Lab 524', 1, 0, '2025-03-16 10:30:00', '0000-00-00 00:00:00', 'active');
 
 -- --------------------------------------------------------
 
@@ -91,7 +123,8 @@ CREATE TABLE `students` (
 
 INSERT INTO `students` (`StudID`, `IDNO`, `Last_Name`, `First_Name`, `Mid_Name`, `Course`, `Year_lvl`, `Username`, `Password`, `profile_image`, `Email`, `Address`) VALUES
 (1, 2323, 'asdas', 'dasdas', 'dasdas', 'College of Engineering', 1, 'asdasd', '$2y$10$E3lrN9Gylvi2a/wdGIuvSepFpR3Yjwx71kZ8q1oeTYVGPuFsBuKMi', 'uploads/67af416ac9b40.jpg', '', ''),
-(2, 888, 'Ocliasa', 'Ninzo', 'Dumandan', 'BSIT', 3, 'qweqwe', '$2y$10$qzH5V3co3NfiiQ15B32MZe4/hVG6Sisb9I29Xagx7KcM.JoDSPuky', 'uploads/67bfd4fcdaca2.jpg', 'ninorollaneocliasa@gmail.com', 'Lahug Cebu City');
+(2, 888, 'Ocliasa', 'Ninzo', 'Dumandan', 'BSIT', 3, 'qweqwe', '$2y$10$qzH5V3co3NfiiQ15B32MZe4/hVG6Sisb9I29Xagx7KcM.JoDSPuky', 'uploads/67bfd4fcdaca2.jpg', 'ninorollaneocliasa@gmail.com', 'Lahug Cebu City'),
+(4, 22683361, 'Ocliasa', 'Nino Rollane ', 'Dumandan', 'BSIT', 3, 'qwerty', '$2y$10$5M/txXWM9CXnZLDrChSJX.1DXIq06vrBIJZltcyGG/CcIwNm.TZQW', 'uploads/67ca5ae740e75.png', 'ninorollaneocliasa@gmail.com', 'Cebu City');
 
 -- --------------------------------------------------------
 
@@ -103,6 +136,13 @@ CREATE TABLE `student_session` (
   `id_number` int(11) NOT NULL,
   `remaining_sessions` int(11) NOT NULL DEFAULT 30
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `student_session`
+--
+
+INSERT INTO `student_session` (`id_number`, `remaining_sessions`) VALUES
+(888, 29);
 
 --
 -- Indexes for dumped tables
@@ -122,14 +162,9 @@ ALTER TABLE `students`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `StudID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `StudID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
--- Add status column to sit_in_records table
-ALTER TABLE sit_in_records 
-ADD COLUMN status VARCHAR(20) DEFAULT 'pending' 
-CHECK (status IN ('pending', 'active', 'declined', 'completed'));
