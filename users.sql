@@ -128,3 +128,8 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- Add status column to sit_in_records table
+ALTER TABLE sit_in_records 
+ADD COLUMN status VARCHAR(20) DEFAULT 'pending' 
+CHECK (status IN ('pending', 'active', 'declined', 'completed'));

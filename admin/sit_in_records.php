@@ -32,11 +32,28 @@ if(isset($_POST['complete_sitin'])) {
     }
 }
 
+// Handle approval/decline actions
+if(isset($_POST['action']) && isset($_POST['record_id'])) {
+    $record_id = $_POST['record_id'];
+    $status = $_POST['action'] === 'approve' ? 'active' : 'declined';
+    
+    if(updateSitInStatus($conn, $record_id, $status)) {
+        echo "<script>
+            Swal.fire({
+                title: 'Success!',
+                text: '" . ($status === 'active' ? 'Reservation approved!' : 'Reservation declined!') . "',
+                icon: 'success',
+                confirmButtonColor: '#000080'
+            });
+        </script>";
+    }
+}
+
 // Fetch all sit-in records
-$sql = "SELECT sir.*, s.First_Name, s.Last_Name, s.Course 
-        FROM sit_in_records sir 
-        JOIN students s ON sir.id_number = s.IDNO 
-        ORDER BY sir.time_in DESC";
+$sql = "SELECT sit_in_records.*, students.First_Name, students.Last_Name, students.Course 
+        FROM sit_in_records 
+        JOIN students ON sit_in_records.IDNO = students.IDNO 
+        ORDER BY sit_in_records.time_in DESC";
 $result = $conn->query($sql);
 
 if (!$result) {
@@ -115,6 +132,7 @@ if (!$result) {
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time In</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time Out</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -135,9 +153,32 @@ if (!$result) {
                                 <?= $row['time_out'] ? date('H:i', strtotime($row['time_out'])) : '-' ?>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="<?= $row['status'] === 'active' ? 'text-green-500' : 'text-gray-500' ?>">
+                                <span class="<?php
+                                    echo match($row['status']) {
+                                        'pending' => 'text-yellow-500',
+                                        'active' => 'text-green-500',
+                                        'declined' => 'text-red-500',
+                                        'completed' => 'text-gray-500',
+                                        default => 'text-gray-500'
+                                    };
+                                ?>">
                                     <?= ucfirst($row['status']) ?>
                                 </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <?php if($row['status'] === 'pending'): ?>
+                                    <form method="POST" class="inline-flex gap-2">
+                                        <input type="hidden" name="record_id" value="<?= $row['id'] ?>">
+                                        <button type="submit" name="action" value="approve" 
+                                                class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">
+                                            Approve
+                                        </button>
+                                        <button type="submit" name="action" value="decline" 
+                                                class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
+                                            Decline
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -145,5 +186,7 @@ if (!$result) {
             </table>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

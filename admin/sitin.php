@@ -1,31 +1,54 @@
 <?php
 session_start();
+include '../header.php';
+require_once '../includes/sitin_functions.php';
 
 // Check if user is admin
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header("Location: ../login.php");
     exit();
 }
-?>  
+
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "users";
+
+$conn = new mysqli($servername, $username, $password, $database);
+
+// Handle approval/decline actions
+if(isset($_POST['action']) && isset($_POST['record_id'])) {
+    $record_id = $_POST['record_id'];
+    $status = $_POST['action'] === 'approve' ? 'active' : 'declined';
+    
+    if(updateSitInStatus($conn, $record_id, $status)) {
+        $message = $status === 'active' ? 'Reservation approved!' : 'Reservation declined!';
+        $success = true;
+    } else {
+        $message = 'Error updating reservation.';
+        $success = false;
+    }
+}
+
+// Fetch pending reservations - fixed query
+$sql = "SELECT sit_in_records.*, students.First_Name, students.Last_Name, students.Course, students.Year_lvl 
+        FROM sit_in_records 
+        JOIN students ON sit_in_records.IDNO = students.IDNO 
+        WHERE sit_in_records.status = 'pending' 
+        ORDER BY sit_in_records.id DESC";
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sit-in Reports</title>
+    <title>Sit-in Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#000080',
-                        secondary: '#1e293b'
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Reset and base styles */
         * {
@@ -255,10 +278,10 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<!-- Navigation -->
-<nav class="bg-primary shadow-lg">
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
                 <span class="text-white text-xl font-bold py-4">Sit-in</span>
@@ -295,141 +318,83 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         </div>
     </nav>
 
-<!-- Main Content -->
-<div class="container">
-        <h1 class="page-title">Current Sit-in Records</h1>
-        
-        <!-- Charts Section -->
-        <div class="charts-container">
-            <!-- Programming Languages Chart -->
-            <div class="chart-wrapper">
-                <div class="chart-legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #42a5f5;"></div>
-                        <span>C#</span>
+    <div class="max-w-7xl mx-auto py-6 px-4">
+        <!-- Pending Reservations Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">
+                <i class="fas fa-clock text-blue-600 mr-2"></i>
+                Pending Reservations
+            </h2>
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <?php if($result->num_rows > 0): ?>
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student Details</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab Room</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <?php while($row = $result->fetch_assoc()): ?>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4">
+                                        <?= date('M d, Y', strtotime($row['time_in'])) ?><br>
+                                        <span class="text-sm text-gray-500">
+                                            <?= date('g:i A', strtotime($row['time_in'])) ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <p class="font-medium"><?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?></p>
+                                        <p class="text-sm text-gray-500">
+                                            <?= htmlspecialchars($row['Course']) ?> - <?= htmlspecialchars($row['Year_lvl']) ?>
+                                        </p>
+                                        <p class="text-xs text-gray-500"><?= htmlspecialchars($row['IDNO']) ?></p>
+                                    </td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($row['lab_room']) ?></td>
+                                    <td class="px-6 py-4">
+                                        <p class="text-sm"><?= htmlspecialchars($row['purpose']) ?></p>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <form method="POST" class="flex gap-2">
+                                            <input type="hidden" name="record_id" value="<?= $row['id'] ?>">
+                                            <button type="submit" name="action" value="approve" 
+                                                    class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 flex items-center">
+                                                <i class="fas fa-check mr-1"></i> Approve
+                                            </button>
+                                            <button type="submit" name="action" value="decline" 
+                                                    class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 flex items-center">
+                                                <i class="fas fa-times mr-1"></i> Decline
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <div class="p-6 text-center text-gray-500">
+                        <i class="fas fa-info-circle text-blue-500 mb-2 text-2xl"></i>
+                        <p>No pending reservations at this time.</p>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #f06292;"></div>
-                        <span>C</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #ff9800;"></div>
-                        <span>Java</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #ffca28;"></div>
-                        <span>ASP.Net</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #26a69a;"></div>
-                        <span>Php</span>
-                    </div>
-                </div>
-                
-                <div class="empty-chart">
-                    <div class="no-data-message">No data available</div>
-                </div>
-                
-                <div class="chart-scale">
-                    <?php for ($i = 0; $i <= 1; $i += 0.1): ?>
-                        <div class="scale-number"><?php echo number_format($i, 1); ?></div>
-                    <?php endfor; ?>
-                </div>
-            </div>
-            
-            <!-- Labs Chart -->
-            <div class="chart-wrapper">
-                <div class="chart-legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #f8bbd0;"></div>
-                        <span>524</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #ffe0b2;"></div>
-                        <span>526</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #fff9c4;"></div>
-                        <span>528</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #b2dfdb;"></div>
-                        <span>530</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #bbdefb;"></div>
-                        <span>542</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #e1bee7;"></div>
-                        <span>Mac</span>
-                    </div>
-                </div>
-                
-                <div class="empty-chart">
-                    <div class="no-data-message">No data available</div>
-                </div>
-                
-                <div class="chart-scale">
-                    <?php for ($i = 0; $i <= 1; $i += 0.1): ?>
-                        <div class="scale-number"><?php echo number_format($i, 1); ?></div>
-                    <?php endfor; ?>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Table Controls -->
-        <div class="table-controls">
-            <div class="entries-control">
-                <select>
-                    <option>10</option>
-                    <option>25</option>
-                    <option>50</option>
-                    <option>100</option>
-                </select>
-                <span>entries per page</span>
-            </div>
-            
-            <div class="search-control">
-                <label for="search">Search:</label>
-                <input type="text" id="search">
-            </div>
-        </div>
-        
-        <!-- Records Table -->
-        <table class="records-table">
-            <thead>
-                <tr>
-                    <th>Sit-in Number</th>
-                    <th>ID Number</th>
-                    <th>Name</th>
-                    <th>Purpose</th>
-                    <th>Lab</th>
-                    <th>Login</th>
-                    <th>Logout</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="8" class="empty-message">No records available</td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <!-- Pagination -->
-        <div class="pagination-container">
-            <div class="page-info">Showing 0 to 0 of 0 entries</div>
-            <div class="pagination">
-                <a href="#">&laquo;</a>
-                <a href="#">&lsaquo;</a>
-                <a href="#" class="active">1</a>
-                <a href="#">&rsaquo;</a>
-                <a href="#">&raquo;</a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
-    
+
+    <?php if(isset($message)): ?>
+        <script>
+            Swal.fire({
+                title: '<?= $success ? 'Success!' : 'Error!' ?>',
+                text: '<?= $message ?>',
+                icon: '<?= $success ? 'success' : 'error' ?>',
+                confirmButtonColor: '#000080'
+            });
+        </script>
+    <?php endif; ?>
+
     <script>
         // Toggle mobile menu function
         function toggleNav() {

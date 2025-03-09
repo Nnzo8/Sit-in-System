@@ -1,7 +1,7 @@
 <?php
 function createSitInRecord($conn, $student_id, $lab_room, $pc_number, $purpose, $time_in) {
     try {
-        $sql = "INSERT INTO sit_in_records (id_number, lab_room, pc_number, purpose, time_in, status) 
+        $sql = "INSERT INTO sit_in_records (IDNO, lab_room, pc_number, purpose, time_in, status) 
                 VALUES (?, ?, ?, ?, ?, 'pending')";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssiss", $student_id, $lab_room, $pc_number, $purpose, $time_in);
@@ -29,7 +29,7 @@ function updateSitInStatus($conn, $record_id, $status) {
 
 function getActiveSitIn($conn, $student_id) {
     $sql = "SELECT * FROM sit_in_records 
-            WHERE id_number = ? AND status = 'active'";
+            WHERE IDNO = ? AND (status = 'active' OR status = 'pending')";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $student_id);
     $stmt->execute();
@@ -37,11 +37,17 @@ function getActiveSitIn($conn, $student_id) {
 }
 
 function getSitInHistory($conn, $student_id, $limit = 10) {
-    $sql = "SELECT * FROM sit_in_records 
-            WHERE IDNO = ? 
-            ORDER BY created_at DESC LIMIT ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("si", $student_id, $limit);
-    $stmt->execute();
-    return $stmt->get_result();
+    try {
+        $sql = "SELECT * FROM sit_in_records 
+                WHERE IDNO = ? 
+                ORDER BY time_in DESC 
+                LIMIT ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("si", $student_id, $limit);
+        $stmt->execute();
+        return $stmt->get_result();
+    } catch (Exception $e) {
+        error_log("Error getting sit-in history: " . $e->getMessage());
+        return false;
+    }
 }
