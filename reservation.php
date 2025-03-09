@@ -164,7 +164,17 @@ $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Purpose: </label>
-                    <textarea name="purpose" class="form-control" rows="3" required></textarea>
+                    <select name="purpose" class="form-control" required>
+                        <option value="">Select Purpose</option>
+                        <option value="ASP.Net">ASP.Net</option>
+                        <option value="C">C</option>
+                        <option value="C++">C++</option>
+                        <option value="C#">C#</option>
+                        <option value="Java">Java</option>
+                        <option value="PHP">PHP</option>
+                        <option value="Python">Python</option>
+                        
+                    </select>
                 </div>
                 <div class="bg-blue-50 p-4 rounded-lg col-span-2">
                     <label class="block text-sm font-medium text-blue-700">Remaining Sessions: </label>

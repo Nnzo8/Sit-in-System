@@ -323,7 +323,7 @@ $result = $conn->query($sql);
         <div class="mb-8">
             <h2 class="text-2xl font-bold mb-4">
                 <i class="fas fa-clock text-blue-600 mr-2"></i>
-                Pending Reservations
+                Current Sit-in Reservations
             </h2>
             <div class="bg-white rounded-lg shadow overflow-hidden">
                 <?php if($result->num_rows > 0): ?>
