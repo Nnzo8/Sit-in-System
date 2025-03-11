@@ -31,6 +31,42 @@ if(isset($_POST['action']) && isset($_POST['record_id'])) {
     }
 }
 
+// Replace the logout student handling code
+if(isset($_POST['logout_student']) && isset($_POST['record_id'])) {
+    $record_id = $_POST['record_id'];
+    $time_out = date('Y-m-d H:i:s');
+    
+    // Update the record with logout time
+    $update_sql = "UPDATE sit_in_records SET status = 'completed', time_out = ? WHERE id = ?";
+    $stmt = $conn->prepare($update_sql);
+    $stmt->bind_param('si', $time_out, $record_id);
+    
+    if($stmt->execute()) {
+        // Get the student's IDNO
+        $get_student = "SELECT IDNO FROM sit_in_records WHERE id = ?";
+        $stmt2 = $conn->prepare($get_student);
+        $stmt2->bind_param('i', $record_id);
+        $stmt2->execute();
+        $result = $stmt2->get_result();
+        $student = $result->fetch_assoc();
+        
+        if($student) {
+            // Update remaining sessions in student_session table
+            $update_sessions = "UPDATE student_session SET remaining_sessions = remaining_sessions - 1 
+                              WHERE id_number = ? AND remaining_sessions > 0";
+            $stmt3 = $conn->prepare($update_sessions);
+            $stmt3->bind_param('s', $student['IDNO']);
+            $stmt3->execute();
+        }
+        
+        $message = "Student logged out successfully!";
+        $success = true;
+    } else {
+        $message = "Error logging out student.";
+        $success = false;
+    }
+}
+
 // Fetch pending reservations - fixed query
 $sql = "SELECT sit_in_records.*, students.First_Name, students.Last_Name, students.Course, students.Year_lvl 
         FROM sit_in_records 
@@ -38,6 +74,24 @@ $sql = "SELECT sit_in_records.*, students.First_Name, students.Last_Name, studen
         WHERE sit_in_records.status = 'pending' 
         ORDER BY sit_in_records.id DESC";
 $result = $conn->query($sql);
+
+// Fetch active sit-in students
+$active_sql = "SELECT sit_in_records.*, students.First_Name, students.Last_Name, students.Course, students.Year_lvl 
+               FROM sit_in_records 
+               JOIN students ON sit_in_records.IDNO = students.IDNO 
+               WHERE sit_in_records.status = 'active' AND sit_in_records.time_out IS NULL";
+$active_result = $conn->query($active_sql);
+
+// Prepare data for charts
+$languages = [];
+$lab_rooms = [];
+while($row = $active_result->fetch_assoc()) {
+    $languages[] = $row['purpose'];
+    $lab_rooms[] = $row['lab_room'];
+}
+
+$language_count = array_count_values($languages);
+$lab_room_count = array_count_values($lab_rooms);
 ?>
 
 <!DOCTYPE html>
@@ -49,6 +103,7 @@ $result = $conn->query($sql);
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Reset and base styles */
         * {
@@ -319,6 +374,130 @@ $result = $conn->query($sql);
     </nav>
 
     <div class="max-w-7xl mx-auto py-6 px-4">
+        <!-- Analytics Section -->
+        <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-lg shadow" style="width: 400px;">
+                <h3 class="text-lg font-semibold mb-4">Programming Languages Distribution</h3>
+                <div class="flex flex-col items-center">
+                    <div style="width: 250px; height: 250px;">
+                        <canvas id="languageChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-sm grid grid-cols-2 gap-2">
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #FF6384;"></span>
+                            <span class="text-xs">ASP.Net</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #36A2EB;"></span>
+                            <span class="text-xs">C</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #FFCE56;"></span>
+                            <span class="text-xs">C++</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #4BC0C0;"></span>
+                            <span class="text-xs">C#</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #9d1a67;"></span>
+                            <span class="text-xs">Java</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #682cbd;"></span>
+                            <span class="text-xs">PHP</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #c371cd;"></span>
+                            <span class="text-xs">Python</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow" style="width: 400px;">
+                <h3 class="text-lg font-semibold mb-4">Lab Room Distribution</h3>
+                <div class="flex flex-col items-center">
+                    <div style="width: 250px; height: 250px;">
+                        <canvas id="labRoomChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-sm grid grid-cols-2 gap-2">
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #FF9F40;"></span>
+                            <span class="text-xs">Lab 524</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #4BC0C0;"></span>
+                            <span class="text-xs">Lab 526</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #36A2EB;"></span>
+                            <span class="text-xs">Lab 528</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #FF6384;"></span>
+                            <span class="text-xs">Lab 530</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #682cbd;"></span>
+                            <span class="text-xs">Lab 542</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Sit-in Students -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">
+                <i class="fas fa-user-check text-green-600 mr-2"></i>
+                Currently Active Sit-in Students
+            </h2>
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <?php 
+                $active_result->data_seek(0);
+                if($active_result->num_rows > 0): ?>
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab Room</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time In</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <?php while($row = $active_result->fetch_assoc()): ?>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4">
+                                        <p class="font-medium"><?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?></p>
+                                        <p class="text-sm text-gray-500"><?= htmlspecialchars($row['Course']) ?> - <?= htmlspecialchars($row['Year_lvl']) ?></p>
+                                    </td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($row['lab_room']) ?></td>
+                                    <td class="px-6 py-4"><?= date('g:i A', strtotime($row['time_in'])) ?></td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($row['purpose']) ?></td>
+                                    <td class="px-6 py-4">
+                                        <form method="POST" class="flex gap-2">
+                                            <input type="hidden" name="record_id" value="<?= $row['id'] ?>">
+                                            <button type="submit" name="logout_student" 
+                                                    class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 flex items-center">
+                                                <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <div class="p-6 text-center text-gray-500">
+                        <i class="fas fa-info-circle text-blue-500 mb-2 text-2xl"></i>
+                        <p>No active sit-in students at this time.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
         <!-- Pending Reservations Section -->
         <div class="mb-8">
             <h2 class="text-2xl font-bold mb-4">
@@ -396,6 +575,57 @@ $result = $conn->query($sql);
     <?php endif; ?>
 
     <script>
+        // Chart configurations
+        const chartColors = {
+            languages: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+            labRooms: ['#FF9F40', '#4BC0C0', '#36A2EB', '#FF6384', '#9966FF']
+        };
+
+        const languageData = <?= json_encode($language_count) ?>;
+        const labRoomData = <?= json_encode($lab_room_count) ?>;
+
+        // Language Chart
+        new Chart(document.getElementById('languageChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(languageData),
+                datasets: [{
+                    data: Object.values(languageData),
+                    backgroundColor: chartColors.languages
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Lab Room Chart
+        new Chart(document.getElementById('labRoomChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(labRoomData),
+                datasets: [{
+                    data: Object.values(labRoomData),
+                    backgroundColor: chartColors.labRooms
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
         // Toggle mobile menu function
         function toggleNav() {
             const navbarNav = document.getElementById('navbarNav');
