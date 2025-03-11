@@ -44,12 +44,7 @@ if(isset($_POST['submit_reservation'])) {
                 }, 100);
             </script>";
             
-            // Update remaining sessions
-            $sql = "UPDATE student_session SET remaining_sessions = remaining_sessions - 1 
-                   WHERE id_number = ? AND remaining_sessions > 0";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("s", $student_id);
-            $stmt->execute();
+            
         } else {
             $error = "Error creating reservation.";
         }
