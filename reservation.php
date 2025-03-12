@@ -15,21 +15,40 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+$pcs = [];
+if(isset($_POST['check_availability'])) {
+    $lab_room = $_POST['lab_room'];
+    $date = $_POST['date'];
+    $time = $_POST['time_in'];
+    $time_in = $date . ' ' . $time . ':00';
+    $pcs = getAvailablePCs($conn, $lab_room, $time_in);
+}
+
 // Handle reservation submission
 if(isset($_POST['submit_reservation'])) {
     $student_id = $_SESSION['IDNO'];
     $lab_room = $_POST['lab_room'];
-    $pc_number = 1; // You can make this dynamic if needed
+    $pc_number = $_POST['pc_number'];
     $purpose = $_POST['purpose'];
     $date = $_POST['date'];
     $time = $_POST['time_in'];
     $time_in = $date . ' ' . $time . ':00';
 
-    // Check if student has active sit-in
-    $active_sitin = getActiveSitIn($conn, $student_id);
+    // Check if student has an active sit-in for the same time slot
+    $active_sitin = getActiveSitIn($conn, $student_id, $time_in);
     
     if($active_sitin) {
-        $error = "You already have an active sit-in session.";
+        $error = "You already have a reservation for this time slot.";
+        echo "<script>
+            setTimeout(function() {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'You already have a reservation for this time slot',
+                    icon: 'error',
+                    confirmButtonColor: '#000080'
+                });
+            }, 100);
+        </script>";
     } else {
         if(createSitInRecord($conn, $student_id, $lab_room, $pc_number, $purpose, $time_in)) {
             $success = "Sit-in reservation created successfully!";
@@ -127,7 +146,7 @@ $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Lab Room: </label>
-                    <select name="lab_room" class="form-control" required>
+                    <select name="lab_room" class="form-control" required id="lab_room">
                         <option value="">Select Lab Room</option>
                         <option value="Lab 524">Lab 524</option>
                         <option value="Lab 526">Lab 526</option>
@@ -143,7 +162,7 @@ $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Date: </label>
-                    <input type="date" name="date" class="form-control" required>
+                    <input type="date" name="date" class="form-control" required id="date">
                 </div>
 
                 <div>
@@ -151,6 +170,7 @@ $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
                     <input type="time" 
                            name="time_in" 
                            class="form-control" 
+                           id="time_in"
                            min="07:30"
                            max="20:00"
                            value="07:30"
@@ -168,9 +188,16 @@ $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
                         <option value="Java">Java</option>
                         <option value="PHP">PHP</option>
                         <option value="Python">Python</option>
-                        
                     </select>
                 </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">PC Number: </label>
+                    <select name="pc_number" class="form-control" required id="pc_select">
+                        <option value="">Select Lab Room First</option>
+                    </select>
+                </div>
+
                 <div class="bg-blue-50 p-4 rounded-lg col-span-2">
                     <label class="block text-sm font-medium text-blue-700">Remaining Sessions: </label>
                     <p class="text-2xl font-bold text-blue-800"><?php echo $remainingSessions; ?></p>
@@ -178,11 +205,13 @@ $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
                         <p class="text-sm text-red-600 mt-1"> Low sessions remaining!</p>
                     <?php endif; ?>
                 </div>
-            </div>
 
-            <button type="submit" class="w-full btn-primary" <?php echo $remainingSessions <= 0 ? 'disabled' : ''; ?> name="submit_reservation">
-                <?php echo $remainingSessions <= 0 ? 'No Sessions Available' : 'Submit Reservation'; ?>
-            </button>
+                <button type="submit" class="w-full btn-primary" 
+                        <?php echo $remainingSessions <= 0 ? 'disabled' : ''; ?> 
+                        name="submit_reservation">
+                    <?php echo $remainingSessions <= 0 ? 'No Sessions Available' : 'Submit Reservation'; ?>
+                </button>
+            </div>
         </form>
     </div>
 </div>
@@ -211,5 +240,78 @@ document.querySelector('form').addEventListener('submit', function(e) {
         alert('You have no remaining sessions available.');
         return false;
     }
+});
+
+// Update PC availability when lab, date, or time changes
+document.addEventListener('DOMContentLoaded', function() {
+    const labSelect = document.getElementById('lab_room');
+    const dateInput = document.getElementById('date');
+    const timeInput = document.getElementById('time_in');
+    const pcSelect = document.getElementById('pc_select');
+
+    // Set current date as minimum date
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+    dateInput.value = today;
+
+    function updatePCAvailability() {
+        if (labSelect.value) {
+            const currentDate = dateInput.value || today;
+            const currentTime = timeInput.value || '07:30';
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('lab_room', labSelect.value);
+            formData.append('date', currentDate);
+            formData.append('time_in', currentTime);
+
+            // Fetch available PCs
+            fetch('check_pc_availability.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Clear current options
+                pcSelect.innerHTML = '<option value="">Select PC</option>';
+                
+                // Add new options
+                data.forEach(pc => {
+                    const option = document.createElement('option');
+                    option.value = pc.number;
+                    option.textContent = `PC ${pc.number} ${pc.available ? '(Available)' : '(In Use)'}`;
+                    option.disabled = !pc.available;
+                    pcSelect.appendChild(option);
+                });
+            });
+        } else {
+            pcSelect.innerHTML = '<option value="">Select Lab Room First</option>';
+        }
+    }
+
+    // Update PC availability when lab room changes
+    labSelect.addEventListener('change', updatePCAvailability);
+    
+    // Also update when date or time changes
+    dateInput.addEventListener('change', () => {
+        if (labSelect.value) updatePCAvailability();
+    });
+    timeInput.addEventListener('change', () => {
+        if (labSelect.value) updatePCAvailability();
+    });
+
+    // Preserve selections if they exist
+    <?php if(isset($_POST['lab_room'])): ?>
+    labSelect.value = <?= json_encode($_POST['lab_room']) ?>;
+    updatePCAvailability();
+    <?php endif; ?>
+    
+    <?php if(isset($_POST['date'])): ?>
+    dateInput.value = <?= json_encode($_POST['date']) ?>;
+    <?php endif; ?>
+    
+    <?php if(isset($_POST['time_in'])): ?>
+    timeInput.value = <?= json_encode($_POST['time_in']) ?>;
+    <?php endif; ?>
 });
 </script>
