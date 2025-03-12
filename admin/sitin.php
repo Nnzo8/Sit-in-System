@@ -577,8 +577,22 @@ $lab_room_count = array_count_values($lab_rooms);
     <script>
         // Chart configurations
         const chartColors = {
-            languages: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-            labRooms: ['#FF9F40', '#4BC0C0', '#36A2EB', '#FF6384', '#9966FF']
+            languages: {
+                'ASP.Net': '#FF6384',
+                'C': '#36A2EB',
+                'C++': '#FFCE56',
+                'C#': '#4BC0C0',
+                'Java': '#9d1a67',
+                'PHP': '#682cbd',
+                'Python': '#c371cd'
+            },
+            labRooms: {
+                'Lab 524': '#FF9F40',
+                'Lab 526': '#4BC0C0',
+                'Lab 528': '#36A2EB',
+                'Lab 530': '#FF6384',
+                'Lab 542': '#682cbd'
+            }
         };
 
         const languageData = <?= json_encode($language_count) ?>;
@@ -591,7 +605,7 @@ $lab_room_count = array_count_values($lab_rooms);
                 labels: Object.keys(languageData),
                 datasets: [{
                     data: Object.values(languageData),
-                    backgroundColor: chartColors.languages
+                    backgroundColor: Object.keys(languageData).map(lang => chartColors.languages[lang])
                 }]
             },
             options: {
@@ -612,7 +626,7 @@ $lab_room_count = array_count_values($lab_rooms);
                 labels: Object.keys(labRoomData),
                 datasets: [{
                     data: Object.values(labRoomData),
-                    backgroundColor: chartColors.labRooms
+                    backgroundColor: Object.keys(labRoomData).map(room => chartColors.labRooms[room])
                 }]
             },
             options: {

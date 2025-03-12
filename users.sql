@@ -168,3 +168,9 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- Add pc_number column to sit_in_records table
+ALTER TABLE sit_in_records
+ADD COLUMN pc_number INT DEFAULT NULL AFTER lab_room;
+
+-- Add index for better performance
+CREATE INDEX idx_pc_usage ON sit_in_records (lab_room, pc_number, status, time_out);
