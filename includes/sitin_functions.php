@@ -106,3 +106,10 @@ function getAvailablePCs($conn, $lab_room, $time_in) {
     
     return $all_pcs;
 }
+
+function deleteSitInRecord($conn, $record_id) {
+    $sql = "DELETE FROM sit_in_records WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $record_id);
+    return $stmt->execute();
+}

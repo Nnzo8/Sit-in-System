@@ -20,66 +20,145 @@ $conn = new mysqli($servername, $username, $password, $database);
 // Handle approval/decline actions
 if(isset($_POST['action']) && isset($_POST['record_id'])) {
     $record_id = $_POST['record_id'];
-    $status = $_POST['action'] === 'approve' ? 'active' : 'declined';
     
-    if(updateSitInStatus($conn, $record_id, $status)) {
-        $message = $status === 'active' ? 'Reservation approved!' : 'Reservation declined!';
-        $success = true;
+    if($_POST['action'] === 'approve') {
+        // Start transaction
+        $conn->begin_transaction();
+        try {
+            // First check if reservation is still pending
+            $check_sql = "SELECT status FROM sit_in_records WHERE id = ? LIMIT 1";
+            $check_stmt = $conn->prepare($check_sql);
+            $check_stmt->bind_param('i', $record_id);
+            $check_stmt->execute();
+            $current_status = $check_stmt->get_result()->fetch_assoc();
+
+            if($current_status && $current_status['status'] === 'pending') {
+                // Update the status to active
+                $update_sql = "UPDATE sit_in_records SET status = 'active' WHERE id = ? AND status = 'pending' LIMIT 1";
+                $stmt = $conn->prepare($update_sql);
+                $stmt->bind_param('i', $record_id);
+                
+                if($stmt->execute() && $stmt->affected_rows > 0) {
+                    $conn->commit();
+                    $message = 'Reservation approved!';
+                    $success = true;
+                } else {
+                    throw new Exception("No pending reservation found");
+                }
+            } else {
+                $message = 'Reservation was already processed.';
+                $success = false;
+            }
+        } catch (Exception $e) {
+            $conn->rollback();
+            $message = 'Error updating reservation: ' . $e->getMessage();
+            $success = false;
+        }
     } else {
-        $message = 'Error updating reservation.';
-        $success = false;
+        // Delete the record if declined
+        $delete_sql = "DELETE FROM sit_in_records WHERE id = ?";
+        $stmt = $conn->prepare($delete_sql);
+        $stmt->bind_param('i', $record_id);
+        
+        if($stmt->execute()) {
+            $message = 'Reservation declined and removed!';
+            $success = true;
+        } else {
+            $message = 'Error declining reservation.';
+            $success = false;
+        }
     }
 }
 
 // Replace the logout student handling code
 if(isset($_POST['logout_student']) && isset($_POST['record_id'])) {
-    $record_id = $_POST['record_id'];
+    $record_id = (int)$_POST['record_id'];
     $time_out = date('Y-m-d H:i:s');
     
-    // Update the record with logout time
-    $update_sql = "UPDATE sit_in_records SET status = 'completed', time_out = ? WHERE id = ?";
-    $stmt = $conn->prepare($update_sql);
-    $stmt->bind_param('si', $time_out, $record_id);
+    // Start transaction for data consistency
+    $conn->begin_transaction();
     
-    if($stmt->execute()) {
-        // Get the student's IDNO
-        $get_student = "SELECT IDNO FROM sit_in_records WHERE id = ?";
-        $stmt2 = $conn->prepare($get_student);
-        $stmt2->bind_param('i', $record_id);
-        $stmt2->execute();
-        $result = $stmt2->get_result();
-        $student = $result->fetch_assoc();
-        
-        if($student) {
-            // Update remaining sessions in student_session table
-            $update_sessions = "UPDATE student_session SET remaining_sessions = remaining_sessions - 1 
-                              WHERE id_number = ? AND remaining_sessions > 0";
-            $stmt3 = $conn->prepare($update_sessions);
-            $stmt3->bind_param('s', $student['IDNO']);
-            $stmt3->execute();
+    try {
+        // First verify this is an active record
+        $check_sql = "SELECT * FROM sit_in_records 
+                     WHERE id = ? 
+                     AND status = 'active' 
+                     AND time_out IS NULL 
+                     AND DATE(time_in) = CURDATE()
+                     LIMIT 1";
+        $check_stmt = $conn->prepare($check_sql);
+        $check_stmt->bind_param('i', $record_id);
+        $check_stmt->execute();
+        $active_record = $check_stmt->get_result()->fetch_assoc();
+
+        if($active_record) {
+            // Update the record status and time_out
+            $update_sql = "UPDATE sit_in_records 
+                          SET status = 'completed', 
+                              time_out = ? 
+                          WHERE id = ? 
+                          AND status = 'active'
+                          LIMIT 1";
+            $stmt = $conn->prepare($update_sql);
+            $stmt->bind_param('si', $time_out, $record_id);
+            
+            if($stmt->execute()) {
+                // Update remaining sessions
+                $update_sessions = "UPDATE student_session 
+                                  SET remaining_sessions = remaining_sessions - 1 
+                                  WHERE id_number = ? 
+                                  AND remaining_sessions > 0
+                                  LIMIT 1";
+                $stmt2 = $conn->prepare($update_sessions);
+                $stmt2->bind_param('s', $active_record['IDNO']);
+                $stmt2->execute();
+                
+                // Commit the transaction
+                $conn->commit();
+                $message = "Student logged out successfully!";
+                $success = true;
+            } else {
+                throw new Exception("Error updating record");
+            }
+        } else {
+            $message = "Invalid record or student already logged out.";
+            $success = false;
         }
-        
-        $message = "Student logged out successfully!";
-        $success = true;
-    } else {
-        $message = "Error logging out student.";
+    } catch (Exception $e) {
+        // Rollback on error
+        $conn->rollback();
+        $message = "Error processing logout: " . $e->getMessage();
         $success = false;
     }
 }
 
-// Fetch pending reservations - fixed query
+// Fetch pending reservations - modified query to show all pending reservations
 $sql = "SELECT sit_in_records.*, students.First_Name, students.Last_Name, students.Course, students.Year_lvl 
         FROM sit_in_records 
         JOIN students ON sit_in_records.IDNO = students.IDNO 
         WHERE sit_in_records.status = 'pending' 
-        ORDER BY sit_in_records.id DESC";
+        AND sit_in_records.time_out IS NULL
+        AND sit_in_records.id NOT IN (
+            SELECT id FROM sit_in_records 
+            WHERE status IN ('active', 'completed')
+            OR time_out IS NOT NULL
+        )
+        ORDER BY sit_in_records.time_in DESC";
 $result = $conn->query($sql);
 
-// Fetch active sit-in students
+// Fetch active sit-in students - Modified query with better filtering
 $active_sql = "SELECT sit_in_records.*, students.First_Name, students.Last_Name, students.Course, students.Year_lvl 
                FROM sit_in_records 
                JOIN students ON sit_in_records.IDNO = students.IDNO 
-               WHERE sit_in_records.status = 'active' AND sit_in_records.time_out IS NULL";
+               WHERE sit_in_records.status = 'active' 
+               AND sit_in_records.time_out IS NULL 
+               AND DATE(sit_in_records.time_in) = CURDATE()
+               AND NOT EXISTS (
+                   SELECT 1 FROM sit_in_records r2 
+                   WHERE r2.id = sit_in_records.id 
+                   AND (r2.status = 'completed' OR r2.time_out IS NOT NULL)
+               )
+               ORDER BY sit_in_records.time_in DESC";
 $active_result = $conn->query($active_sql);
 
 // Prepare data for charts
@@ -456,7 +535,7 @@ $lab_room_count = array_count_values($lab_rooms);
                 <?php 
                 $active_result->data_seek(0);
                 if($active_result->num_rows > 0): ?>
-                    <table class="min-w-full">
+                    <table class="min-w-full active-students-table">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
@@ -468,7 +547,7 @@ $lab_room_count = array_count_values($lab_rooms);
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             <?php while($row = $active_result->fetch_assoc()): ?>
-                                <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-gray-50" id="student-row-<?= $row['id'] ?>">
                                     <td class="px-6 py-4">
                                         <p class="font-medium"><?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?></p>
                                         <p class="text-sm text-gray-500"><?= htmlspecialchars($row['Course']) ?> - <?= htmlspecialchars($row['Year_lvl']) ?></p>
@@ -477,7 +556,7 @@ $lab_room_count = array_count_values($lab_rooms);
                                     <td class="px-6 py-4"><?= date('g:i A', strtotime($row['time_in'])) ?></td>
                                     <td class="px-6 py-4"><?= htmlspecialchars($row['purpose']) ?></td>
                                     <td class="px-6 py-4">
-                                        <form method="POST" class="flex gap-2">
+                                        <form method="POST" class="flex gap-2" onsubmit="handleLogout(event, <?= $row['id'] ?>)">
                                             <input type="hidden" name="record_id" value="<?= $row['id'] ?>">
                                             <button type="submit" name="logout_student" 
                                                     class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 flex items-center">
@@ -490,7 +569,7 @@ $lab_room_count = array_count_values($lab_rooms);
                         </tbody>
                     </table>
                 <?php else: ?>
-                    <div class="p-6 text-center text-gray-500">
+                    <div class="p-6 text-center text-gray-500 no-active-message">
                         <i class="fas fa-info-circle text-blue-500 mb-2 text-2xl"></i>
                         <p>No active sit-in students at this time.</p>
                     </div>
@@ -518,7 +597,7 @@ $lab_room_count = array_count_values($lab_rooms);
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             <?php while($row = $result->fetch_assoc()): ?>
-                                <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-gray-50" id="reservation-row-<?= $row['id'] ?>">
                                     <td class="px-6 py-4">
                                         <?= date('M d, Y', strtotime($row['time_in'])) ?><br>
                                         <span class="text-sm text-gray-500">
@@ -537,7 +616,7 @@ $lab_room_count = array_count_values($lab_rooms);
                                         <p class="text-sm"><?= htmlspecialchars($row['purpose']) ?></p>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <form method="POST" class="flex gap-2">
+                                        <form method="POST" class="flex gap-2" onsubmit="handleReservation(event, <?= $row['id'] ?>)">
                                             <input type="hidden" name="record_id" value="<?= $row['id'] ?>">
                                             <button type="submit" name="action" value="approve" 
                                                     class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 flex items-center">
@@ -575,70 +654,299 @@ $lab_room_count = array_count_values($lab_rooms);
     <?php endif; ?>
 
     <script>
-        // Chart configurations
-        const chartColors = {
-            languages: {
-                'ASP.Net': '#FF6384',
-                'C': '#36A2EB',
-                'C++': '#FFCE56',
-                'C#': '#4BC0C0',
-                'Java': '#9d1a67',
-                'PHP': '#682cbd',
-                'Python': '#c371cd'
-            },
-            labRooms: {
-                'Lab 524': '#FF9F40',
-                'Lab 526': '#4BC0C0',
-                'Lab 528': '#36A2EB',
-                'Lab 530': '#FF6384',
-                'Lab 542': '#682cbd'
-            }
-        };
+        let languageChart, labRoomChart;  // Make charts globally accessible
+        
+        // Chart configurations and initialization
+        function initializeCharts() {
+            const chartColors = {
+                languages: {
+                    'ASP.Net': '#FF6384',
+                    'C': '#36A2EB',
+                    'C++': '#FFCE56',
+                    'C#': '#4BC0C0',
+                    'Java': '#9d1a67',
+                    'PHP': '#682cbd',
+                    'Python': '#c371cd'
+                },
+                labRooms: {
+                    'Lab 524': '#FF9F40',
+                    'Lab 526': '#4BC0C0',
+                    'Lab 528': '#36A2EB',
+                    'Lab 530': '#FF6384',
+                    'Lab 542': '#682cbd'
+                }
+            };
 
-        const languageData = <?= json_encode($language_count) ?>;
-        const labRoomData = <?= json_encode($lab_room_count) ?>;
+            const languageData = <?= json_encode($language_count) ?>;
+            const labRoomData = <?= json_encode($lab_room_count) ?>;
 
-        // Language Chart
-        new Chart(document.getElementById('languageChart'), {
-            type: 'pie',
-            data: {
-                labels: Object.keys(languageData),
-                datasets: [{
-                    data: Object.values(languageData),
-                    backgroundColor: Object.keys(languageData).map(lang => chartColors.languages[lang])
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
+            // Language Chart with explicit color mapping
+            languageChart = new Chart(document.getElementById('languageChart'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(languageData),
+                    datasets: [{
+                        data: Object.values(languageData),
+                        backgroundColor: Object.keys(languageData).map(lang => chartColors.languages[lang] || '#000000')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        // Lab Room Chart
-        new Chart(document.getElementById('labRoomChart'), {
-            type: 'pie',
-            data: {
-                labels: Object.keys(labRoomData),
-                datasets: [{
-                    data: Object.values(labRoomData),
-                    backgroundColor: Object.keys(labRoomData).map(room => chartColors.labRooms[room])
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
+            // Lab Room Chart with explicit color mapping
+            labRoomChart = new Chart(document.getElementById('labRoomChart'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(labRoomData),
+                    datasets: [{
+                        data: Object.values(labRoomData),
+                        backgroundColor: Object.keys(labRoomData).map(room => chartColors.labRooms[room] || '#000000')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
                     }
                 }
+            });
+        }
+
+        // Call initialization on page load
+        document.addEventListener('DOMContentLoaded', initializeCharts);
+
+        // Add this function before the existing handleLogout function
+        function handleReservation(event, reservationId) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const action = event.submitter.value; // Get which button was clicked
+
+            // Get row data before sending request
+            const row = document.getElementById(`reservation-row-${reservationId}`);
+            const studentName = row.querySelector('td:nth-child(2) p.font-medium').textContent;
+            const studentDetails = row.querySelector('td:nth-child(2) p.text-sm').textContent;
+            const studentId = row.querySelector('td:nth-child(2) p.text-xs').textContent;
+            const labRoom = row.querySelector('td:nth-child(3)').textContent;
+            const purpose = row.querySelector('td:nth-child(4)').textContent;
+            const timeIn = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                if(html.includes('Reservation approved') || html.includes('Reservation declined')) {
+                    // Remove from pending reservations
+                    row.remove();
+
+                    if(action === 'approve') {
+                        // Add to active students table
+                        const activeTableBody = document.querySelector('.active-students-table tbody');
+                        const noActiveMessage = document.querySelector('.no-active-message');
+
+                        if (noActiveMessage) {
+                            const container = noActiveMessage.parentElement;
+                            container.innerHTML = `
+                                <table class="min-w-full active-students-table">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab Room</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time In</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200"></tbody>
+                                </table>
+                            `;
+                        }
+
+                        const newRow = `
+                            <tr class="hover:bg-gray-50" id="student-row-${reservationId}">
+                                <td class="px-6 py-4">
+                                    <p class="font-medium">${studentName}</p>
+                                    <p class="text-sm text-gray-500">${studentDetails}</p>
+                                </td>
+                                <td class="px-6 py-4">${labRoom}</td>
+                                <td class="px-6 py-4">${timeIn}</td>
+                                <td class="px-6 py-4">${purpose}</td>
+                                <td class="px-6 py-4">
+                                    <form method="POST" class="flex gap-2" onsubmit="handleLogout(event, ${reservationId})">
+                                        <input type="hidden" name="record_id" value="${reservationId}">
+                                        <button type="submit" name="logout_student" 
+                                                class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 flex items-center">
+                                            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        `;
+
+                        if (activeTableBody) {
+                            activeTableBody.insertAdjacentHTML('afterbegin', newRow);
+                        } else {
+                            document.querySelector('.active-students-table tbody').insertAdjacentHTML('afterbegin', newRow);
+                        }
+
+                        // Update charts
+                        updateChartsForNewStudent(purpose.trim(), labRoom.trim());
+                    }
+
+                    // Show success message
+                    Swal.fire({
+                        title: 'Success!',
+                        text: action === 'approve' ? 'Reservation approved successfully!' : 'Reservation declined successfully!',
+                        icon: 'success',
+                        confirmButtonColor: '#000080'
+                    });
+
+                    // Optional: Remove the pending reservation row from DOM to prevent reappearing
+                    const pendingRow = document.getElementById(`reservation-row-${reservationId}`);
+                    if (pendingRow) {
+                        pendingRow.remove();
+                    }
+                }
+            });
+        }
+
+        // Add new function to update charts when adding a student
+        function updateChartsForNewStudent(purpose, labRoom) {
+            const chartColors = {
+                languages: {
+                    'ASP.Net': '#FF6384',
+                    'C': '#36A2EB',
+                    'C++': '#FFCE56',
+                    'C#': '#4BC0C0',
+                    'Java': '#9d1a67',
+                    'PHP': '#682cbd',
+                    'Python': '#c371cd'
+                },
+                labRooms: {
+                    'Lab 524': '#FF9F40',
+                    'Lab 526': '#4BC0C0',
+                    'Lab 528': '#36A2EB',
+                    'Lab 530': '#FF6384',
+                    'Lab 542': '#682cbd'
+                }
+            };
+
+            // Update language chart
+            let purposeIndex = languageChart.data.labels.indexOf(purpose);
+            if (purposeIndex === -1) {
+                languageChart.data.labels.push(purpose);
+                languageChart.data.datasets[0].data.push(1);
+                languageChart.data.datasets[0].backgroundColor.push(chartColors.languages[purpose] || '#000000');
+            } else {
+                languageChart.data.datasets[0].data[purposeIndex]++;
             }
-        });
+            languageChart.update();
+
+            // Update lab room chart
+            let labIndex = labRoomChart.data.labels.indexOf(labRoom);
+            if (labIndex === -1) {
+                labRoomChart.data.labels.push(labRoom);
+                labRoomChart.data.datasets[0].data.push(1);
+                labRoomChart.data.datasets[0].backgroundColor.push(chartColors.labRooms[labRoom] || '#000000');
+            } else {
+                labRoomChart.data.datasets[0].data[labIndex]++;
+            }
+            labRoomChart.update();
+        }
+
+        // Modified handleLogout function
+        function handleLogout(event, studentId) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            // Get the row data before removing it
+            const row = document.getElementById(`student-row-${studentId}`);
+            const purpose = row.querySelector('td:nth-child(4)').textContent.trim();
+            const labRoom = row.querySelector('td:nth-child(2)').textContent.trim();
+
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                if(html.includes('Student logged out successfully')) {
+                    // Remove row and update empty state if needed
+                    if(row) {
+                        row.remove();
+                        
+                        // Update charts
+                        updateCharts(purpose, labRoom);
+                        
+                        if(document.querySelector('tbody').children.length === 0) {
+                            const table = document.querySelector('table');
+                            const container = table.parentElement;
+                            table.remove();
+                            container.innerHTML = `
+                                <div class="p-6 text-center text-gray-500">
+                                    <i class="fas fa-info-circle text-blue-500 mb-2 text-2xl"></i>
+                                    <p>No active sit-in students at this time.</p>
+                                </div>
+                            `;
+
+                            // Reset charts when no students are left
+                            languageChart.data.labels = [];
+                            languageChart.data.datasets[0].data = [];
+                            labRoomChart.data.labels = [];
+                            labRoomChart.data.datasets[0].data = [];
+                            languageChart.update();
+                            labRoomChart.update();
+                        }
+                    }
+                    
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Student logged out successfully!',
+                        icon: 'success',
+                        confirmButtonColor: '#000080'
+                    });
+                }
+            });
+        }
+
+        // New function to update charts
+        function updateCharts(purpose, labRoom) {
+            // Update language chart
+            let purposeIndex = languageChart.data.labels.indexOf(purpose);
+            if (purposeIndex !== -1) {
+                languageChart.data.datasets[0].data[purposeIndex]--;
+                if (languageChart.data.datasets[0].data[purposeIndex] <= 0) {
+                    languageChart.data.labels.splice(purposeIndex, 1);
+                    languageChart.data.datasets[0].data.splice(purposeIndex, 1);
+                }
+            }
+            languageChart.update();
+
+            // Update lab room chart
+            let labIndex = labRoomChart.data.labels.indexOf(labRoom);
+            if (labIndex !== -1) {
+                labRoomChart.data.datasets[0].data[labIndex]--;
+                if (labRoomChart.data.datasets[0].data[labIndex] <= 0) {
+                    labRoomChart.data.labels.splice(labIndex, 1);
+                    labRoomChart.data.datasets[0].data.splice(labIndex, 1);
+                }
+            }
+            labRoomChart.update();
+        }
 
         // Toggle mobile menu function
         function toggleNav() {
