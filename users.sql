@@ -83,10 +83,10 @@ CREATE TABLE `sit_in_records` (
   `IDNO` varchar(20) NOT NULL,
   `lab_room` varchar(50) NOT NULL,
   `pc_number` int(11) NOT NULL,
-  `purpose` int(11) NOT NULL,
+  `purpose` varchar(100) NOT NULL,
   `time_in` datetime NOT NULL,
-  `time_out` datetime NOT NULL,
-  `status` varchar(20) NOT NULL
+  `time_out` datetime NULL DEFAULT NULL,
+  `status` ENUM('pending', 'active', 'completed','declined') NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

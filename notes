@@ -1,80 +1,15 @@
-/* Create admin table
-CREATE TABLE `admin` (
-  `AdminID` int(11) NOT NULL AUTO_INCREMENT,
-  `Username` varchar(100) NOT NULL,
-  `Password` varchar(255) NOT NULL,
-  `First_Name` varchar(100) NOT NULL,
-  `Last_Name` varchar(100) NOT NULL,
-  `Email` varchar(255) NOT NULL,
-  `Contact_Number` varchar(20),
-  `Role` enum('super_admin', 'lab_supervisor', 'lab_assistant') NOT NULL,
-  `Lab_Assignment` varchar(25)
-  PRIMARY KEY (`AdminID`),
-  UNIQUE KEY `Username` (`Username`),
-  UNIQUE KEY `Email` (`Email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Modify admin table to include additional permissions
-ALTER TABLE `admin` 
-ADD COLUMN `can_manage_announcements` tinyint(1) DEFAULT 1,
-ADD COLUMN `can_manage_students` tinyint(1) DEFAULT 1,
-ADD COLUMN `can_view_records` tinyint(1) DEFAULT 1;
-
--- Insert default super admin
-INSERT INTO `admin` (Username, Password, First_Name, Last_Name, Email, Role) 
-VALUES ('admin', '$2y$10$YourHashedPasswordHere', 'System', 'Administrator', 'admin@uc.edu.ph', 'super_admin');
-
--- Create announcements table
-CREATE TABLE `announcements` (
-    `announcement_id` int(11) NOT NULL AUTO_INCREMENT,
-    `title` varchar(255) NOT NULL,
-    `content` text NOT NULL,
-    `admin_id` int(11) NOT NULL,
-    `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `is_active` tinyint(1) DEFAULT 1,
-    PRIMARY KEY (`announcement_id`),
-    FOREIGN KEY (`admin_id`) REFERENCES `admin`(`AdminID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Create sit_in_records table
-CREATE TABLE `sit_in_records` (
-    `record_id` int(11) NOT NULL AUTO_INCREMENT,
-    `student_id` int(11) NOT NULL,
-    `lab_room` varchar(25) NOT NULL,
-    `pc_number` int(11) NOT NULL,
-    `time_in` datetime NOT NULL,
-    `time_out` datetime,
-    `purpose` text NOT NULL,
-    `status` enum('active', 'completed', 'cancelled') DEFAULT 'active',
-    `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`record_id`),
-    FOREIGN KEY (`student_id`) REFERENCES `students`(`IDNO`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Create PC inventory table
-CREATE TABLE `pc_inventory` (
-    `pc_id` int(11) NOT NULL AUTO_INCREMENT,
-    `pc_number` int(11) NOT NULL,
-    `lab_room` varchar(25) NOT NULL,
-    `status` enum('available', 'in-use', 'maintenance') DEFAULT 'available',
-    `last_used` datetime,
-    PRIMARY KEY (`pc_id`),
-    UNIQUE KEY `pc_lab_unique` (`pc_number`, `lab_room`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Create admin activity logs
-CREATE TABLE `admin_logs` (
-    `log_id` int(11) NOT NULL AUTO_INCREMENT,
-    `admin_id` int(11) NOT NULL,
-    `action` varchar(255) NOT NULL,
-    `details` text,
-    `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`log_id`),
-    FOREIGN KEY (`admin_id`) REFERENCES `admin`(`AdminID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Add indexes for better performance
-ALTER TABLE `sit_in_records` ADD INDEX `idx_student_time` (`student_id`, `time_in`);
-ALTER TABLE `announcements` ADD INDEX `idx_active_date` (`is_active`, `created_at`);
-*/
+// Fetch pending reservations - modified query to show all pending reservations
+$sql = "SELECT sit_in_records.*, students.First_Name, students.Last_Name, students.Course, students.Year_lvl 
+        FROM sit_in_records /* Main table we're querying*/
+        JOIN students ON sit_in_records.IDNO = students.IDNO /* Join students table to get student information based on their ID*/
+        WHERE sit_in_records.status = 'pending' /*Only show records with status 'pending'*/
+        AND sit_in_records.time_out IS NULL /*Only show records where time_out is NULL (student hasn't left yet)*/
+        AND sit_in_records.id NOT IN (/*Exclude records that match any of these conditions*/
+            SELECT id FROM sit_in_records
+            WHERE status IN ('active', 'completed')/*Exclude records that are already active or completed*/
+            OR time_out IS NOT NULL/*Exclude records where time_out has a value (student has left)*/
+        )
+        ORDER BY sit_in_records.time_in DESC";
+        // Order results by check-in time, most recent first
+$result = $conn->query($sql);
+// Execute the query and store results in $result

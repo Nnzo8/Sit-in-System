@@ -20,62 +20,64 @@ $conn = new mysqli($servername, $username, $password, $database);
 // Handle approval/decline actions
 if(isset($_POST['action']) && isset($_POST['record_id'])) {
     $record_id = $_POST['record_id'];
+    $conn->begin_transaction();
     
-    if($_POST['action'] === 'approve') {
-        // Start transaction
-        $conn->begin_transaction();
-        try {
+    try {
+        if($_POST['action'] === 'approve') {
             // First check if reservation is still pending
-            $check_sql = "SELECT status FROM sit_in_records WHERE id = ? LIMIT 1";
+            $check_sql = "SELECT status FROM sit_in_records WHERE id = ? AND status = 'pending' LIMIT 1";
             $check_stmt = $conn->prepare($check_sql);
             $check_stmt->bind_param('i', $record_id);
             $check_stmt->execute();
-            $current_status = $check_stmt->get_result()->fetch_assoc();
-
-            if($current_status && $current_status['status'] === 'pending') {
-                // Update the status to active
-                $update_sql = "UPDATE sit_in_records SET status = 'active' WHERE id = ? AND status = 'pending' LIMIT 1";
+            $result = $check_stmt->get_result();
+            
+            if($result->num_rows > 0) {
+                // Update the status to active and set current time
+                $update_sql = "UPDATE sit_in_records 
+                             SET status = 'active',
+                                 time_in = NOW(),
+                                 date_updated = NOW()
+                             WHERE id = ? 
+                             AND status = 'pending'";
                 $stmt = $conn->prepare($update_sql);
                 $stmt->bind_param('i', $record_id);
                 
-                if($stmt->execute() && $stmt->affected_rows > 0) {
+                if($stmt->execute()) {
                     $conn->commit();
-                    $message = 'Reservation approved!';
+                    $message = 'Reservation approved successfully!';
                     $success = true;
                 } else {
-                    throw new Exception("No pending reservation found");
+                    throw new Exception("Failed to update reservation");
                 }
             } else {
-                $message = 'Reservation was already processed.';
-                $success = false;
+                throw new Exception("Reservation was already processed");
             }
-        } catch (Exception $e) {
-            $conn->rollback();
-            $message = 'Error updating reservation: ' . $e->getMessage();
-            $success = false;
-        }
-    } else {
-        // Delete the record if declined
-        $delete_sql = "DELETE FROM sit_in_records WHERE id = ?";
-        $stmt = $conn->prepare($delete_sql);
-        $stmt->bind_param('i', $record_id);
-        
-        if($stmt->execute()) {
-            $message = 'Reservation declined and removed!';
-            $success = true;
         } else {
-            $message = 'Error declining reservation.';
-            $success = false;
+            // Delete the declined reservation
+            $delete_sql = "DELETE FROM sit_in_records WHERE id = ? AND status = 'pending'";
+            $stmt = $conn->prepare($delete_sql);
+            $stmt->bind_param('i', $record_id);
+            
+            if($stmt->execute() && $stmt->affected_rows > 0) {
+                $conn->commit();
+                $message = 'Reservation declined and removed!';
+                $success = true;
+            } else {
+                throw new Exception("Failed to decline reservation");
+            }
         }
+    } catch (Exception $e) {
+        $conn->rollback();
+        $message = 'Error: ' . $e->getMessage();
+        $success = false;
     }
 }
 
-// Replace the logout student handling code
+// Handle logout action
 if(isset($_POST['logout_student']) && isset($_POST['record_id'])) {
     $record_id = (int)$_POST['record_id'];
     $time_out = date('Y-m-d H:i:s');
     
-    // Start transaction for data consistency
     $conn->begin_transaction();
     
     try {
@@ -84,7 +86,6 @@ if(isset($_POST['logout_student']) && isset($_POST['record_id'])) {
                      WHERE id = ? 
                      AND status = 'active' 
                      AND time_out IS NULL 
-                     AND DATE(time_in) = CURDATE()
                      LIMIT 1";
         $check_stmt = $conn->prepare($check_sql);
         $check_stmt->bind_param('i', $record_id);
@@ -92,18 +93,18 @@ if(isset($_POST['logout_student']) && isset($_POST['record_id'])) {
         $active_record = $check_stmt->get_result()->fetch_assoc();
 
         if($active_record) {
-            // Update the record status and time_out
+            // Update the record with logout time and completed status
             $update_sql = "UPDATE sit_in_records 
                           SET status = 'completed', 
-                              time_out = ? 
+                              time_out = ?,
+                              date_updated = NOW()
                           WHERE id = ? 
-                          AND status = 'active'
-                          LIMIT 1";
+                          AND status = 'active'";
             $stmt = $conn->prepare($update_sql);
             $stmt->bind_param('si', $time_out, $record_id);
             
             if($stmt->execute()) {
-                // Update remaining sessions
+                // Update remaining sessions for the student
                 $update_sessions = "UPDATE student_session 
                                   SET remaining_sessions = remaining_sessions - 1 
                                   WHERE id_number = ? 
@@ -113,52 +114,37 @@ if(isset($_POST['logout_student']) && isset($_POST['record_id'])) {
                 $stmt2->bind_param('s', $active_record['IDNO']);
                 $stmt2->execute();
                 
-                // Commit the transaction
                 $conn->commit();
                 $message = "Student logged out successfully!";
                 $success = true;
             } else {
-                throw new Exception("Error updating record");
+                throw new Exception("Failed to update logout record");
             }
         } else {
-            $message = "Invalid record or student already logged out.";
-            $success = false;
+            throw new Exception("Invalid record or student already logged out");
         }
     } catch (Exception $e) {
-        // Rollback on error
         $conn->rollback();
-        $message = "Error processing logout: " . $e->getMessage();
+        $message = "Error: " . $e->getMessage();
         $success = false;
     }
 }
 
-// Fetch pending reservations - modified query to show all pending reservations
-$sql = "SELECT sit_in_records.*, students.First_Name, students.Last_Name, students.Course, students.Year_lvl 
-        FROM sit_in_records 
-        JOIN students ON sit_in_records.IDNO = students.IDNO 
-        WHERE sit_in_records.status = 'pending' 
-        AND sit_in_records.time_out IS NULL
-        AND sit_in_records.id NOT IN (
-            SELECT id FROM sit_in_records 
-            WHERE status IN ('active', 'completed')
-            OR time_out IS NOT NULL
-        )
-        ORDER BY sit_in_records.time_in DESC";
+// Update query to fetch only pending reservations
+$sql = "SELECT sir.*, s.First_Name, s.Last_Name, s.Course, s.Year_lvl 
+        FROM sit_in_records sir
+        JOIN students s ON sir.IDNO = s.IDNO 
+        WHERE sir.status = 'pending'
+        ORDER BY sir.time_in DESC";
 $result = $conn->query($sql);
 
-// Fetch active sit-in students - Modified query with better filtering
-$active_sql = "SELECT sit_in_records.*, students.First_Name, students.Last_Name, students.Course, students.Year_lvl 
-               FROM sit_in_records 
-               JOIN students ON sit_in_records.IDNO = students.IDNO 
-               WHERE sit_in_records.status = 'active' 
-               AND sit_in_records.time_out IS NULL 
-               AND DATE(sit_in_records.time_in) = CURDATE()
-               AND NOT EXISTS (
-                   SELECT 1 FROM sit_in_records r2 
-                   WHERE r2.id = sit_in_records.id 
-                   AND (r2.status = 'completed' OR r2.time_out IS NOT NULL)
-               )
-               ORDER BY sit_in_records.time_in DESC";
+// Update query to fetch only active students
+$active_sql = "SELECT sir.*, s.First_Name, s.Last_Name, s.Course, s.Year_lvl 
+               FROM sit_in_records sir
+               JOIN students s ON sir.IDNO = s.IDNO 
+               WHERE sir.status = 'active'
+               AND sir.time_out IS NULL
+               ORDER BY sir.time_in DESC";
 $active_result = $conn->query($active_sql);
 
 // Prepare data for charts
@@ -581,7 +567,7 @@ $lab_room_count = array_count_values($lab_rooms);
         <div class="mb-8">
             <h2 class="text-2xl font-bold mb-4">
                 <i class="fas fa-clock text-blue-600 mr-2"></i>
-                Current Sit-in Reservations
+                Pending Reservations
             </h2>
             <div class="bg-white rounded-lg shadow overflow-hidden">
                 <?php if($result->num_rows > 0): ?>
