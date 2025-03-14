@@ -735,8 +735,21 @@ $lab_room_count = array_count_values($lab_rooms);
             .then(response => response.text())
             .then(html => {
                 if(html.includes('Reservation approved') || html.includes('Reservation declined')) {
-                    // Remove from pending reservations
+                    // Only remove the specific reservation row
                     row.remove();
+
+                    // Check if there are any remaining pending reservations
+                    const pendingTableBody = row.closest('tbody');
+                    if (pendingTableBody && pendingTableBody.children.length === 0) {
+                        const pendingTable = pendingTableBody.closest('table');
+                        const container = pendingTable.parentElement;
+                        container.innerHTML = `
+                            <div class="p-6 text-center text-gray-500">
+                                <i class="fas fa-info-circle text-blue-500 mb-2 text-2xl"></i>
+                                <p>No pending reservations at this time.</p>
+                            </div>
+                        `;
+                    }
 
                     if(action === 'approve') {
                         // Add to active students table
@@ -744,8 +757,7 @@ $lab_room_count = array_count_values($lab_rooms);
                         const noActiveMessage = document.querySelector('.no-active-message');
 
                         if (noActiveMessage) {
-                            const container = noActiveMessage.parentElement;
-                            container.innerHTML = `
+                            noActiveMessage.parentElement.innerHTML = `
                                 <table class="min-w-full active-students-table">
                                     <thead class="bg-gray-50">
                                         <tr>
@@ -761,7 +773,7 @@ $lab_room_count = array_count_values($lab_rooms);
                             `;
                         }
 
-                        const newRow = `
+                        const newActiveRow = `
                             <tr class="hover:bg-gray-50" id="student-row-${reservationId}">
                                 <td class="px-6 py-4">
                                     <p class="font-medium">${studentName}</p>
@@ -782,10 +794,9 @@ $lab_room_count = array_count_values($lab_rooms);
                             </tr>
                         `;
 
-                        if (activeTableBody) {
-                            activeTableBody.insertAdjacentHTML('afterbegin', newRow);
-                        } else {
-                            document.querySelector('.active-students-table tbody').insertAdjacentHTML('afterbegin', newRow);
+                        const activeTable = document.querySelector('.active-students-table tbody');
+                        if (activeTable) {
+                            activeTable.insertAdjacentHTML('afterbegin', newActiveRow);
                         }
 
                         // Update charts
@@ -799,12 +810,6 @@ $lab_room_count = array_count_values($lab_rooms);
                         icon: 'success',
                         confirmButtonColor: '#000080'
                     });
-
-                    // Optional: Remove the pending reservation row from DOM to prevent reappearing
-                    const pendingRow = document.getElementById(`reservation-row-${reservationId}`);
-                    if (pendingRow) {
-                        pendingRow.remove();
-                    }
                 }
             });
         }
