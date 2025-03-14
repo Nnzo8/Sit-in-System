@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 09, 2025 at 04:15 AM
+-- Generation Time: Mar 14, 2025 at 04:34 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -39,7 +39,8 @@ CREATE TABLE `announcements` (
 --
 
 INSERT INTO `announcements` (`announce_id`, `admin_username`, `date`, `message`) VALUES
-(0, 'qweqwe', '2025-03-06', 'Hatdog ka?');
+(0, 'qweqwe', '2025-03-06', 'Hatdog ka?'),
+(0, 'qweqwe', '2025-03-11', 'This is an announcement');
 
 -- --------------------------------------------------------
 
@@ -83,18 +84,20 @@ CREATE TABLE `sit_in_records` (
   `IDNO` varchar(20) NOT NULL,
   `lab_room` varchar(50) NOT NULL,
   `pc_number` int(11) NOT NULL,
-  `purpose` varchar(100) NOT NULL,
   `time_in` datetime NOT NULL,
-  `time_out` datetime NULL DEFAULT NULL,
-  `status` ENUM('pending', 'active', 'completed','declined') NOT NULL DEFAULT 'pending'
+  `time_out` datetime NOT NULL,
+  `status` ENUM('pending', 'active', 'completed','declined') NOT NULL DEFAULT 'pending',
+  `purpose` varchar(100) NOT NULL,
+  `date_updated` date NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `sit_in_records`
 --
 
-INSERT INTO `sit_in_records` (`id`, `IDNO`, `lab_room`, `pc_number`, `purpose`, `time_in`, `time_out`, `status`) VALUES
-(0, '888', 'Lab 524', 1, 0, '2025-03-16 10:30:00', '0000-00-00 00:00:00', 'active');
+INSERT INTO `sit_in_records` (`id`, `IDNO`, `lab_room`, `pc_number`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`) VALUES
+(0, '123123', 'Lab 526', 1, '2025-03-14 07:30:00', '0000-00-00 00:00:00', 'pending', 'ASP.Net', '2025-03-14'),
+(0, '2323', 'Lab 528', 1, '2025-03-14 07:30:00', '0000-00-00 00:00:00', 'pending', 'ASP.Net', '2025-03-14');
 
 -- --------------------------------------------------------
 
@@ -122,9 +125,10 @@ CREATE TABLE `students` (
 --
 
 INSERT INTO `students` (`StudID`, `IDNO`, `Last_Name`, `First_Name`, `Mid_Name`, `Course`, `Year_lvl`, `Username`, `Password`, `profile_image`, `Email`, `Address`) VALUES
-(1, 2323, 'asdas', 'dasdas', 'dasdas', 'College of Engineering', 1, 'asdasd', '$2y$10$E3lrN9Gylvi2a/wdGIuvSepFpR3Yjwx71kZ8q1oeTYVGPuFsBuKMi', 'uploads/67af416ac9b40.jpg', '', ''),
+(1, 2323, 'asdas', 'dasdas', 'dasdas', 'College of Engineering', 1, 'asdasd', '$2y$10$E3lrN9Gylvi2a/wdGIuvSepFpR3Yjwx71kZ8q1oeTYVGPuFsBuKMi', 'uploads/67d236ba27906.png', 'asdas@gmail.com', 'asdasd'),
 (2, 888, 'Ocliasa', 'Ninzo', 'Dumandan', 'BSIT', 3, 'qweqwe', '$2y$10$qzH5V3co3NfiiQ15B32MZe4/hVG6Sisb9I29Xagx7KcM.JoDSPuky', 'uploads/67bfd4fcdaca2.jpg', 'ninorollaneocliasa@gmail.com', 'Lahug Cebu City'),
-(4, 22683361, 'Ocliasa', 'Nino Rollane ', 'Dumandan', 'BSIT', 3, 'qwerty', '$2y$10$5M/txXWM9CXnZLDrChSJX.1DXIq06vrBIJZltcyGG/CcIwNm.TZQW', 'uploads/67ca5ae740e75.png', 'ninorollaneocliasa@gmail.com', 'Cebu City');
+(4, 22683361, 'Ocliasa', 'Nino Rollane ', 'Dumandan', 'BSIT', 3, 'qwerty', '$2y$10$5M/txXWM9CXnZLDrChSJX.1DXIq06vrBIJZltcyGG/CcIwNm.TZQW', 'uploads/67ca5ae740e75.png', 'ninorollaneocliasa@gmail.com', 'Cebu City'),
+(5, 123123, 'zxczxc', 'zxc', 'zx', 'BSCS', 2, 'zxczxc', '$2y$10$KeZ5Q.6Euxk.nbiSVG6LxONuBkhbhGJUiOh2wT4iRGCxnRb7fYW82', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -142,7 +146,9 @@ CREATE TABLE `student_session` (
 --
 
 INSERT INTO `student_session` (`id_number`, `remaining_sessions`) VALUES
-(888, 29);
+(888, 0),
+(2323, 25),
+(123123, 21);
 
 --
 -- Indexes for dumped tables
@@ -162,15 +168,9 @@ ALTER TABLE `students`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `StudID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `StudID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
--- Add pc_number column to sit_in_records table
-ALTER TABLE sit_in_records
-ADD COLUMN pc_number INT DEFAULT NULL AFTER lab_room;
-
--- Add index for better performance
-CREATE INDEX idx_pc_usage ON sit_in_records (lab_room, pc_number, status, time_out);

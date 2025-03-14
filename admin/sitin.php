@@ -52,15 +52,19 @@ if(isset($_POST['action']) && isset($_POST['record_id'])) {
             } else {
                 throw new Exception("Reservation was already processed");
             }
-        } else {
-            // Delete the declined reservation
-            $delete_sql = "DELETE FROM sit_in_records WHERE id = ? AND status = 'pending'";
+        } else if($_POST['action'] === 'decline') {
+            // Update declined reservation status
+            $delete_sql = "UPDATE sit_in_records 
+                          SET status = 'declined',
+                              date_updated = NOW() 
+                          WHERE id = ? 
+                          AND status = 'pending'";
             $stmt = $conn->prepare($delete_sql);
             $stmt->bind_param('i', $record_id);
             
             if($stmt->execute() && $stmt->affected_rows > 0) {
                 $conn->commit();
-                $message = 'Reservation declined and removed!';
+                $message = 'Reservation declined!';
                 $success = true;
             } else {
                 throw new Exception("Failed to decline reservation");
@@ -76,7 +80,8 @@ if(isset($_POST['action']) && isset($_POST['record_id'])) {
 // Handle logout action
 if(isset($_POST['logout_student']) && isset($_POST['record_id'])) {
     $record_id = (int)$_POST['record_id'];
-    $time_out = date('Y-m-d H:i:s');
+    date_default_timezone_set('Asia/Manila'); // Set timezone to Philippines
+    $time_out = date('Y-m-d H:i:s'); // Current server time
     
     $conn->begin_transaction();
     
@@ -84,7 +89,7 @@ if(isset($_POST['logout_student']) && isset($_POST['record_id'])) {
         // First verify this is an active record
         $check_sql = "SELECT * FROM sit_in_records 
                      WHERE id = ? 
-                     AND status = 'active' 
+                     AND status IN ('active', 'approved')
                      AND time_out IS NULL 
                      LIMIT 1";
         $check_stmt = $conn->prepare($check_sql);
@@ -99,7 +104,7 @@ if(isset($_POST['logout_student']) && isset($_POST['record_id'])) {
                               time_out = ?,
                               date_updated = NOW()
                           WHERE id = ? 
-                          AND status = 'active'";
+                          AND status IN ('active', 'approved')";
             $stmt = $conn->prepare($update_sql);
             $stmt->bind_param('si', $time_out, $record_id);
             
@@ -115,7 +120,7 @@ if(isset($_POST['logout_student']) && isset($_POST['record_id'])) {
                 $stmt2->execute();
                 
                 $conn->commit();
-                $message = "Student logged out successfully!";
+                $message = "Student logged out successfully at " . date('g:i A', strtotime($time_out));
                 $success = true;
             } else {
                 throw new Exception("Failed to update logout record");
@@ -135,14 +140,14 @@ $sql = "SELECT sir.*, s.First_Name, s.Last_Name, s.Course, s.Year_lvl
         FROM sit_in_records sir
         JOIN students s ON sir.IDNO = s.IDNO 
         WHERE sir.status = 'pending'
-        ORDER BY sir.time_in DESC";
+        ORDER BY sir.date_updated DESC";  // Changed to date_updated for better ordering
 $result = $conn->query($sql);
 
-// Update query to fetch only active students
+// Update query to fetch only active and approved students
 $active_sql = "SELECT sir.*, s.First_Name, s.Last_Name, s.Course, s.Year_lvl 
                FROM sit_in_records sir
                JOIN students s ON sir.IDNO = s.IDNO 
-               WHERE sir.status = 'active'
+               WHERE sir.status IN ('active', 'approved')
                AND sir.time_out IS NULL
                ORDER BY sir.time_in DESC";
 $active_result = $conn->query($active_sql);

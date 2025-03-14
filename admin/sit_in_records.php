@@ -208,6 +208,7 @@ $recentEntries = $conn->query($recentEntriesSql);
                 <tbody class="divide-y divide-gray-200">
                     <?php 
                     $count = 1;
+                    date_default_timezone_set('Asia/Manila'); // Set timezone to Philippines
                     while($row = $recentEntries->fetch_assoc()): 
                     ?>
                         <tr>
@@ -216,8 +217,16 @@ $recentEntries = $conn->query($recentEntriesSql);
                             <td class="px-6 py-4"><?= htmlspecialchars($row['Last_Name'] . ', ' . $row['First_Name']) ?></td>
                             <td class="px-6 py-4"><?= htmlspecialchars($row['purpose']) ?></td>
                             <td class="px-6 py-4"><?= htmlspecialchars($row['lab_room']) ?></td>
-                            <td class="px-6 py-4"><?= date('H:i:s\a\m', strtotime($row['time_in'])) ?></td>
-                            <td class="px-6 py-4"><?= $row['time_out'] ? date('H:i:s\a\m', strtotime($row['time_out'])) : '-' ?></td>
+                            <td class="px-6 py-4"><?= date('g:i A', strtotime($row['time_in'])) ?></td>
+                            <td class="px-6 py-4">
+                                <?php
+                                if ($row['time_out']) {
+                                    echo date('g:i A', strtotime($row['time_out']));
+                                } else {
+                                    echo "Still Active";
+                                }
+                                ?>
+                            </td>
                             <td class="px-6 py-4"><?= date('Y-m-d', strtotime($row['time_in'])) ?></td>
                         </tr>
                     <?php endwhile; ?>
