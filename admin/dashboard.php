@@ -1,10 +1,25 @@
 <?php
 session_start();
 
-// Check if user is admin
+// Define static admin credentials
+define('ADMIN_USERNAME', 'admin');
+define('ADMIN_PASSWORD', 'admin123');
+
+// Check if user is logged in as admin
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
-    header("Location: ../login.php");
-    exit();
+    // Check if admin credentials are being submitted
+    if (isset($_POST['username']) && isset($_POST['password'])) {
+        if ($_POST['username'] === ADMIN_USERNAME && $_POST['password'] === ADMIN_PASSWORD) {
+            $_SESSION['is_admin'] = true;
+            $_SESSION['username'] = ADMIN_USERNAME;
+        } else {
+            header("Location: ../login.php");
+            exit();
+        }
+    } else {
+        header("Location: ../login.php");
+        exit();
+    }
 }
 
 // Database connection
@@ -19,27 +34,63 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Process announcement deletion
+if (isset($_POST['delete_announcement']) && isset($_POST['announcement_id'])) {
+    if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
+        $announce_id = (int)$_POST['announcement_id']; // Cast to integer for safety
+        
+        // Check if announcement exists first
+        $check_sql = "SELECT announce_id FROM announcements WHERE announce_id = ?";
+        $check_stmt = $conn->prepare($check_sql);
+        $check_stmt->bind_param("i", $announce_id);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
+            // Announcement exists, proceed with deletion
+            $sql = "DELETE FROM announcements WHERE announce_id = ? LIMIT 1";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $announce_id);
+            
+            if ($stmt->execute()) {
+                $success_message = "Announcement deleted successfully!";
+            } else {
+                $error_message = "Error deleting announcement: " . $stmt->error;
+            }
+            $stmt->close();
+        } else {
+            $error_message = "Announcement not found!";
+        }
+        $check_stmt->close();
+    } else {
+        $error_message = "Unauthorized access!";
+    }
+}
+
 // Process announcement submission
 if (isset($_POST['submit_announcement'])) {
-    $message = trim($_POST['announcement_text']);
-    $admin_username = $_SESSION['username']; // Get admin username from session
-    $date = date('Y-m-d'); // Current date
-    
-    if (!empty($message)) {
-        // Insert announcement into database
-        $sql = "INSERT INTO announcements (admin_username, date, message) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $admin_username, $date, $message);
+    if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
+        $message = trim($_POST['announcement_text']);
+        $admin_username = ADMIN_USERNAME; // Changed from admin to ADMIN_USERNAME constant
+        $date = date('Y-m-d');
         
-        if ($stmt->execute()) {
-            $success_message = "Announcement posted successfully!";
+        if (!empty($message)) {
+            $sql = "INSERT INTO announcements (admin_username, date, message) VALUES (?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sss", $admin_username, $date, $message);
+            
+            if ($stmt->execute()) {
+                $success_message = "Announcement posted successfully!";
+            } else {
+                $error_message = "Error: " . $stmt->error;
+            }
+            
+            $stmt->close();
         } else {
-            $error_message = "Error: " . $stmt->error;
+            $error_message = "Announcement cannot be empty!";
         }
-        
-        $stmt->close();
     } else {
-        $error_message = "Announcement cannot be empty!";
+        $error_message = "Unauthorized access!";
     }
 }
 
@@ -84,6 +135,16 @@ if (!$YearLevelResult) {
         ];
     }
 }
+
+// Get count of current sit-ins (modify the statistics section)
+$sql = "SELECT COUNT(*) as count FROM direct_sitin WHERE status = 'active'";
+$result = $conn->query($sql);
+$current_sitins = $result->fetch_assoc()['count'];
+
+// Get count of total sit-ins from both tables
+$sql = "SELECT (SELECT COUNT(*) FROM sit_in_records) + (SELECT COUNT(*) FROM direct_sitin) as total_count";
+$result = $conn->query($sql);
+$total_sitins = $result->fetch_assoc()['total_count'];
 ?>
 
 <!DOCTYPE html>
@@ -171,27 +232,11 @@ if (!$YearLevelResult) {
                         </div>
                         <div class="p-4 bg-gray-50 rounded-lg">
                             <p class="text-gray-600">Currently Sit-in:</p>
-                            <p class="text-2xl font-bold">
-                                <?php
-                                // Get count of current sit-ins
-                                $sql = "SELECT COUNT(*) as count FROM sit_in_records WHERE status = 'active'";
-                                $result = $conn->query($sql);
-                                $row = $result->fetch_assoc();
-                                echo $row['count'] ?? '0';
-                                ?>
-                            </p>
+                            <p class="text-2xl font-bold"><?php echo $current_sitins; ?></p>
                         </div>
                         <div class="p-4 bg-gray-50 rounded-lg col-span-1 md:col-span-2">
                             <p class="text-gray-600">Total Sit-in:</p>
-                            <p class="text-2xl font-bold">
-                                <?php
-                                // Get count of total sit-ins
-                                $sql = "SELECT COUNT(*) as count FROM sit_in_records";
-                                $result = $conn->query($sql);
-                                $row = $result->fetch_assoc();
-                                echo $row['count'] ?? '79';
-                                ?>
-                            </p>
+                            <p class="text-2xl font-bold"><?php echo $total_sitins; ?></p>
                         </div>
                     </div>
                 </div>
@@ -273,6 +318,16 @@ if (!$YearLevelResult) {
                                         CCS Admin | <?php echo date('Y-M-d', strtotime($announcement['date'])); ?>
                                     </p>
                                     <p class="mt-1"><?php echo htmlspecialchars($announcement['message']); ?></p>
+                                    <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true): ?>
+                                        <form action="" method="post" class="mt-2">
+                                            <input type="hidden" name="announcement_id" value="<?php echo $announcement['announce_id']; ?>">
+                                            <button type="submit" name="delete_announcement" 
+                                                class="text-red-500 text-sm hover:text-red-700"
+                                                onclick="return confirm('Are you sure you want to delete this announcement?')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
                         <?php endif; ?>
