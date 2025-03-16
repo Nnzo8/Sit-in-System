@@ -92,7 +92,7 @@ if(isset($_POST['reserve_submit'])) {
 $student_id = $_POST['student_id'];
 $lab_room = $_POST['lab_room'];
 $purpose = $_POST['purpose'];
-$time_in = $_POST['time_in'];  // Changed from reservation_time to time_in
+$time_in = $_POST['time_in'];  
 
 // Create reservation datetime
 $time_in_datetime = date('Y-m-d ') . $time_in . ':00';
@@ -106,18 +106,17 @@ if ($hour < 7 || $hour > 20) {
 $errors[] = "Reservations are only allowed between 7 AM and 8 PM.";
 }
 
-// If no errors, proceed with reservation
+// If no errors, proceed with direct sit-in
 if (empty($errors)) {
-// Insert with default pc_number as 1 for now
-$insert_sql = "INSERT INTO sit_in_records (IDNO, lab_room, pc_number, purpose, time_in, status) 
-VALUES (?, ?, 1, ?, ?, 'pending')";
+$insert_sql = "INSERT INTO direct_sitin (IDNO, lab_room, purpose, time_in, status) 
+VALUES (?, ?, ?, ?, 'active')";
 $stmt = $conn->prepare($insert_sql);
 $stmt->bind_param('ssss', $student_id, $lab_room, $purpose, $time_in_datetime);
 
 if($stmt->execute()) {
-echo json_encode(['status' => 'success', 'message' => 'Reservation submitted successfully!']);
+echo json_encode(['status' => 'success', 'message' => 'Direct sit-in created successfully!']);
 } else {
-echo json_encode(['status' => 'error', 'message' => 'Failed to submit reservation']);
+echo json_encode(['status' => 'error', 'message' => 'Failed to create direct sit-in']);
 }
 exit();
 }

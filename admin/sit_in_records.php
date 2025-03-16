@@ -50,10 +50,45 @@ if(isset($_POST['action']) && isset($_POST['record_id'])) {
 }
 
 // Fetch all sit-in records
-$sql = "SELECT sit_in_records.*, students.First_Name, students.Last_Name, students.Course 
-        FROM sit_in_records 
-        JOIN students ON sit_in_records.IDNO = students.IDNO 
-        ORDER BY sit_in_records.time_in DESC";
+$sql = "SELECT 
+            'direct' as record_type,
+            ds.id,
+            ds.IDNO,
+            ds.lab_room,
+            ds.purpose,
+            ds.time_in,
+            ds.time_out,
+            ds.status,
+            ds.date_updated,
+            s.First_Name, 
+            s.Last_Name, 
+            s.Course,
+            s.Year_lvl
+        FROM direct_sitin ds
+        JOIN students s ON ds.IDNO = s.IDNO 
+        WHERE (ds.status = 'completed' AND ds.time_out IS NOT NULL)
+            OR (ds.status = 'active' AND ds.time_out IS NULL)
+        UNION ALL
+        SELECT 
+            'reservation' as record_type,
+            sir.id,
+            sir.IDNO,
+            sir.lab_room,
+            sir.purpose,
+            sir.time_in,
+            sir.time_out,
+            sir.status,
+            sir.date_updated,
+            s.First_Name, 
+            s.Last_Name, 
+            s.Course,
+            s.Year_lvl
+        FROM sit_in_records sir
+        JOIN students s ON sir.IDNO = s.IDNO 
+        WHERE (sir.status = 'completed' AND sir.time_out IS NOT NULL)
+            OR (sir.status = 'active' AND sir.time_out IS NULL)
+        ORDER BY time_in DESC";
+
 $result = $conn->query($sql);
 
 if (!$result) {
@@ -62,7 +97,16 @@ if (!$result) {
 
 // Get statistics for charts
 // Programming languages distribution
-$languagesSql = "SELECT purpose as language, COUNT(*) as count FROM sit_in_records GROUP BY purpose";
+$languagesSql = "SELECT purpose as language, COUNT(*) as count 
+                 FROM (
+                     SELECT purpose FROM direct_sitin 
+                     WHERE status = 'completed'
+                     UNION ALL
+                     SELECT purpose FROM sit_in_records 
+                     WHERE status = 'completed'
+                 ) combined 
+                 GROUP BY purpose";
+
 $languagesResult = $conn->query($languagesSql);
 $languagesData = [];
 if ($languagesResult) {
@@ -72,7 +116,16 @@ if ($languagesResult) {
 }
 
 // Lab rooms distribution
-$labsSql = "SELECT lab_room, COUNT(*) as count FROM sit_in_records GROUP BY lab_room";
+$labsSql = "SELECT lab_room, COUNT(*) as count 
+            FROM (
+                SELECT lab_room FROM direct_sitin 
+                WHERE status = 'completed'
+                UNION ALL
+                SELECT lab_room FROM sit_in_records 
+                WHERE status = 'completed'
+            ) combined 
+            GROUP BY lab_room";
+
 $labsResult = $conn->query($labsSql);
 $labsData = [];
 if ($labsResult) {
@@ -209,21 +262,36 @@ $recentEntries = $conn->query($recentEntriesSql);
                     <?php 
                     $count = 1;
                     date_default_timezone_set('Asia/Manila'); // Set timezone to Philippines
-                    while($row = $recentEntries->fetch_assoc()): 
+                    while($row = $result->fetch_assoc()): 
+                        $statusColor = $row['status'] === 'completed' ? 'text-green-600' : 'text-blue-600';
                     ?>
                         <tr>
                             <td class="px-6 py-4"><?= $count++ ?></td>
                             <td class="px-6 py-4"><?= htmlspecialchars($row['IDNO']) ?></td>
-                            <td class="px-6 py-4"><?= htmlspecialchars($row['Last_Name'] . ', ' . $row['First_Name']) ?></td>
+                            <td class="px-6 py-4">
+                                <?= htmlspecialchars($row['Last_Name'] . ', ' . $row['First_Name']) ?>
+                                <br>
+                                <span class="text-xs text-gray-500">
+                                    <?= htmlspecialchars($row['Course']) ?> - <?= htmlspecialchars($row['Year_lvl']) ?>
+                                </span>
+                                <br>
+                                <span class="text-xs <?= $statusColor ?>">
+                                    <?= ucfirst($row['status']) ?> - <?= $row['record_type'] === 'direct' ? 'Direct Sit-in' : 'Reservation' ?>
+                                </span>
+                            </td>
                             <td class="px-6 py-4"><?= htmlspecialchars($row['purpose']) ?></td>
                             <td class="px-6 py-4"><?= htmlspecialchars($row['lab_room']) ?></td>
                             <td class="px-6 py-4"><?= date('g:i A', strtotime($row['time_in'])) ?></td>
                             <td class="px-6 py-4">
                                 <?php
                                 if ($row['time_out']) {
-                                    echo date('g:i A', strtotime($row['time_out']));
+                                    echo '<span class="text-green-600">'.date('g:i A', strtotime($row['time_out'])).'</span>';
                                 } else {
-                                    echo "Still Active";
+                                    if ($row['status'] === 'active') {
+                                        echo '<span class="text-yellow-600">Still Active</span>';
+                                    } else {
+                                        echo '<span class="text-green-600">Logged Out</span>';
+                                    }
                                 }
                                 ?>
                             </td>
@@ -251,7 +319,7 @@ $recentEntries = $conn->query($recentEntriesSql);
     <script>
         // Toggle mobile navigation
         function toggleNav() {
-            const nav = document.getElementById('navbarNav');
+            const nav = document.getElement.getElementById('navbarNav');
             nav.classList.toggle('hidden');
         }
         

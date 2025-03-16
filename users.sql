@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 14, 2025 at 04:34 AM
+-- Generation Time: Mar 16, 2025 at 04:19 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,6 +45,23 @@ INSERT INTO `announcements` (`announce_id`, `admin_username`, `date`, `message`)
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `direct_sitin`
+--
+
+CREATE TABLE `direct_sitin` (
+  `id` int(11) NOT NULL,
+  `IDNO` varchar(20) NOT NULL,
+  `lab_room` varchar(50) NOT NULL,
+  `time_in` datetime DEFAULT NULL,
+  `time_out` datetime DEFAULT NULL,
+  `status` enum('active','completed','','') NOT NULL DEFAULT 'active',
+  `purpose` varchar(50) NOT NULL,
+  `date_updated` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `feedback`
 --
 
@@ -70,7 +87,8 @@ CREATE TABLE `reservation` (
   `pc` int(11) NOT NULL,
   `lab` varchar(25) NOT NULL,
   `purpose` varchar(100) NOT NULL,
-  `IDNO` int(11) NOT NULL
+  `IDNO` int(11) NOT NULL,
+  `status` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -84,11 +102,11 @@ CREATE TABLE `sit_in_records` (
   `IDNO` varchar(20) NOT NULL,
   `lab_room` varchar(50) NOT NULL,
   `pc_number` int(11) NOT NULL,
-  `time_in` datetime NOT NULL,
-  `time_out` datetime NOT NULL,
-  `status` ENUM('pending', 'active', 'completed','declined') NOT NULL DEFAULT 'pending',
+  `time_in` datetime DEFAULT NULL,
+  `time_out` datetime DEFAULT NULL,
+  `status` enum('pending','active','completed','declined') NOT NULL DEFAULT 'pending',
   `purpose` varchar(100) NOT NULL,
-  `date_updated` date NOT NULL DEFAULT current_timestamp()
+  `date_updated` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -96,8 +114,8 @@ CREATE TABLE `sit_in_records` (
 --
 
 INSERT INTO `sit_in_records` (`id`, `IDNO`, `lab_room`, `pc_number`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`) VALUES
-(0, '123123', 'Lab 526', 1, '2025-03-14 07:30:00', '0000-00-00 00:00:00', 'pending', 'ASP.Net', '2025-03-14'),
-(0, '2323', 'Lab 528', 1, '2025-03-14 07:30:00', '0000-00-00 00:00:00', 'pending', 'ASP.Net', '2025-03-14');
+(4, '2323', 'Lab 528', 1, '2025-03-16 07:30:00', NULL, 'pending', 'ASP.Net', '2025-03-16 03:09:32'),
+(5, '2323', 'Lab 524', 1, '2025-03-16 07:30:00', NULL, 'pending', 'ASP.Net', '2025-03-16 03:18:45');
 
 -- --------------------------------------------------------
 
@@ -155,6 +173,18 @@ INSERT INTO `student_session` (`id_number`, `remaining_sessions`) VALUES
 --
 
 --
+-- Indexes for table `direct_sitin`
+--
+ALTER TABLE `direct_sitin`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `sit_in_records`
+--
+ALTER TABLE `sit_in_records`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `students`
 --
 ALTER TABLE `students`
@@ -165,11 +195,25 @@ ALTER TABLE `students`
 --
 
 --
+-- AUTO_INCREMENT for table `direct_sitin`
+--
+ALTER TABLE `direct_sitin`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `sit_in_records`
+--
+ALTER TABLE `sit_in_records`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
   MODIFY `StudID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 COMMIT;
+
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
