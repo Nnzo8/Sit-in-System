@@ -451,69 +451,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                     
                     // Get row data before removing
                     const row = document.getElementById(`student-row-${recordId}`);
+                    const studentName = row.querySelector('td:nth-child(1) p:first-child').textContent.trim();
                     const purpose = row.querySelector('td:nth-child(4)').textContent.trim();
                     const labRoom = row.querySelector('td:nth-child(2)').textContent.trim();
                     
-                    // Immediately remove row and update UI
-                    row.remove();
-                    updateCharts(purpose, labRoom);
-                    
-                    // Check if table is empty and update UI accordingly
-                    if (document.querySelector('tbody').children.length === 0) {
-                        const table = document.querySelector('table');
-                        const container = table.parentElement;
-                        table.remove();
-                        container.innerHTML = `
-                            <div class="p-6 text-center text-gray-500">
-                                <i class="fas fa-info-circle text-blue-500 mb-2 text-2xl"></i>
-                                <p>No active sit-in students at this time.</p>
-                            </div>
-                        `;
-                    }
+                    // Show confirmation dialog
+                    Swal.fire({
+                        title: 'Confirm Logout',
+                        text: `Are you sure you want to log out ${studentName}?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, log out',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Immediately remove row and update UI
+                            row.remove();
+                            updateCharts(purpose, labRoom);
+                            
+                            // Check if table is empty and update UI accordingly
+                            if (document.querySelector('tbody').children.length === 0) {
+                                const table = document.querySelector('table');
+                                const container = table.parentElement;
+                                table.remove();
+                                container.innerHTML = `
+                                    <div class="p-6 text-center text-gray-500">
+                                        <i class="fas fa-info-circle text-blue-500 mb-2 text-2xl"></i>
+                                        <p>No active sit-in students at this time.</p>
+                                    </div>
+                                `;
+                            }
 
-                    // Then send AJAX request to update database
-                    fetch(window.location.href, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: new URLSearchParams({
-                            logout_student: true,
-                            record_id: recordId,
-                            table: table
-                        })
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.status === 'success') {
-                            Swal.fire({
-                                title: 'Success!',
-                                text: 'Reservation timed out successfully!',
-                                icon: 'success',
-                                confirmButtonColor: '#3085d6',
-                                timer: 1500,
-                                showConfirmButton: false
+                            // Send AJAX request to update database
+                            fetch(window.location.href, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                },
+                                body: new URLSearchParams({
+                                    logout_student: true,
+                                    record_id: recordId,
+                                    table: table
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status === 'success') {
+                                    Swal.fire({
+                                        title: 'Success!',
+                                        text: 'Reservation timed out successfully!',
+                                        icon: 'success',
+                                        confirmButtonColor: '#3085d6',
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.log('Error:', error);
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: 'Reservation timed out successfully!',
+                                    icon: 'success',
+                                    confirmButtonColor: '#3085d6',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
                             });
-                        } else {
-                            console.log('Server responded with error:', data.message);
                         }
-                    })
-                    .catch(error => {
-                        console.log('Error:', error);
-                        // Still show success since UI was already updated
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Reservation timed out successfully!',
-                            icon: 'success',
-                            confirmButtonColor: '#3085d6',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
                     });
                 });
             });
