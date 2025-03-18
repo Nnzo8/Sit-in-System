@@ -34,6 +34,40 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Fetch programming languages data from sit-in records
+$sql = "SELECT purpose, COUNT(*) as count 
+        FROM (
+            SELECT purpose FROM sit_in_records 
+            UNION ALL 
+            SELECT purpose FROM direct_sitin
+        ) as combined_records 
+        GROUP BY purpose";
+$lang_result = $conn->query($sql);
+
+$languageData = [
+    'labels' => [],
+    'data' => [],
+    'colors' => []
+];
+
+$chartColors = [
+    'ASP.Net' => '#FF6384',
+    'C' => '#36A2EB',
+    'C++' => '#FFCE56',
+    'C#' => '#4BC0C0',
+    'Java' => '#9d1a67',
+    'PHP' => '#682cbd',
+    'Python' => '#c371cd'
+];
+
+if ($lang_result) {
+    while ($row = $lang_result->fetch_assoc()) {
+        $languageData['labels'][] = $row['purpose'];
+        $languageData['data'][] = (int)$row['count'];
+        $languageData['colors'][] = $chartColors[$row['purpose']] ?? '#' . substr(md5($row['purpose']), 0, 6);
+    }
+}
+
 // Process announcement deletion
 if (isset($_POST['delete_announcement']) && isset($_POST['announcement_id'])) {
     if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
@@ -73,11 +107,12 @@ if (isset($_POST['submit_announcement'])) {
         $message = trim($_POST['announcement_text']);
         $admin_username = ADMIN_USERNAME; // Changed from admin to ADMIN_USERNAME constant
         $date = date('Y-m-d');
+        $time = date('H:i:s'); // Current time
         
         if (!empty($message)) {
-            $sql = "INSERT INTO announcements (admin_username, date, message) VALUES (?, ?, ?)";
+            $sql = "INSERT INTO announcements (admin_username, date, time, message) VALUES (?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("sss", $admin_username, $date, $message);
+            $stmt->bind_param("ssss", $admin_username, $date, $time, $message);
             
             if ($stmt->execute()) {
                 $success_message = "Announcement posted successfully!";
@@ -94,8 +129,8 @@ if (isset($_POST['submit_announcement'])) {
     }
 }
 
-// Fetch announcements from database
-$sql = "SELECT * FROM announcements ORDER BY date DESC LIMIT 10";
+// Fetch announcements from database - modify this section
+$sql = "SELECT * FROM announcements ORDER BY date DESC, time DESC LIMIT 10";
 $result = $conn->query($sql);
 $announcements = [];
 
@@ -244,26 +279,34 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                 <div class="mt-4 h-64">
                     <canvas id="languageChart"></canvas>
                 </div>
-                <div class="flex justify-center mt-2 text-sm text-gray-600">
-                    <div class="flex items-center mx-2">
-                        <div class="w-3 h-3 bg-blue-400 mr-1"></div>
-                        <span>C#</span>
+                <div class="mt-4 text-sm grid grid-cols-2 gap-2">
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 inline-block mr-2" style="background-color: #FF6384;"></span>
+                        <span class="text-xs">ASP.Net</span>
                     </div>
-                    <div class="flex items-center mx-2">
-                        <div class="w-3 h-3 bg-pink-400 mr-1"></div>
-                        <span>C</span>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 inline-block mr-2" style="background-color: #36A2EB;"></span>
+                        <span class="text-xs">C</span>
                     </div>
-                    <div class="flex items-center mx-2">
-                        <div class="w-3 h-3 bg-orange-400 mr-1"></div>
-                        <span>Java</span>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 inline-block mr-2" style="background-color: #FFCE56;"></span>
+                        <span class="text-xs">C++</span>
                     </div>
-                    <div class="flex items-center mx-2">
-                        <div class="w-3 h-3 bg-yellow-400 mr-1"></div>
-                        <span>ASP.Net</span>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 inline-block mr-2" style="background-color: #4BC0C0;"></span>
+                        <span class="text-xs">C#</span>
                     </div>
-                    <div class="flex items-center mx-2">
-                        <div class="w-3 h-3 bg-teal-400 mr-1"></div>
-                        <span>PHP</span>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 inline-block mr-2" style="background-color: #9d1a67;"></span>
+                        <span class="text-xs">Java</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 inline-block mr-2" style="background-color: #682cbd;"></span>
+                        <span class="text-xs">PHP</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 inline-block mr-2" style="background-color: #c371cd;"></span>
+                        <span class="text-xs">Python</span>
                     </div>
                 </div>
             </div>
@@ -315,7 +358,10 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                             <?php foreach ($announcements as $announcement): ?>
                                 <div class="border-b border-gray-200 pb-4">
                                     <p class="text-gray-600 text-sm">
-                                        CCS Admin | <?php echo date('Y-M-d', strtotime($announcement['date'])); ?>
+                                        CCS Admin | <?php 
+                                            echo date('F d, Y', strtotime($announcement['date'])) . ' at ' . 
+                                            date('h:i A', strtotime($announcement['time'])); 
+                                        ?>
                                     </p>
                                     <p class="mt-1"><?php echo htmlspecialchars($announcement['message']); ?></p>
                                     <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true): ?>
@@ -351,21 +397,20 @@ $total_sitins = $result->fetch_assoc()['total_count'];
         // Initialize Charts
         document.addEventListener('DOMContentLoaded', function() {
             // Pie Chart for programming languages
+            const languageData = {
+                labels: <?php echo json_encode($languageData['labels']); ?>,
+                data: <?php echo json_encode($languageData['data']); ?>,
+                colors: <?php echo json_encode($languageData['colors']); ?>
+            };
+
             const ctxPie = document.getElementById('languageChart').getContext('2d');
             const languageChart = new Chart(ctxPie, {
                 type: 'pie',
                 data: {
-                    labels: ['C#', 'C', 'Java', 'ASP.Net', 'PHP'],
+                    labels: languageData.labels,
                     datasets: [{
-                        data: [15, 55, 20, 3, 7],
-                        backgroundColor: [
-                            '#38bdf8', // C# - blue
-                            '#f472b6', // C - pink
-                            '#fb923c', // Java - orange
-                            '#facc15', // ASP.Net - yellow
-                            '#2dd4bf'  // PHP - teal
-                        ],
-                        borderWidth: 1
+                        data: languageData.data,
+                        backgroundColor: languageData.colors
                     }]
                 },
                 options: {
@@ -378,7 +423,21 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                     }
                 }
             });
+
+            // Update the legend dynamically
+            const legendContainer = document.querySelector('.grid-cols-2.gap-2');
+            legendContainer.innerHTML = ''; // Clear existing legend items
             
+            languageData.labels.forEach((label, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center';
+                div.innerHTML = `
+                    <span class="w-3 h-3 inline-block mr-2" style="background-color: ${languageData.colors[index]};"></span>
+                    <span class="text-xs">${label}</span>
+                `;
+                legendContainer.appendChild(div);
+            });
+
             // Bar Chart for student year levels
             const ctxBar = document.getElementById('YearLevelChart').getContext('2d');
             const YearLevelChart = new Chart(ctxBar, {
