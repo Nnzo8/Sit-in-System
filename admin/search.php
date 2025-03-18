@@ -125,7 +125,7 @@ exit();
 // Handle AJAX search request
 if(isset($_POST['search_id'])) {
 $search_id = $_POST['search_id'];
-$sql = "SELECT s.*, COALESCE(ss.remaining_sessions, 30) as remaining_sessions 
+$sql = "SELECT s.*, COALESCE(ss.remaining_sessions, 30) as remaining_sessions, s.profile_image 
 FROM students s 
 LEFT JOIN student_session ss ON s.IDNO = ss.id_number 
 WHERE s.IDNO = ?";
@@ -316,9 +316,19 @@ success: function(response) {
 let data = JSON.parse(response);
 if(data.status === 'success') {
 let student = data.data;
-// Store full student data in a hidden input
+// Get profile image path from database or use default
+let profileImage = student.profile_image && student.profile_image !== '' 
+? '../' + student.profile_image  // Add parent directory prefix
+: "https://cdn-icons-png.flaticon.com/512/2815/2815428.png";
+
 let html = `
 <input type="hidden" id="student_data" value='${JSON.stringify(student)}'>
+<div class="flex flex-col items-center mb-4">
+<img src="${profileImage}" 
+alt="Profile" 
+class="w-32 h-32 rounded-full mb-3 object-cover border-4 border-blue-200"
+onerror="this.src='https://cdn-icons-png.flaticon.com/512/2815/2815428.png'">
+</div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div class="space-y-3">
 <p><strong>ID Number:</strong> ${student.IDNO}</p>

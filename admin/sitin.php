@@ -457,13 +457,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                     
                     // Show confirmation dialog
                     Swal.fire({
-                        title: 'Confirm Logout',
-                        text: `Are you sure you want to log out ${studentName}?`,
+                        title: 'Confirm Time Out',
+                        text: `Are you sure you want to Time Out ${studentName}?`,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, log out',
+                        confirmButtonText: 'Yes, Time Out',
                         cancelButtonText: 'Cancel'
                     }).then((result) => {
                         if (result.isConfirmed) {

@@ -253,8 +253,8 @@ $recentEntries = $conn->query($recentEntriesSql);
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Login</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Logout</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time In</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time Out</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                     </tr>
                 </thead>
