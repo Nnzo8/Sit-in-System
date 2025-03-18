@@ -41,6 +41,40 @@ if (!$user) {
     echo "User not found!";
     exit();
 }
+
+// After database connection, add this query to fetch sit-in history
+$sql = "
+    SELECT 
+        'sit_in_records' as source,
+        sr.IDNO,
+        CONCAT(s.First_Name, ' ', s.Last_Name) as full_name,
+        sr.purpose,
+        sr.lab_room,
+        sr.time_in,
+        sr.time_out,
+        DATE(sr.time_in) as date
+    FROM sit_in_records sr
+    JOIN students s ON sr.IDNO = s.IDNO
+    WHERE s.First_Name = ?
+    UNION ALL
+    SELECT 
+        'direct_sitin' as source,
+        ds.IDNO,
+        CONCAT(s.First_Name, ' ', s.Last_Name) as full_name,
+        ds.purpose,
+        ds.lab_room,
+        ds.time_in,
+        ds.time_out,
+        DATE(ds.time_in) as date
+    FROM direct_sitin ds
+    JOIN students s ON ds.IDNO = s.IDNO
+    WHERE s.First_Name = ?
+    ORDER BY time_in DESC";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ss", $firstname, $firstname);
+$stmt->execute();
+$history_result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -90,6 +124,14 @@ if (!$user) {
 </nav>
 
 <div class="max-w-7xl mx-auto px-4 py-8">
+    <?php if (isset($_GET['status'])): ?>
+        <?php if ($_GET['status'] === 'success'): ?>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong class="font-bold">Success!</strong>
+                <span class="block sm:inline">Your feedback has been submitted successfully.</span>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
     <div class="bg-white rounded-lg shadow-md p-6 slide-in-top">
         <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Reservation History</h2>
         
@@ -105,13 +147,94 @@ if (!$user) {
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Log out</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                     </tr>
                     <?php ?>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
+                    <?php if ($history_result->num_rows > 0): ?>
+                        <?php while ($row = $history_result->fetch_assoc()): ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <?= htmlspecialchars($row['IDNO']) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <?= htmlspecialchars($row['full_name']) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <?= htmlspecialchars($row['purpose']) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <?= htmlspecialchars($row['lab_room']) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <?= date('g:i A', strtotime($row['time_in'])) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <?= $row['time_out'] ? date('g:i A', strtotime($row['time_out'])) : 'Active' ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <?= date('M d, Y', strtotime($row['date'])) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <button onclick="openFeedbackModal('<?= htmlspecialchars($row['IDNO']) ?>', '<?= htmlspecialchars($row['lab_room']) ?>')" 
+                                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                        Feedback
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                No sit-in history found
+                            </td>
+                        </tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<!-- Feedback Modal -->
+<div id="feedbackModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-xl w-96">
+        <h2 class="text-xl font-bold mb-4">Submit Feedback</h2>
+        <form id="feedbackForm" action="submit_feedback.php" method="POST">
+            <input type="hidden" id="feedbackIdno" name="idno">
+            <input type="hidden" id="feedbackLab" name="lab">
+            <input type="hidden" name="date" value="<?= date('Y-m-d') ?>">
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="message">
+                    Your Feedback
+                </label>
+                <textarea 
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="message"
+                    name="message"
+                    rows="4"
+                    required
+                ></textarea>
+            </div>
+            
+            <div class="flex justify-end space-x-2">
+                <button 
+                    type="button"
+                    onclick="closeFeedbackModal()"
+                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                >
+                    Cancel
+                </button>
+                <button 
+                    type="submit"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                    Submit
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -135,6 +258,18 @@ document.addEventListener('click', function(event) {
         closeNav();
     }
 });
+
+function openFeedbackModal(idno, lab) {
+    document.getElementById('feedbackModal').classList.remove('hidden');
+    document.getElementById('feedbackModal').classList.add('flex');
+    document.getElementById('feedbackIdno').value = idno;
+    document.getElementById('feedbackLab').value = lab;
+}
+
+function closeFeedbackModal() {
+    document.getElementById('feedbackModal').classList.add('hidden');
+    document.getElementById('feedbackModal').classList.remove('flex');
+}
 </script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 <?php
 session_start();
+date_default_timezone_set('Asia/Manila');
 
 // Check if user is admin
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
@@ -92,18 +93,17 @@ if(isset($_POST['reserve_submit'])) {
 $student_id = $_POST['student_id'];
 $lab_room = $_POST['lab_room'];
 $purpose = $_POST['purpose'];
-$time_in = $_POST['time_in'];  
 
-// Create reservation datetime
-$time_in_datetime = date('Y-m-d ') . $time_in . ':00';
+// Use current time instead of user input
+$time_in_datetime = date('Y-m-d H:i:s');
 
 // Input validation
 $errors = [];
 
-// Validate time
-$hour = (int)date('H', strtotime($time_in));
-if ($hour < 7 || $hour > 20) {
-$errors[] = "Reservations are only allowed between 7 AM and 8 PM.";
+// Check if lab is currently open (7 AM to 8 PM)
+$current_hour = (int)date('H');
+if ($current_hour < 7 || $current_hour >= 20) {
+$errors[] = "Lab rooms are only available between 7:00 AM and 8:00 PM.";
 }
 
 // If no errors, proceed with direct sit-in
@@ -114,12 +114,18 @@ $stmt = $conn->prepare($insert_sql);
 $stmt->bind_param('ssss', $student_id, $lab_room, $purpose, $time_in_datetime);
 
 if($stmt->execute()) {
-echo json_encode(['status' => 'success', 'message' => 'Direct sit-in created successfully!']);
+echo json_encode([
+'status' => 'success', 
+'message' => 'Direct sit-in created successfully!',
+'time' => date('g:i A', strtotime($time_in_datetime))
+]);
 } else {
 echo json_encode(['status' => 'error', 'message' => 'Failed to create direct sit-in']);
 }
-exit();
+} else {
+echo json_encode(['status' => 'error', 'message' => implode(' ', $errors)]);
 }
+exit();
 }
 
 // Handle AJAX search request
@@ -344,7 +350,7 @@ onerror="this.src='https://cdn-icons-png.flaticon.com/512/2815/2815428.png'">
 </div>
 <button onclick="openReservationModal('${student.IDNO}', '${student.First_Name} ${student.Last_Name}')"
 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
-Make Reservation
+Direct Sit-in
 </button>
 `;
 document.getElementById('studentInfo').innerHTML = html;
@@ -420,19 +426,6 @@ confirmButtonColor: '#3085d6'
 </div>
 
 <div class="mb-4">
-    <label class="block text-gray-700 text-sm font-bold mb-2">Time In:</label>
-    <input type="time" 
-           name="time_in" 
-           class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
-           id="time_in"
-           min="07:30"
-           max="20:00"
-           value="07:30"
-           required>
-    <small class="text-gray-500 text-xs mt-1 block">Lab hours: 7:30 AM - 8:00 PM</small>
-</div>
-
-<div class="mb-4">
 <label class="block text-gray-700 text-sm font-bold mb-2">Purpose:</label>
 <select name="purpose" class="shadow border rounded w-full py-2 px-3 text-gray-700" required>
 <?php foreach(getProgrammingLanguages() as $language): ?>
@@ -457,27 +450,6 @@ Submit
 </div>
 </div>
 <script>
-// Add client-side validation
-document.querySelector('input[name="time_in"]').addEventListener('change', function(e) {
-const selectedTime = this.value;
-const hour = parseInt(selectedTime.split(':')[0]);
-const warningDiv = document.getElementById('warningMessages');
-let warnings = [];
-
-// Check operating hours
-if (hour < 7 || hour > 20) {
-warnings.push("Reservations are only allowed between 7 AM and 8 PM");
-}
-
-if (warnings.length > 0) {
-warningDiv.innerHTML = warnings.join('<br>');
-warningDiv.classList.remove('hidden');
-e.target.value = '07:30'; // Reset to default time
-} else {
-warningDiv.classList.add('hidden');
-}
-});
-
 // Enhanced success/error messages
 <?php if(isset($message)): ?>
 Swal.fire({
