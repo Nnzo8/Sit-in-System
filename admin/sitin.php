@@ -110,10 +110,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#000080',
+                        secondary: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-100">
-    <!-- Navigation -->
-    <nav class="bg-primary shadow-lg">
+<!-- Navigation -->
+<nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
                 <span class="text-white text-xl font-bold py-4">Sit-in</span>
@@ -150,73 +161,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
         </div>
     </nav>
 
+<body class="bg-gray-100">
     <div class="max-w-7xl mx-auto py-6 px-4">
         <!-- Analytics Section -->
-        <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-white p-4 rounded-lg shadow" style="width: 400px;">
-                <h3 class="text-lg font-semibold mb-4">Programming Languages Distribution</h3>
-                <div class="flex flex-col items-center">
-                    <div style="width: 250px; height: 250px;">
-                        <canvas id="languageChart"></canvas>
-                    </div>
-                    <div class="mt-4 text-sm grid grid-cols-2 gap-2">
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #FF6384;"></span>
-                            <span class="text-xs">ASP.Net</span>
+        <div class="flex flex-col items-center justify-center mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4 text-center">Programming Languages Distribution</h3>
+                    <div class="flex flex-col items-center">
+                        <div class="w-64 h-64">
+                            <canvas id="languageChart"></canvas>
                         </div>
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #36A2EB;"></span>
-                            <span class="text-xs">C</span>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #FFCE56;"></span>
-                            <span class="text-xs">C++</span>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #4BC0C0;"></span>
-                            <span class="text-xs">C#</span>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #9d1a67;"></span>
-                            <span class="text-xs">Java</span>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #682cbd;"></span>
-                            <span class="text-xs">PHP</span>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #c371cd;"></span>
-                            <span class="text-xs">Python</span>
+                        <!-- Language legend remains the same -->
+                        <div class="mt-4 text-sm grid grid-cols-2 gap-2">
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #FF6384;"></span>
+                                <span class="text-xs">ASP.Net</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #36A2EB;"></span>
+                                <span class="text-xs">C</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #FFCE56;"></span>
+                                <span class="text-xs">C++</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #4BC0C0;"></span>
+                                <span class="text-xs">C#</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #9d1a67;"></span>
+                                <span class="text-xs">Java</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #682cbd;"></span>
+                                <span class="text-xs">PHP</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #c371cd;"></span>
+                                <span class="text-xs">Python</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow" style="width: 400px;">
-                <h3 class="text-lg font-semibold mb-4">Lab Room Distribution</h3>
-                <div class="flex flex-col items-center">
-                    <div style="width: 250px; height: 250px;">
-                        <canvas id="labRoomChart"></canvas>
-                    </div>
-                    <div class="mt-4 text-sm grid grid-cols-2 gap-2">
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #FF9F40;"></span>
-                            <span class="text-xs">Lab 524</span>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4 text-center">Lab Room Distribution</h3>
+                    <div class="flex flex-col items-center">
+                        <div class="w-64 h-64">
+                            <canvas id="labRoomChart"></canvas>
                         </div>
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #4BC0C0;"></span>
-                            <span class="text-xs">Lab 526</span>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #36A2EB;"></span>
-                            <span class="text-xs">Lab 528</span>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #FF6384;"></span>
-                            <span class="text-xs">Lab 530</span>
-                        </div>
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 inline-block mr-2" style="background-color: #682cbd;"></span>
-                            <span class="text-xs">Lab 542</span>
+                        <!-- Lab room legend remains the same -->
+                        <div class="mt-4 text-sm grid grid-cols-2 gap-2">
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #FF9F40;"></span>
+                                <span class="text-xs">Lab 524</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #4BC0C0;"></span>
+                                <span class="text-xs">Lab 526</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #36A2EB;"></span>
+                                <span class="text-xs">Lab 528</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #FF6384;"></span>
+                                <span class="text-xs">Lab 530</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #682cbd;"></span>
+                                <span class="text-xs">Lab 542</span>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -176,7 +176,18 @@ if ($search) {
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="course">Course</label>
-                    <input type="text" id="course" name="course" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    <select id="course" name="course" required class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                        <option value="" disabled selected>Select Course</option>
+                        <option value="BSIT">BSIT</option>
+                        <option value="BSCS">BSCS</option>
+                        <option value="BSHM">BSHM</option>
+                        <option value="BSBA">BSBA</option>
+                        <option value="College of Customs Administration">College of Customs Administration</option>
+                        <option value="College of Education">College of Education</option>
+                        <option value="College of Engineering">College of Engineering</option>
+                        <option value="College of Arts and Sciences">College of Arts and Sciences</option>
+                        <option value="College of Nursing">College of Nursing</option>
+                    </select>
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="yearlevel">Year Level</label>
