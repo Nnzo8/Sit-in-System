@@ -22,14 +22,20 @@ $conn = new mysqli($servername, $username, $password, $database);
 
 // Fetch active sit-in records from both sit_in_records and direct_sitin
 $active_sql = "
-    SELECT sr.id, sr.IDNO, sr.lab_room, sr.time_in, sr.purpose, s.First_Name, s.Last_Name, s.Course, s.Year_lvl
+    SELECT sr.id, sr.IDNO, sr.lab_room, sr.time_in, sr.purpose, 
+           s.First_Name, s.Last_Name, s.Course, s.Year_lvl,
+           ss.remaining_sessions
     FROM sit_in_records sr
     JOIN students s ON sr.IDNO = s.IDNO
+    LEFT JOIN student_session ss ON sr.IDNO = ss.id_number
     WHERE sr.status = 'active'
     UNION
-    SELECT ds.id, ds.IDNO, ds.lab_room, ds.time_in, ds.purpose, s.First_Name, s.Last_Name, s.Course, s.Year_lvl
+    SELECT ds.id, ds.IDNO, ds.lab_room, ds.time_in, ds.purpose, 
+           s.First_Name, s.Last_Name, s.Course, s.Year_lvl,
+           ss.remaining_sessions
     FROM direct_sitin ds
     JOIN students s ON ds.IDNO = s.IDNO
+    LEFT JOIN student_session ss ON ds.IDNO = ss.id_number
     WHERE ds.status = 'active'
 ";
 $active_result = $conn->query($active_sql);
@@ -256,6 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab Room</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time In</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sessions Left</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
                         </thead>
@@ -273,6 +280,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                                     <td class="px-6 py-4"><?= htmlspecialchars($row['lab_room']) ?></td>
                                     <td class="px-6 py-4"><?= date('g:i A', strtotime($row['time_in'])) ?></td>
                                     <td class="px-6 py-4"><?= htmlspecialchars($row['purpose']) ?></td>
+                                    <td class="px-6 py-4">
+                                        <span class="<?= $row['remaining_sessions'] <= 5 ? 'text-red-500 font-bold' : '' ?>">
+                                            <?= htmlspecialchars($row['remaining_sessions']) ?>
+                                        </span>
+                                    </td>
                                     <td class="px-6 py-4">
                                         <form class="flex gap-2 timeout-form" data-id="<?= $row['id'] ?>" data-table="<?= $table ?>">
                                             <button type="button" 

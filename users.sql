@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 16, 2025 at 04:19 AM
+-- Generation Time: Mar 19, 2025 at 01:09 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,16 +31,9 @@ CREATE TABLE `announcements` (
   `announce_id` int(11) NOT NULL,
   `admin_username` varchar(25) NOT NULL,
   `date` varchar(25) NOT NULL,
-  `message` varchar(255) NOT NULL
+  `message` varchar(255) NOT NULL,
+  `time` time NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `announcements`
---
-
-INSERT INTO `announcements` (`announce_id`, `admin_username`, `date`, `message`) VALUES
-(0, 'qweqwe', '2025-03-06', 'Hatdog ka?'),
-(0, 'qweqwe', '2025-03-11', 'This is an announcement');
 
 -- --------------------------------------------------------
 
@@ -59,6 +52,13 @@ CREATE TABLE `direct_sitin` (
   `date_updated` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `direct_sitin`
+--
+
+INSERT INTO `direct_sitin` (`id`, `IDNO`, `lab_room`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`) VALUES
+(4, '2323', 'Lab 530', '2025-03-19 09:30:24', '2025-03-19 09:30:39', 'completed', 'Python', '2025-03-19 01:30:24');
+
 -- --------------------------------------------------------
 
 --
@@ -72,6 +72,13 @@ CREATE TABLE `feedback` (
   `date` varchar(25) NOT NULL,
   `message` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `feedback`
+--
+
+INSERT INTO `feedback` (`feedback_id`, `IDNO`, `lab`, `date`, `message`) VALUES
+(0, 2323, 0, '2025-03-19', 'This is nice');
 
 -- --------------------------------------------------------
 
@@ -109,14 +116,6 @@ CREATE TABLE `sit_in_records` (
   `date_updated` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `sit_in_records`
---
-
-INSERT INTO `sit_in_records` (`id`, `IDNO`, `lab_room`, `pc_number`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`) VALUES
-(4, '2323', 'Lab 528', 1, '2025-03-16 07:30:00', NULL, 'pending', 'ASP.Net', '2025-03-16 03:09:32'),
-(5, '2323', 'Lab 524', 1, '2025-03-16 07:30:00', NULL, 'pending', 'ASP.Net', '2025-03-16 03:18:45');
-
 -- --------------------------------------------------------
 
 --
@@ -143,7 +142,7 @@ CREATE TABLE `students` (
 --
 
 INSERT INTO `students` (`StudID`, `IDNO`, `Last_Name`, `First_Name`, `Mid_Name`, `Course`, `Year_lvl`, `Username`, `Password`, `profile_image`, `Email`, `Address`) VALUES
-(1, 2323, 'asdas', 'dasdas', 'dasdas', 'College of Engineering', 1, 'asdasd', '$2y$10$E3lrN9Gylvi2a/wdGIuvSepFpR3Yjwx71kZ8q1oeTYVGPuFsBuKMi', 'uploads/67d236ba27906.png', 'asdas@gmail.com', 'asdasd'),
+(1, 2323, 'asdas', 'dasdas', 'dasdas', 'College of Engineering', 1, 'asdasd', '$2y$10$E3lrN9Gylvi2a/wdGIuvSepFpR3Yjwx71kZ8q1oeTYVGPuFsBuKMi', 'uploads/67d94937c06be.png', 'asdas@gmail.com', 'asdasd'),
 (2, 888, 'Ocliasa', 'Ninzo', 'Dumandan', 'BSIT', 3, 'qweqwe', '$2y$10$qzH5V3co3NfiiQ15B32MZe4/hVG6Sisb9I29Xagx7KcM.JoDSPuky', 'uploads/67bfd4fcdaca2.jpg', 'ninorollaneocliasa@gmail.com', 'Lahug Cebu City'),
 (4, 22683361, 'Ocliasa', 'Nino Rollane ', 'Dumandan', 'BSIT', 3, 'qwerty', '$2y$10$5M/txXWM9CXnZLDrChSJX.1DXIq06vrBIJZltcyGG/CcIwNm.TZQW', 'uploads/67ca5ae740e75.png', 'ninorollaneocliasa@gmail.com', 'Cebu City'),
 (5, 123123, 'zxczxc', 'zxc', 'zx', 'BSCS', 2, 'zxczxc', '$2y$10$KeZ5Q.6Euxk.nbiSVG6LxONuBkhbhGJUiOh2wT4iRGCxnRb7fYW82', '', '', '');
@@ -164,9 +163,9 @@ CREATE TABLE `student_session` (
 --
 
 INSERT INTO `student_session` (`id_number`, `remaining_sessions`) VALUES
-(888, 0),
-(2323, 25),
-(123123, 21);
+(888, 30),
+(2323, 29),
+(123123, 30);
 
 --
 -- Indexes for dumped tables
@@ -198,7 +197,7 @@ ALTER TABLE `students`
 -- AUTO_INCREMENT for table `direct_sitin`
 --
 ALTER TABLE `direct_sitin`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `sit_in_records`
@@ -210,10 +209,8 @@ ALTER TABLE `sit_in_records`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `StudID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `StudID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
-
-
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
