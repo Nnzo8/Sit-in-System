@@ -377,7 +377,7 @@ let html = `
         <button onclick="openReservationModal('${student.IDNO}', '${student.First_Name} ${student.Last_Name}')"
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 w-full">
             <i class="fas fa-sign-in-alt mr-2"></i>
-            Direct Sit-in
+            Sit-in
         </button>
     </div>
 </div>

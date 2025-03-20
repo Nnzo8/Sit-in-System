@@ -49,8 +49,8 @@ $profileImage = !empty($user['profile_image']) && file_exists($user['profile_ima
 // Set default value of 30 if no sessions are found
 $remainingSessions = $user['remaining_sessions'] ?? 30;
 
-// Fetch announcements from database
-$sql = "SELECT * FROM announcements ORDER BY date DESC LIMIT 10";
+// Fetch announcements from database - modify this section
+$sql = "SELECT * FROM announcements ORDER BY date DESC, time DESC LIMIT 10";
 $result = $conn->query($sql);
 $announcements = [];
 
@@ -173,7 +173,7 @@ if ($result->num_rows > 0) {
                 <?php else: ?>
                     <?php foreach ($announcements as $index => $announcement): 
                         // Determine if this is a new announcement (less than 1 day old)
-                        $isNew = (strtotime($announcement['date']) > strtotime('-1 day'));
+                        $isNew = (strtotime($announcement['date'] . ' ' . $announcement['time']) > strtotime('-1 day'));
                         $class = $isNew ? 'new-announcement' : '';
                     ?>
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 <?php echo $class; ?>">
@@ -183,7 +183,10 @@ if ($result->num_rows > 0) {
                                     <span class="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">New</span>
                                 <?php endif; ?>
                             </h6>
-                            <p class="text-gray-500 text-xs mb-1"><?php echo date('Y-M-d', strtotime($announcement['date'])); ?></p>
+                            <p class="text-gray-500 text-xs mb-1">
+                                <?php echo date('F d, Y', strtotime($announcement['date'])) . ' at ' . 
+                                          date('h:i A', strtotime($announcement['time'])); ?>
+                            </p>
                             <p class="text-blue-600"><?php echo htmlspecialchars($announcement['message']); ?></p>
                         </div>
                     <?php endforeach; ?>
