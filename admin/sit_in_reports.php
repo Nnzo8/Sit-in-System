@@ -1,5 +1,6 @@
 <?php
 session_start();
+include '../header.php';
 
 // Check if user is admin
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
@@ -41,6 +42,7 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
                         <a href="sitin.php" class="nav-link text-white hover:text-gray-200">Sit-in</a>
                         <a href="sit_in_records.php" class="nav-link text-white hover:text-gray-200">View Sit-in Records</a>
                         <a href="sit_in_reports.php" class="nav-link text-white hover:text-gray-200">Sit-in Reports</a>
+                        <a href="feedback.php" class="nav-link text-white hover:text-gray-200">View Feedbacks</a>
                         <a href="../logout.php" class="nav-link text-white hover:text-gray-200">Logout</a>
                     </div>
                 </div>
@@ -65,50 +67,19 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             </div>
         </div>
     </nav>
+
+<body class="bg-gray-100">
     <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Student Feedback</h2>
+                <h2 class="text-2xl font-bold">Sit-in Reports</h2>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Number</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Feedback</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <?php
-                        $conn = new mysqli("localhost", "root", "", "users");
-                        $sql = "SELECT f.IDNO, 
-                                      COALESCE(sir.lab_room, ds.lab_room) as lab_room,
-                                      f.date, 
-                                      f.message
-                               FROM feedback f
-                               LEFT JOIN sit_in_records sir ON f.IDNO = sir.IDNO
-                               LEFT JOIN direct_sitin ds ON f.IDNO = ds.IDNO
-                               ORDER BY f.date DESC";
-                        $result = $conn->query($sql);
-                        
-                        if ($result->num_rows > 0) {
-                            while($row = $result->fetch_assoc()) {
-                                echo "<tr>";
-                                echo "<td class='px-6 py-4 whitespace-nowrap'>" . htmlspecialchars($row['IDNO']) . "</td>";
-                                echo "<td class='px-6 py-4 whitespace-nowrap'>" . htmlspecialchars($row['lab_room']) . "</td>";
-                                echo "<td class='px-6 py-4 whitespace-nowrap'>" . htmlspecialchars($row['date']) . "</td>";
-                                echo "<td class='px-6 py-4'>" . htmlspecialchars($row['message']) . "</td>";
-                                echo "</tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='4' class='px-6 py-4 text-center'>No feedback available</td></tr>";
-                        }
-                        $conn->close();
-                        ?>
-                    </tbody>
-                </table>
+                <!-- Add your sit-in reports content here -->
+                <div class="p-6 text-center text-gray-500">
+                    <i class="fas fa-clipboard-list text-blue-500 mb-2 text-2xl"></i>
+                    <p>Coming soon: Sit-in usage reports and analytics</p>
+                </div>
             </div>
         </div>
     </div>

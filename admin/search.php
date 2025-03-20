@@ -2,6 +2,8 @@
 session_start();
 date_default_timezone_set('Asia/Manila');
 
+
+
 // Check if user is admin
 if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 header("Location: ../login.php");
@@ -188,6 +190,7 @@ secondary: '#1e293b'
 <a href="sitin.php" class="nav-link text-white hover:text-gray-200">Sit-in</a>
 <a href="sit_in_records.php" class="nav-link text-white hover:text-gray-200">View Sit-in Records</a>
 <a href="sit_in_reports.php" class="nav-link text-white hover:text-gray-200">Sit-in Reports</a>
+<a href="feedback.php" class="nav-link text-white hover:text-gray-200">View Feedbacks</a>
 <a href="../logout.php" class="nav-link text-white hover:text-gray-200">Logout</a>
 </div>
 </div>
@@ -329,29 +332,55 @@ let profileImage = student.profile_image && student.profile_image !== ''
 
 let html = `
 <input type="hidden" id="student_data" value='${JSON.stringify(student)}'>
-<div class="flex flex-col items-center mb-4">
-<img src="${profileImage}" 
-alt="Profile" 
-class="w-32 h-32 rounded-full mb-3 object-cover border-4 border-blue-200"
-onerror="this.src='https://cdn-icons-png.flaticon.com/512/2815/2815428.png'">
+<div class="flex flex-row gap-8">
+    <div class="flex-shrink-0">
+        <img src="${profileImage}" 
+            alt="Profile" 
+            class="w-48 h-48 rounded-lg object-cover border-4 border-blue-200"
+            onerror="this.src='https://cdn-icons-png.flaticon.com/512/2815/2815428.png'">
+    </div>
+    <div class="flex-grow">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-4">
+                <p class="flex items-center">
+                    <i class="fas fa-id-card text-blue-500 w-6"></i>
+                    <span class="ml-2"><strong>ID Number:</strong> ${student.IDNO}</span>
+                </p>
+                <p class="flex items-center">
+                    <i class="fas fa-user text-blue-500 w-6"></i>
+                    <span class="ml-2"><strong>Name:</strong> ${student.First_Name} ${student.Last_Name}</span>
+                </p>
+                <p class="flex items-center">
+                    <i class="fas fa-graduation-cap text-blue-500 w-6"></i>
+                    <span class="ml-2"><strong>Course:</strong> ${student.Course}</span>
+                </p>
+                <p class="flex items-center">
+                    <i class="fas fa-layer-group text-blue-500 w-6"></i>
+                    <span class="ml-2"><strong>Year Level:</strong> ${student.Year_lvl}</span>
+                </p>
+            </div>
+            <div class="space-y-4">
+                <p class="flex items-center">
+                    <i class="fas fa-envelope text-blue-500 w-6"></i>
+                    <span class="ml-2"><strong>Email:</strong> ${student.Email || 'Not set'}</span>
+                </p>
+                <p class="flex items-center">
+                    <i class="fas fa-map-marker-alt text-blue-500 w-6"></i>
+                    <span class="ml-2"><strong>Address:</strong> ${student.Address || 'Not set'}</span>
+                </p>
+                <p class="flex items-center">
+                    <i class="fas fa-clock text-blue-500 w-6"></i>
+                    <span class="ml-2 font-bold text-lg text-blue-600"><strong>Remaining Sessions:</strong> ${student.remaining_sessions}</span>
+                </p>
+            </div>
+        </div>
+        <button onclick="openReservationModal('${student.IDNO}', '${student.First_Name} ${student.Last_Name}')"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 w-full">
+            <i class="fas fa-sign-in-alt mr-2"></i>
+            Direct Sit-in
+        </button>
+    </div>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div class="space-y-3">
-<p><strong>ID Number:</strong> ${student.IDNO}</p>
-<p><strong>Name:</strong> ${student.First_Name} ${student.Last_Name}</p>
-<p><strong>Course:</strong> ${student.Course}</p>
-<p><strong>Year Level:</strong> ${student.Year_lvl}</p>
-</div>
-<div class="space-y-3">
-<p><strong>Email:</strong> ${student.Email || 'Not set'}</p>
-<p><strong>Address:</strong> ${student.Address || 'Not set'}</p>
-<p class="font-bold text-lg text-blue-600"><strong>Remaining Sessions:</strong> ${student.remaining_sessions}</p>
-</div>
-</div>
-<button onclick="openReservationModal('${student.IDNO}', '${student.First_Name} ${student.Last_Name}')"
-class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
-Direct Sit-in
-</button>
 `;
 document.getElementById('studentInfo').innerHTML = html;
 closeSearchModal();

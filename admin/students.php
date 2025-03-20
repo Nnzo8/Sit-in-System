@@ -1,5 +1,6 @@
 <?php
 session_start();
+include '../header.php';
 
 $servername = "localhost";
 $username = "root";
@@ -57,6 +58,7 @@ if ($search) {
                         <a href="sitin.php" class="nav-link text-white hover:text-gray-200">Sit-in</a>
                         <a href="sit_in_records.php" class="nav-link text-white hover:text-gray-200">View Sit-in Records</a>
                         <a href="sit_in_reports.php" class="nav-link text-white hover:text-gray-200">Sit-in Reports</a>
+                        <a href="feedback.php" class="nav-link text-white hover:text-gray-200">View Feedbacks</a>
                         <a href="../logout.php" class="nav-link text-white hover:text-gray-200">Logout</a>
                     </div>
                 </div>

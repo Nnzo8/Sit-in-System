@@ -1,5 +1,6 @@
 <?php
 session_start();
+include '../header.php';
 
 // Define static admin credentials
 define('ADMIN_USERNAME', 'admin');
@@ -219,6 +220,7 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                         <a href="sitin.php" class="nav-link text-white hover:text-gray-200">Sit-in</a>
                         <a href="sit_in_records.php" class="nav-link text-white hover:text-gray-200">View Sit-in Records</a>
                         <a href="sit_in_reports.php" class="nav-link text-white hover:text-gray-200">Sit-in Reports</a>
+                        <a href="feedback.php" class="nav-link text-white hover:text-gray-200">View Feedbacks</a>
                         <a href="../logout.php" class="nav-link text-white hover:text-gray-200">Logout</a>
                     </div>
                 </div>
@@ -439,8 +441,8 @@ $total_sitins = $result->fetch_assoc()['total_count'];
             });
 
             // Bar Chart for student year levels
-            const ctxBar = document.getElementById('YearLevelChart').getContext('2d');
-            const YearLevelChart = new Chart(ctxBar, {
+            const ctxBar = document.getElementById('yearLevelChart').getContext('2d');
+            const yearLevelChart = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
                     labels: <?php echo json_encode($YearLevelData['labels']); ?>,
@@ -448,15 +450,15 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                         label: 'Number of Students',
                         data: <?php echo json_encode($YearLevelData['data']); ?>,
                         backgroundColor: [
-                            'rgba(54, 162, 235, 0.7)', // Blue
-                            'rgba(75, 192, 192, 0.7)', // Teal
-                            'rgba(153, 102, 255, 0.7)', // Purple
-                            'rgba(255, 159, 64, 0.7)'  // Orange
+                            'rgba(54, 162, 235, 0.7)',  // 1st Year - Blue
+                            'rgba(255, 99, 132, 0.7)',  // 2nd Year - Red
+                            'rgba(75, 192, 192, 0.7)',  // 3rd Year - Green
+                            'rgba(255, 159, 64, 0.7)'   // 4th Year - Orange
                         ],
                         borderColor: [
                             'rgba(54, 162, 235, 1)',
+                            'rgba(255, 99, 132, 1)',
                             'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
                             'rgba(255, 159, 64, 1)'
                         ],
                         borderWidth: 1
@@ -468,25 +470,37 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                     scales: {
                         y: {
                             beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            },
                             title: {
                                 display: true,
-                                text: 'Number of Students'
+                                text: 'Number of Students',
+                                font: {
+                                    weight: 'bold'
+                                }
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Year Level'
+                                text: 'Year Level',
+                                font: {
+                                    weight: 'bold'
+                                }
                             }
                         }
                     },
                     plugins: {
                         legend: {
-                            display: true,
-                            position: 'top'
-                        },
-                        title: {
                             display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: (tooltipItems) => {
+                                    return tooltipItems[0].label + ' Students';
+                                }
+                            }
                         }
                     }
                 }
