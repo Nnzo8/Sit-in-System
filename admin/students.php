@@ -177,6 +177,10 @@ if ($search) {
                     <input type="text" id="lastname" name="lastname" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
                 </div>
                 <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
+                    <input type="password" id="password" name="password" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                 </div>
+                <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="course">Course</label>
                     <select id="course" name="course" required class="shadow border rounded w-full py-2 px-3 text-gray-700">
                         <option value="" disabled selected>Select Course</option>
