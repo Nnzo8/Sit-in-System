@@ -6,32 +6,46 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     exit();
 }
 
+// Database connection details
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "users";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $database);
+
+// Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $conn = new mysqli("localhost", "root", "", "users");
-    
+    // Retrieve form data
     $idno = $_POST['idno'];
     $firstname = $_POST['firstname'];
     $lastname = $_POST['lastname'];
     $course = $_POST['course'];
     $yearlevel = $_POST['yearlevel'];
+    $username = $_POST['username'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Securely hash the password
+
+    // Prepare SQL statement to prevent SQL injection
+    $sql = "INSERT INTO students (IDNO, First_Name, Last_Name, Course, Year_lvl, username, password) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
     
-    // Insert into students table
-    $sql = "INSERT INTO students (IDNO, First_Name, Last_Name, Course, Year_lvl) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isssi", $idno, $firstname, $lastname, $course, $yearlevel);
-    
+    $stmt->bind_param("sssssss", $idno, $firstname, $lastname, $course, $yearlevel, $username, $password);
+
+    // Execute the statement
     if ($stmt->execute()) {
-        // Also add entry in student_session table
-        $sql2 = "INSERT INTO student_session (id_number, remaining_sessions) VALUES (?, 30)";
-        $stmt2 = $conn->prepare($sql2);
-        $stmt2->bind_param("i", $idno);
-        $stmt2->execute();
-        
+        // Redirect back to students page with success message
         header("Location: students.php?add=success");
+        exit();
     } else {
+        // Redirect back with error message
         header("Location: students.php?add=error");
+        exit();
     }
-    
+
+    // Close statement and connection
+    $stmt->close();
     $conn->close();
 }
 ?>

@@ -166,7 +166,7 @@ if ($search) {
             <form action="add_student.php" method="POST">
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="idno">ID Number</label>
-                    <input type="text" id="idno" name="idno" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <input type="text" id="idno" name="idno" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required min = "0">
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="firstname">First Name</label>
@@ -176,10 +176,6 @@ if ($search) {
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="lastname">Last Name</label>
                     <input type="text" id="lastname" name="lastname" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
                 </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
-                    <input type="password" id="password" name="password" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
-                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="course">Course</label>
                     <select id="course" name="course" required class="shadow border rounded w-full py-2 px-3 text-gray-700">
@@ -203,6 +199,14 @@ if ($search) {
                         <option value="3">3rd Year</option>
                         <option value="4">4th Year</option>
                     </select>
+                </div>
+                <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>
+                <input type="text" name="username" class="form-control" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                </div>
+                <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
+                <input type="password" name="password" class="form-control" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
                 </div>
                 <div class="flex justify-end space-x-2">
                     <button type="button" onclick="closeAddStudentModal()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
