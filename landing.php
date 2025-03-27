@@ -1,13 +1,11 @@
-<?php
-include('conn/dbcon.php');
-?>
+
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/tailwind.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/png" href="images/ccswb.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>Lab Monitoring System</title>
@@ -19,7 +17,7 @@ include('conn/dbcon.php');
             <div class="flex justify-between items-center h-16">
                 <a href="#" class="flex items-center space-x-2">
                     <div class="h-8 w-8 bg-blue-500 rounded flex items-center justify-center">
-                        <img src="images/ccswb.png" alt="Logo" class="h-6 w-6 invert">
+                        <img src="imgs/logo.jpg" alt="Logo" class="h-6 w-6 invert">
                     </div>
                     <span class="font-medium tracking-wide">LabTrack</span>
                 </a>
@@ -33,7 +31,7 @@ include('conn/dbcon.php');
                 
                 <div class="flex items-center">
                     <a href="login.php" class="text-sm px-4 py-2 text-gray-600 hover:text-blue-500 transition-colors duration-200">Sign in</a>
-                    <a href="login.php?form=register" class="text-sm px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200">Register</a>
+                    <a href="registration.php?form=register" class="text-sm px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200">Register</a>
                 </div>
                 
                 <button class="md:hidden text-gray-700">
