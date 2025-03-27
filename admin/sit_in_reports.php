@@ -68,20 +68,72 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         </div>
     </nav>
 
-<body class="bg-gray-100">
+
     <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">Sit-in Reports</h2>
-            </div>
-            <div class="overflow-x-auto">
-                <!-- Add your sit-in reports content here -->
-                <div class="p-6 text-center text-gray-500">
-                    <i class="fas fa-clipboard-list text-blue-500 mb-2 text-2xl"></i>
-                    <p>Coming soon: Sit-in usage reports and analytics</p>
+                <div class="space-x-2">
+                    <button onclick="exportToCSV()" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
+                        <i class="fas fa-file-csv mr-2"></i>Export CSV
+                    </button>
+                    <button onclick="exportToExcel()" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                        <i class="fas fa-file-excel mr-2"></i>Export Excel
+                    </button>
+                    <button onclick="exportToPDF()" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">
+                        <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                    </button>
                 </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <?php if (mysqli_num_rows($result) > 0): ?>
+                    <table id="sit-in-table" class="w-full text-sm text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">ID</th>
+                                <th scope="col" class="px-6 py-3">Student ID</th>
+                                <th scope="col" class="px-6 py-3">Name</th>
+                                <th scope="col" class="px-6 py-3">Course</th>
+                                <th scope="col" class="px-6 py-3">Date</th>
+                                <th scope="col" class="px-6 py-3">Time In</th>
+                                <th scope="col" class="px-6 py-3">Time Out</th>
+                                <th scope="col" class="px-6 py-3">Reason</th>
+                                <th scope="col" class="px-6 py-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['id']); ?></td>
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['student_id']); ?></td>
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['name']); ?></td>
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['course']); ?></td>
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['date']); ?></td>
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['time_in']); ?></td>
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['time_out']); ?></td>
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['reason']); ?></td>
+                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['status']); ?></td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <div class="p-6 text-center text-gray-500">
+                        <i class="fas fa-clipboard-list text-blue-500 mb-2 text-2xl"></i>
+                        <p>No sit-in records found.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
+
+    <script>
+        // Mobile navigation toggle function
+        function toggleNav() {
+            const navbarNav = document.getElementById('navbarNav');
+            navbarNav.classList.toggle('hidden');
+        }
+    </script>
 </body>
 </html>
