@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +7,83 @@
     <link rel="icon" type="image/png" href="images/ccswb.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>Lab Monitoring System</title>
+    <style>
+        /* Fade in animations */
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        
+        .slide-in-left {
+            animation: slideInLeft 1s ease-out;
+        }
+        
+        .slide-in-right {
+            animation: slideInRight 1s ease-out;
+        }
+        
+        .bounce-in {
+            animation: bounceIn 1s cubic-bezier(0.36, 0, 0.66, -0.56);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Page transition animations */
+        .section-transition {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .section-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
 </head>
 <body class="bg-white font-sans text-gray-900">
     <!-- Minimal Navigation -->
@@ -23,7 +98,7 @@
                 </a>
                 
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#" class="text-sm text-gray-600 hover:text-blue-500 transition-colors duration-200">Home</a>
+                    <a href="#home" class="text-sm text-gray-600 hover:text-blue-500 transition-colors duration-200">Home</a>
                     <a href="#system" class="text-sm text-gray-600 hover:text-blue-500 transition-colors duration-200">System</a>
                     <a href="#benefits" class="text-sm text-gray-600 hover:text-blue-500 transition-colors duration-200">Benefits</a>
                     <a href="#stats" class="text-sm text-gray-600 hover:text-blue-500 transition-colors duration-200">Stats</a>
@@ -44,10 +119,10 @@
     </nav>
 
     <!-- Clean, Minimal Hero -->
-    <section class="pt-32 pb-24 bg-white">
+    <section id="home" class="pt-32 pb-24 bg-white section-transition">
         <div class="container mx-auto px-6">
             <div class="flex flex-col md:flex-row items-center">
-                <div class="md:w-1/2 md:pr-16">
+                <div class="md:w-1/2 md:pr-16 slide-in-left">
                     <span class="inline-block px-3 py-1 bg-blue-50 text-blue-500 rounded-full text-xs font-medium mb-6">CCS MONITORING SYSTEM</span>
                     <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-gray-900 mb-6">
                         Simplified Lab<br>
@@ -65,7 +140,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="md:w-1/2 mt-12 md:mt-0">
+                <div class="md:w-1/2 mt-12 md:mt-0 slide-in-right">
                     <div class="relative">
                         <div class="absolute -inset-4 bg-blue-100 rounded-lg transform rotate-3"></div>
                         <img src="images/manpc.png" alt="Lab Monitoring" class="relative z-10 rounded-lg shadow-lg">
@@ -82,7 +157,7 @@
     </div>
 
     <!-- System Overview Minimal Cards -->
-    <section id="system" class="py-20 bg-gray-50">
+    <section id="system" class="py-20 bg-gray-50 section-transition">
         <div class="container mx-auto px-6">
             <div class="max-w-xl mx-auto text-center mb-16">
                 <span class="inline-block px-3 py-1 bg-blue-50 text-blue-500 rounded-full text-xs font-medium mb-4">SYSTEM COMPONENTS</span>
@@ -196,7 +271,7 @@
     </section>
 
     <!-- Process Steps with Minimal Timeline -->
-    <section class="py-20 bg-white">
+    <section class="py-20 bg-white section-transition">
         <div class="container mx-auto px-6">
             <div class="max-w-xl mx-auto text-center mb-16">
                 <span class="inline-block px-3 py-1 bg-blue-50 text-blue-500 rounded-full text-xs font-medium mb-4">HOW IT WORKS</span>
@@ -253,7 +328,7 @@
     </section>
 
     <!-- Key Benefits with Minimal Icons -->
-    <section id="benefits" class="py-20 bg-gray-50">
+    <section id="benefits" class="py-20 bg-gray-50 section-transition">
         <div class="container mx-auto px-6">
             <div class="max-w-xl mx-auto text-center mb-16">
                 <span class="inline-block px-3 py-1 bg-blue-50 text-blue-500 rounded-full text-xs font-medium mb-4">BENEFITS</span>
@@ -320,7 +395,7 @@
     </section>
 
     <!-- Stats Section with Minimal Design -->
-    <section id="stats" class="py-20 bg-white">
+    <section id="stats" class="py-20 bg-white section-transition">
         <div class="container mx-auto px-6">
             <div class="max-w-xl mx-auto text-center mb-16">
                 <span class="inline-block px-3 py-1 bg-blue-50 text-blue-500 rounded-full text-xs font-medium mb-4">BY THE NUMBERS</span>
@@ -332,25 +407,25 @@
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <!-- Stat 1 -->
-                <div class="p-6 bg-blue-50 rounded-lg text-center">
+                <div class="p-6 bg-blue-50 rounded-lg text-center bounce-in">
                     <p class="text-3xl lg:text-4xl font-bold text-blue-600 mb-2">50+</p>
                     <p class="text-sm text-gray-700">Computers Managed</p>
                 </div>
                 
                 <!-- Stat 2 -->
-                <div class="p-6 bg-blue-50 rounded-lg text-center">
+                <div class="p-6 bg-blue-50 rounded-lg text-center bounce-in" style="animation-delay: 0.2s;">
                     <p class="text-3xl lg:text-4xl font-bold text-blue-600 mb-2">1,000+</p>
                     <p class="text-sm text-gray-700">Student Users</p>
                 </div>
                 
                 <!-- Stat 3 -->
-                <div class="p-6 bg-blue-50 rounded-lg text-center">
+                <div class="p-6 bg-blue-50 rounded-lg text-center bounce-in" style="animation-delay: 0.4s;">
                     <p class="text-3xl lg:text-4xl font-bold text-blue-600 mb-2">12h</p>
                     <p class="text-sm text-gray-700">Daily Operation</p>
                 </div>
                 
                 <!-- Stat 4 -->
-                <div class="p-6 bg-blue-50 rounded-lg text-center">
+                <div class="p-6 bg-blue-50 rounded-lg text-center bounce-in" style="animation-delay: 0.6s;">
                     <p class="text-3xl lg:text-4xl font-bold text-blue-600 mb-2">95%</p>
                     <p class="text-sm text-gray-700">Resource Efficiency</p>
                 </div>
@@ -359,7 +434,7 @@
     </section>
 
     <!-- Simple CTA -->
-    <section class="py-16 bg-blue-500">
+    <section class="py-16 bg-blue-500 section-transition">
         <div class="container mx-auto px-6 text-center">
             <h2 class="text-2xl md:text-3xl font-semibold text-white mb-6">
                 Ready to optimize your lab experience?
@@ -371,7 +446,7 @@
     </section>
 
     <!-- Minimal Footer -->
-    <footer class="bg-gray-900 text-gray-400 py-12">
+    <footer class="bg-gray-900 text-gray-400 py-12 section-transition">
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
@@ -460,6 +535,44 @@
             } else {
                 navbar.classList.remove('shadow');
             }
+        });
+
+        // Section transition animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add transition class to all sections
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.add('section-transition');
+            });
+
+            // Intersection Observer for section animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('section-visible');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            // Observe all sections
+            document.querySelectorAll('.section-transition').forEach(section => {
+                observer.observe(section);
+            });
+
+            // Smooth scroll for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = document.querySelector(this.getAttribute('href'));
+                    if (section) {
+                        section.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
         });
     </script>
 </body>
