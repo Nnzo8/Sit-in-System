@@ -7,6 +7,44 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header("Location: ../login.php");
     exit();
 }
+
+// Add database connection
+$conn = mysqli_connect("localhost", "root", "", "users");
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Query to combine records from both tables
+$query = "SELECT 
+    'direct' as source,
+    d.id,
+    d.IDNO as student_id,
+    CONCAT(s1.First_Name, ' ', s1.Last_Name) as name,
+    s1.Course as course,
+    DATE(d.time_in) as date,
+    TIME(d.time_in) as time_in,
+    TIME(d.time_out) as time_out,
+    d.purpose as reason,
+    d.status
+FROM direct_sitin d
+LEFT JOIN students s1 ON d.IDNO = s1.IDNO
+UNION ALL
+SELECT 
+    'records' as source,
+    r.id,
+    r.IDNO as student_id,
+    CONCAT(s2.First_Name, ' ', s2.Last_Name) as name,
+    s2.Course as course,
+    DATE(r.time_in) as date,
+    TIME(r.time_in) as time_in,
+    TIME(r.time_out) as time_out,
+    r.purpose as reason,
+    r.status
+FROM sit_in_records r
+LEFT JOIN students s2 ON r.IDNO = s2.IDNO
+ORDER BY date DESC, time_in DESC";
+
+$result = mysqli_query($conn, $query);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,6 +66,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add these lines after the font-awesome import -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 </head>
 <!-- Navigation -->
 <nav class="bg-primary shadow-lg">
@@ -133,6 +174,92 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         function toggleNav() {
             const navbarNav = document.getElementById('navbarNav');
             navbarNav.classList.toggle('hidden');
+        }
+
+        function exportToCSV() {
+            const table = document.getElementById('sit-in-table');
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
+            
+            for (const row of rows) {
+                const cols = row.querySelectorAll('td,th');
+                const rowArray = Array.from(cols).map(col => '"' + (col.innerText || '').replace(/"/g, '""') + '"');
+                csv.push(rowArray.join(','));
+            }
+
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'sit_in_reports.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportToExcel() {
+            const table = document.getElementById('sit-in-table');
+            const html = table.outerHTML;
+            const url = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(html);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'sit_in_reports.xls');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportToPDF() {
+            // Get table data
+            const table = document.getElementById('sit-in-table');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            
+            // Extract headers
+            const headers = Array.from(rows[0].querySelectorAll('th')).map(header => header.textContent);
+            
+            // Extract data
+            const data = rows.slice(1).map(row => {
+                return Array.from(row.querySelectorAll('td')).map(cell => cell.textContent);
+            });
+
+            // Initialize jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add title
+            doc.setFontSize(16);
+            doc.text('Sit-in Reports', 14, 15);
+
+            // Create table
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                startY: 25,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [0, 0, 128],
+                    textColor: [255, 255, 255],
+                    fontSize: 8
+                },
+                bodyStyles: {
+                    fontSize: 8
+                },
+                columnStyles: {
+                    0: { cellWidth: 15 }, // ID
+                    1: { cellWidth: 20 }, // Student ID
+                    2: { cellWidth: 30 }, // Name
+                    3: { cellWidth: 25 }, // Course
+                    4: { cellWidth: 20 }, // Date
+                    5: { cellWidth: 20 }, // Time In
+                    6: { cellWidth: 20 }, // Time Out
+                    7: { cellWidth: 25 }, // Reason
+                    8: { cellWidth: 20 }  // Status
+                },
+                margin: { top: 25 }
+            });
+
+            // Save the PDF
+            doc.save('sit_in_reports.pdf');
         }
     </script>
 </body>
