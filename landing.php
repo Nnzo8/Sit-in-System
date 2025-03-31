@@ -94,7 +94,7 @@
                     <div class="h-8 w-8 bg-blue-500 rounded flex items-center justify-center">
                         <img src="imgs/logo.jpg" alt="Logo" class="h-6 w-6 invert">
                     </div>
-                    <span class="font-medium tracking-wide">LabTrack</span>
+                    <span class="font-medium tracking-wide">CCS Sit-in</span>
                 </a>
                 
                 <div class="hidden md:flex items-center space-x-8">
@@ -143,7 +143,7 @@
                 <div class="md:w-1/2 mt-12 md:mt-0 slide-in-right">
                     <div class="relative">
                         <div class="absolute -inset-4 bg-blue-100 rounded-lg transform rotate-3"></div>
-                        <img src="images/manpc.png" alt="Lab Monitoring" class="relative z-10 rounded-lg shadow-lg">
+                        <img src="imgs/UC.jpg" alt="Lab Monitoring" class="relative z-10 rounded-lg shadow-lg w-full h-auto object-cover max-w-lg mx-auto">
                     </div>
                 </div>
             </div>
@@ -414,7 +414,7 @@
                 
                 <!-- Stat 2 -->
                 <div class="p-6 bg-blue-50 rounded-lg text-center bounce-in" style="animation-delay: 0.2s;">
-                    <p class="text-3xl lg:text-4xl font-bold text-blue-600 mb-2">1,000+</p>
+                    <p class="text-3xl lg:text-4xl font-bold text-blue-600 mb-2">5,000+</p>
                     <p class="text-sm text-gray-700">Student Users</p>
                 </div>
                 
@@ -537,7 +537,7 @@
             }
         });
 
-        // Section transition animations
+        // Section transition animations with reset capability
         document.addEventListener('DOMContentLoaded', function() {
             // Add transition class to all sections
             document.querySelectorAll('section').forEach(section => {
@@ -548,11 +548,22 @@
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
+                        // Add visible class and reset animations
                         entry.target.classList.add('section-visible');
+                        entry.target.querySelectorAll('.slide-in-left, .slide-in-right, .bounce-in, .fade-in').forEach(element => {
+                            element.style.animation = 'none';
+                            element.offsetHeight; // Trigger reflow
+                            element.style.animation = null;
+                        });
+                    } else {
+                        // Remove visible class when out of view
+                        entry.target.classList.remove('section-visible');
                     }
                 });
             }, {
-                threshold: 0.1
+                threshold: 0.1,
+                root: null,
+                rootMargin: '0px'
             });
 
             // Observe all sections
