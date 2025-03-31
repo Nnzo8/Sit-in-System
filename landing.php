@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +8,45 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>Lab Monitoring System</title>
     <style>
+        /* Add dark mode styles */
+        .dark {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        .dark .bg-white {
+            background-color: #1a1a1a;
+        }
+        
+        .dark .text-gray-900 {
+            color: #ffffff;
+        }
+        
+        .dark .text-gray-600 {
+            color: #9ca3af;
+        }
+        
+        .dark .bg-gray-50 {
+            background-color: #262626;
+        }
+        
+        .dark .border-gray-100 {
+            border-color: #374151;
+        }
+        
+        .dark .bg-blue-50 {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        .dark nav {
+            background-color: #1a1a1a;
+            border-bottom: 1px solid #374151;
+        }
+        
+        .dark .section-transition {
+            background-color: #1a1a1a;
+        }
+        
         /* Fade in animations */
         .fade-in {
             animation: fadeIn 1s ease-in;
@@ -85,15 +124,12 @@
         }
     </style>
 </head>
-<body class="bg-white font-sans text-gray-900">
+<body class="bg-white font-sans text-gray-900 transition-colors duration-200">
     <!-- Minimal Navigation -->
     <nav class="fixed w-full z-50 bg-white shadow-sm transition-all duration-300">
         <div class="container mx-auto px-6">
             <div class="flex justify-between items-center h-16">
                 <a href="#" class="flex items-center space-x-2">
-                    <div class="h-8 w-8 bg-blue-500 rounded flex items-center justify-center">
-                        <img src="imgs/logo.jpg" alt="Logo" class="h-6 w-6 invert">
-                    </div>
                     <span class="font-medium tracking-wide">CCS Sit-in</span>
                 </a>
                 
@@ -104,16 +140,30 @@
                     <a href="#stats" class="text-sm text-gray-600 hover:text-blue-500 transition-colors duration-200">Stats</a>
                 </div>
                 
-                <div class="flex items-center">
-                    <a href="login.php" class="text-sm px-4 py-2 text-gray-600 hover:text-blue-500 transition-colors duration-200">Sign in</a>
-                    <a href="registration.php?form=register" class="text-sm px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200">Register</a>
+                <!-- Grouped auth buttons and dark mode toggle -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <a href="login.php" class="text-sm px-4 py-2 text-gray-600 hover:text-blue-500 transition-colors duration-200">Sign in</a>
+                        <a href="registration.php?form=register" class="text-sm px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200">Register</a>
+                    </div>
+                    
+                    <button id="darkModeToggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
+                        <!-- Sun icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 dark:text-gray-400 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <!-- Moon icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 dark:text-gray-400 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
+                    
+                    <button class="md:hidden text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
                 </div>
-                
-                <button class="md:hidden text-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
             </div>
         </div>
     </nav>
@@ -451,10 +501,8 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                     <div class="flex items-center space-x-2 mb-6">
-                        <div class="h-8 w-8 bg-blue-500 rounded flex items-center justify-center">
-                            <img src="images/ccswb.png" alt="Logo" class="h-6 w-6 invert">
-                        </div>
-                        <span class="text-white font-medium">LabTrack</span>
+                       
+                        <span class="text-white font-medium">CCS Sit-in</span>
                     </div>
                     <p class="text-sm">
                         A modern solution for computer laboratory tracking and management.
@@ -583,6 +631,28 @@
                         });
                     }
                 });
+            });
+
+            // Add Dark Mode Toggle functionality
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const html = document.documentElement;
+            
+            // Check for saved dark mode preference
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                html.classList.add('dark');
+            }
+            
+            // Toggle dark mode
+            darkModeToggle.addEventListener('click', function() {
+                html.classList.toggle('dark');
+                
+                // Save preference
+                if (html.classList.contains('dark')) {
+                    localStorage.setItem('darkMode', 'enabled');
+                } else {
+                    localStorage.setItem('darkMode', null);
+                }
             });
         });
     </script>

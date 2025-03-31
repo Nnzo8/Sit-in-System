@@ -1,0 +1,51 @@
+/* Dark mode styles for admin pages */
+.dark {
+    color-scheme: dark;
+}
+
+/* Background colors */
+.dark .bg-white {
+    background-color: #1a1a1a;
+}
+
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+    background-color: #262626;
+}
+
+/* Text colors */
+.dark .text-gray-500,
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-900 {
+    color: #d1d5db;
+}
+
+/* Table styles */
+.dark .divide-gray-200 > * + * {
+    border-color: #374151;
+}
+
+.dark .border-gray-200 {
+    border-color: #374151;
+}
+
+/* Form elements */
+.dark input,
+.dark select,
+.dark textarea {
+    background-color: #262626;
+    border-color: #4b5563;
+    color: #ffffff;
+}
+
+/* Cards */
+.dark .shadow-lg,
+.dark .shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+
+/* Hover states */
+.dark .hover\:bg-gray-50:hover {
+    background-color: #374151;
+}

@@ -116,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../css/admin-dark-mode.css">
     <script>
         tailwind.config = {
             theme: {
@@ -144,6 +145,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                         <a href="sit_in_reports.php" class="nav-link text-white hover:text-gray-200">Sit-in Reports</a>
                         <a href="feedback.php" class="nav-link text-white hover:text-gray-200">View Feedbacks</a>
                         <a href="../logout.php" class="nav-link text-white hover:text-gray-200">Logout</a>
+                        <button id="darkModeToggle" class="p-2 rounded-lg text-white hover:text-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
                 <!-- Mobile menu button -->
@@ -309,6 +318,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
     </div>
 
     <script>
+         // Dark mode toggle functionality
+ document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const html = document.documentElement;
+            
+            // Check for saved dark mode preference
+            const darkMode = localStorage.getItem('adminDarkMode');
+            if (darkMode === 'enabled') {
+                html.classList.add('dark');
+            }
+            
+            // Toggle dark mode
+            darkModeToggle.addEventListener('click', function() {
+                html.classList.toggle('dark');
+                
+                // Save preference
+                if (html.classList.contains('dark')) {
+                    localStorage.setItem('adminDarkMode', 'enabled');
+                } else {
+                    localStorage.setItem('adminDarkMode', null);
+                }
+            });
+        });
+
         let languageChart, labRoomChart;  // Make charts globally accessible
         
         // Chart configurations and initialization
