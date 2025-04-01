@@ -227,10 +227,15 @@ secondary: '#1e293b'
 
 <!-- Search Button -->
 <div class="max-w-7xl mx-auto px-4 py-6">
-<button onclick="openSearchModal()" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-900 transition-colors flex items-center">
-<i class="fas fa-search mr-2"></i>
-Search Student
-</button>
+    <button onclick="openSearchModal()" 
+        class="group relative bg-primary hover:bg-blue-700 text-white px-8 py-4 rounded-lg 
+        transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg 
+        flex items-center space-x-3 overflow-hidden">
+        <div class="absolute inset-0 w-3 bg-blue-600 transition-all duration-300 ease-in-out transform 
+            group-hover:w-full opacity-50"></div>
+        <i class="fas fa-search text-xl relative z-10"></i>
+        <span class="font-semibold text-lg relative z-10">Search Student</span>
+    </button>
 </div>
 
 <!-- Search Modal -->
@@ -251,18 +256,23 @@ Search
 </div>
 
 <!-- Results Modal -->
-<div id="resultsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full modal-animation">
-<div class="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white modal-content-animation">
-<div class="flex justify-between items-start">
-<h3 class="text-lg font-medium text-gray-900">Student Information</h3>
-<button onclick="closeResultsModal()" class="text-gray-400 hover:text-gray-500">
-<i class="fas fa-times"></i>
-</button>
+<div id="resultsModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden overflow-y-auto h-full w-full modal-animation flex items-center justify-center">
+    <div class="relative mx-auto p-8 border-0 w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 shadow-2xl rounded-xl bg-white modal-content-animation max-h-[90vh] overflow-y-auto">
+        <!-- Close button -->
+        <button onclick="closeResultsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+
+        <!-- Header -->
+        <h3 class="text-2xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">Student Information</h3>
+        
+        <!-- Content container -->
+        <div id="studentInfo" class="space-y-6">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+    </div>
 </div>
-<div id="studentInfo" class="mt-4">
-</div>
-</div>
-</div>
+
 <style>
 .modal-animation {
 animation: modalFade 0.3s ease-in-out;
@@ -341,52 +351,66 @@ let profileImage = student.profile_image && student.profile_image !== ''
 
 let html = `
 <input type="hidden" id="student_data" value='${JSON.stringify(student)}'>
-<div class="flex flex-row gap-8">
-    <div class="flex-shrink-0">
-        <img src="${profileImage}" 
-            alt="Profile" 
-            class="w-48 h-48 rounded-lg object-cover border-4 border-blue-200"
-            onerror="this.src='https://cdn-icons-png.flaticon.com/512/2815/2815428.png'">
+<div class="flex flex-col md:flex-row gap-8">
+    <div class="flex-shrink-0 flex justify-center">
+        <div class="relative group">
+            <img src="${profileImage}" 
+                alt="Profile" 
+                class="w-48 h-48 rounded-xl object-cover border-4 border-blue-200 shadow-lg transform transition-transform duration-300 group-hover:scale-105"
+                onerror="this.src='https://cdn-icons-png.flaticon.com/512/2815/2815428.png'">
+            <div class="absolute inset-0 bg-blue-500 opacity-0 group-hover:opacity-10 rounded-xl transition-opacity duration-300"></div>
+        </div>
     </div>
-    <div class="flex-grow">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="flex-grow space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-4">
-                <p class="flex items-center">
-                    <i class="fas fa-id-card text-blue-500 w-6"></i>
-                    <span class="ml-2"><strong>ID Number:</strong> ${student.IDNO}</span>
-                </p>
-                <p class="flex items-center">
-                    <i class="fas fa-user text-blue-500 w-6"></i>
-                    <span class="ml-2"><strong>Name:</strong> ${student.First_Name} ${student.Last_Name}</span>
-                </p>
-                <p class="flex items-center">
-                    <i class="fas fa-graduation-cap text-blue-500 w-6"></i>
-                    <span class="ml-2"><strong>Course:</strong> ${student.Course}</span>
-                </p>
-                <p class="flex items-center">
-                    <i class="fas fa-layer-group text-blue-500 w-6"></i>
-                    <span class="ml-2"><strong>Year Level:</strong> ${student.Year_lvl}</span>
-                </p>
+                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                    <p class="flex items-center">
+                        <i class="fas fa-id-card text-blue-500 w-6"></i>
+                        <span class="ml-3"><strong>ID Number:</strong> ${student.IDNO}</span>
+                    </p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                    <p class="flex items-center">
+                        <i class="fas fa-user text-blue-500 w-6"></i>
+                        <span class="ml-3"><strong>Name:</strong> ${student.First_Name} ${student.Last_Name}</span>
+                    </p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                    <p class="flex items-center">
+                        <i class="fas fa-graduation-cap text-blue-500 w-6"></i>
+                        <span class="ml-3"><strong>Course:</strong> ${student.Course}</span>
+                    </p>
+                </div>
             </div>
             <div class="space-y-4">
-                <p class="flex items-center">
-                    <i class="fas fa-envelope text-blue-500 w-6"></i>
-                    <span class="ml-2"><strong>Email:</strong> ${student.Email || 'Not set'}</span>
-                </p>
-                <p class="flex items-center">
-                    <i class="fas fa-map-marker-alt text-blue-500 w-6"></i>
-                    <span class="ml-2"><strong>Address:</strong> ${student.Address || 'Not set'}</span>
-                </p>
-                <p class="flex items-center">
-                    <i class="fas fa-clock text-blue-500 w-6"></i>
-                    <span class="ml-2 font-bold text-lg text-blue-600"><strong>Remaining Sessions:</strong> ${student.remaining_sessions}</span>
-                </p>
+                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                    <p class="flex items-center">
+                        <i class="fas fa-layer-group text-blue-500 w-6"></i>
+                        <span class="ml-3"><strong>Year Level:</strong> ${student.Year_lvl}</span>
+                    </p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                    <p class="flex items-center">
+                        <i class="fas fa-envelope text-blue-500 w-6"></i>
+                        <span class="ml-3"><strong>Email:</strong> ${student.Email || 'Not set'}</span>
+                    </p>
+                </div>
+                <div class="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                    <p class="flex items-center">
+                        <i class="fas fa-clock text-blue-500 w-6"></i>
+                        <span class="ml-3 font-bold text-blue-800">
+                            <strong>Remaining Sessions:</strong> ${student.remaining_sessions}
+                        </span>
+                    </p>
+                </div>
             </div>
         </div>
         <button onclick="openReservationModal('${student.IDNO}', '${student.First_Name} ${student.Last_Name}')"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 w-full">
-            <i class="fas fa-sign-in-alt mr-2"></i>
-            Sit-in
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg 
+            transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg flex items-center justify-center space-x-2">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Start Sit-in Session</span>
         </button>
     </div>
 </div>
