@@ -29,7 +29,15 @@
                 $course = $_POST['course'];
                 $yearlvl = $_POST['yearlvl'];
                 $username = $_POST['username'];
-                $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                
+                // Password validation
+                $password = $_POST['password'];
+                if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $password)) {
+                    echo "<div class='alert alert-danger'>Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character.</div>";
+                    exit;
+                }
+                
+                $password = password_hash($password, PASSWORD_DEFAULT);
         
                 $sql = "INSERT INTO students (IDNO, Last_Name, First_Name, Mid_Name, Course, Year_lvl, Username, Password) VALUES ('$idno', '$lastname', '$firstname', '$midname', '$course', '$yearlvl', '$username', '$password')";
         
@@ -76,8 +84,13 @@
 
             <input type="text" name="username" placeholder="Username" 
                 class="form-control" required>
-            <input type="password" name="password" placeholder="Password" 
-                class="form-control" required>
+            <div class="space-y-2">
+                <input type="password" name="password" id="password" placeholder="Password" 
+                    class="form-control" required pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}"
+                    oninput="validatePassword(this)">
+                <p class="text-sm text-gray-600">Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character.</p>
+                <p id="password-error" class="text-sm text-red-500 hidden"></p>
+            </div>
 
             <div class="flex flex-col items-center space-y-4">
                 <button type="submit" name="submit" 
@@ -88,5 +101,22 @@
         </form>
     </div>
 </div>
+
+<script>
+function validatePassword(input) {
+    const password = input.value;
+    const errorElement = document.getElementById('password-error');
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    
+    if (!regex.test(password)) {
+        errorElement.textContent = 'Password requirements not met';
+        errorElement.classList.remove('hidden');
+        input.setCustomValidity('Password requirements not met');
+    } else {
+        errorElement.classList.add('hidden');
+        input.setCustomValidity('');
+    }
+}
+</script>
 </body>
 </html>
