@@ -122,18 +122,21 @@ $result = mysqli_query($conn, $query);
     <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Sit-in Reports</h2>
-                <div class="space-x-2">
-                    <button onclick="exportToCSV()" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
-                        <i class="fas fa-file-csv mr-2"></i>Export CSV
-                    </button>
-                    <button onclick="exportToExcel()" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
-                        <i class="fas fa-file-excel mr-2"></i>Export Excel
-                    </button>
-                    <button onclick="exportToPDF()" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">
-                        <i class="fas fa-file-pdf mr-2"></i>Export PDF
-                    </button>
-                </div>
+                <h2 class="text-2xl font-bold text-center w-full">CCS Sit-in Reports</h2>
+            </div>
+            <div class="space-x-2 text-right">
+                <button onclick="exportToCSV()" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
+                    <i class="fas fa-file-csv mr-2"></i>Export CSV
+                </button>
+                <button onclick="exportToExcel()" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                    <i class="fas fa-file-excel mr-2"></i>Export Excel
+                </button>
+                <button onclick="exportToPDF()" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">
+                    <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                </button>
+                <button onclick="printTable()" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
+                    <i class="fas fa-print mr-2"></i>Print
+                </button>
             </div>
             
             <div class="overflow-x-auto">
@@ -269,6 +272,42 @@ $result = mysqli_query($conn, $query);
 
             // Save the PDF
             doc.save('sit_in_reports.pdf');
+        }
+
+        function printTable() {
+            const table = document.getElementById('sit-in-table').outerHTML;
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(`
+                <html>
+                    <head>
+                        <title>CCS Sit-in Reports</title>
+                        <style>
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                            }
+                            th, td {
+                                border: 1px solid #ddd;
+                                padding: 8px;
+                                text-align: left;
+                            }
+                            th {
+                                background-color: #f4f4f4;
+                            }
+                            h2 {
+                                text-align: center;
+                                margin-bottom: 20px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>CCS Sit-in Reports</h2>
+                        ${table}
+                    </body>
+                </html>
+            `);
+            newWindow.document.close();
+            newWindow.print();
         }
 
          // Dark mode toggle functionality
