@@ -216,19 +216,19 @@ $recentEntries = $conn->query($recentEntriesSql);
 <body class="bg-gray-100">
     <div class="max-w-7xl mx-auto py-6 px-4">
         <!-- Dashboard Header -->
-        <h1 class="text-2xl font-bold text-center mb-6">Current Sit-in Records</h1>
+        <h1 class="text-2xl font-bold text-center mb-6 dark:text-white">Current Sit-in Records</h1>
         
         <!-- Dashboard Charts -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <!-- Programming Languages Chart -->
-            <div class="bg-white rounded-lg shadow p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                 <div class="h-64">
                     <canvas id="languagesChart"></canvas>
                 </div>
             </div>
             
             <!-- Lab Rooms Chart -->
-            <div class="bg-white rounded-lg shadow p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                 <div class="h-64">
                     <canvas id="labsChart"></canvas>
                 </div>
@@ -236,7 +236,7 @@ $recentEntries = $conn->query($recentEntriesSql);
         </div>
         
         <!-- Dashboard Controls -->
-        <div class="bg-white rounded-lg shadow p-4 mb-8 flex flex-col md:flex-row justify-between items-center">
+        <div class="bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow p-4 mb-8 flex flex-col md:flex-row justify-between items-center">
             <div class="mb-4 md:mb-0">
                 <label for="entriesPerPage" class="mr-2">Show</label>
                 <select id="entriesPerPage" class="border rounded px-2 py-1">
@@ -255,21 +255,21 @@ $recentEntries = $conn->query($recentEntriesSql);
         </div>
         
         <!-- Recent Entries Table -->
-        <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden mb-8">
             <table class="min-w-full">
-                <thead class="bg-gray-50">
+                <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sit-in Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time In</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time Out</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Sit-in Number</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">ID Number</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Purpose</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Lab</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Time In</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Time Out</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Date</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
                     <?php 
                     $count = 1;
                     date_default_timezone_set('Asia/Manila'); // Set timezone to Philippines
@@ -314,7 +314,7 @@ $recentEntries = $conn->query($recentEntriesSql);
         </div>
         
         <!-- Pagination -->
-        <div class="bg-white rounded-lg shadow p-4 flex items-center justify-between">
+        <div class="bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow p-4 flex items-center justify-between">
             <div>
                 Showing 1 to 1 of 1 entry
             </div>

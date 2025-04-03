@@ -257,18 +257,18 @@ Search
 
 <!-- Results Modal -->
 <div id="resultsModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden overflow-y-auto h-full w-full modal-animation flex items-center justify-center">
-    <div class="relative mx-auto p-8 border-0 w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 shadow-2xl rounded-xl bg-white modal-content-animation max-h-[90vh] overflow-y-auto">
+    <div class="relative mx-auto p-8 border-0 w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 shadow-2xl rounded-xl bg-white dark:bg-gray-800 modal-content-animation max-h-[90vh] overflow-y-auto">
         <!-- Close button -->
         <button onclick="closeResultsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200">
             <i class="fas fa-times text-xl"></i>
         </button>
 
         <!-- Header -->
-        <h3 class="text-2xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200">Student Information</h3>
+        <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 pb-2 border-b border-gray-200">Student Information</h3>
         
         <!-- Content container -->
         <div id="studentInfo" class="space-y-6">
-            <!-- Content will be dynamically inserted here -->
+            <!-- Dynamic content will be inserted here -->
         </div>
     </div>
 </div>
@@ -364,19 +364,19 @@ let html = `
     <div class="flex-grow space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-4">
-                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <div class="p-4 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
                     <p class="flex items-center">
                         <i class="fas fa-id-card text-blue-500 w-6"></i>
                         <span class="ml-3"><strong>ID Number:</strong> ${student.IDNO}</span>
                     </p>
                 </div>
-                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <div class="p-4 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
                     <p class="flex items-center">
                         <i class="fas fa-user text-blue-500 w-6"></i>
                         <span class="ml-3"><strong>Name:</strong> ${student.First_Name} ${student.Last_Name}</span>
                     </p>
                 </div>
-                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <div class="p-4 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
                     <p class="flex items-center">
                         <i class="fas fa-graduation-cap text-blue-500 w-6"></i>
                         <span class="ml-3"><strong>Course:</strong> ${student.Course}</span>
@@ -384,22 +384,22 @@ let html = `
                 </div>
             </div>
             <div class="space-y-4">
-                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <div class="p-4 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
                     <p class="flex items-center">
                         <i class="fas fa-layer-group text-blue-500 w-6"></i>
                         <span class="ml-3"><strong>Year Level:</strong> ${student.Year_lvl}</span>
                     </p>
                 </div>
-                <div class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                <div class="p-4 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
                     <p class="flex items-center">
                         <i class="fas fa-envelope text-blue-500 w-6"></i>
                         <span class="ml-3"><strong>Email:</strong> ${student.Email || 'Not set'}</span>
                     </p>
                 </div>
-                <div class="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                <div class="p-4 bg-blue-50 dark:bg-blue-900 dark:text-white rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors duration-200">
                     <p class="flex items-center">
                         <i class="fas fa-clock text-blue-500 w-6"></i>
-                        <span class="ml-3 font-bold text-blue-800">
+                        <span class="ml-3 font-bold text-blue-800 dark:text-blue-200">
                             <strong>Remaining Sessions:</strong> ${student.remaining_sessions}
                         </span>
                     </p>
