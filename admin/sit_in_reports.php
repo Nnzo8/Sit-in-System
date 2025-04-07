@@ -209,8 +209,13 @@ $result = mysqli_query($conn, $query);
         function exportToCSV() {
             const table = document.getElementById('sit-in-table');
             let csv = [];
-            const rows = table.querySelectorAll('tr');
             
+            // Add title and university name
+            csv.push('"CCS Lab Sit-in Reports"');
+            csv.push('"University of Cebu Main Campus"');
+            csv.push(''); // Empty line for spacing
+            
+            const rows = table.querySelectorAll('tr');
             for (const row of rows) {
                 const cols = row.querySelectorAll('td,th');
                 const rowArray = Array.from(cols).map(col => '"' + (col.innerText || '').replace(/"/g, '""') + '"');
@@ -228,8 +233,12 @@ $result = mysqli_query($conn, $query);
         }
 
         function exportToExcel() {
+            const title = '<tr><td colspan="9" style="text-align:center;font-size:16px;font-weight:bold;">CCS Lab Sit-in Reports</td></tr>';
+            const university = '<tr><td colspan="9" style="text-align:center;font-size:14px;">University of Cebu Main Campus</td></tr>';
+            const spacing = '<tr><td colspan="9"></td></tr>';
+            
             const table = document.getElementById('sit-in-table');
-            const html = table.outerHTML;
+            const html = title + university + spacing + table.outerHTML;
             const url = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(html);
             const link = document.createElement('a');
             link.href = url;
@@ -240,56 +249,76 @@ $result = mysqli_query($conn, $query);
         }
 
         function exportToPDF() {
-            // Get table data
-            const table = document.getElementById('sit-in-table');
-            const rows = Array.from(table.querySelectorAll('tr'));
-            
-            // Extract headers
-            const headers = Array.from(rows[0].querySelectorAll('th')).map(header => header.textContent);
-            
-            // Extract data
-            const data = rows.slice(1).map(row => {
-                return Array.from(row.querySelectorAll('td')).map(cell => cell.textContent);
-            });
-
-            // Initialize jsPDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            // Add title
-            doc.setFontSize(16);
-            doc.text('Sit-in Reports', 14, 15);
+            // Add UC logo
+            const ucImg = new Image();
+            ucImg.src = '../imgs/uc.png';
+            
+            // Add CCS logo
+            const ccsImg = new Image();
+            ccsImg.src = '../imgs/ccs.png';
 
-            // Create table
-            doc.autoTable({
-                head: [headers],
-                body: data,
-                startY: 25,
-                theme: 'grid',
-                headStyles: {
-                    fillColor: [0, 0, 128],
-                    textColor: [255, 255, 255],
-                    fontSize: 8
-                },
-                bodyStyles: {
-                    fontSize: 8
-                },
-                columnStyles: {
-                    0: { cellWidth: 15 }, // ID
-                    1: { cellWidth: 20 }, // Student ID
-                    2: { cellWidth: 30 }, // Name
-                    3: { cellWidth: 25 }, // Course
-                    4: { cellWidth: 20 }, // Date
-                    5: { cellWidth: 20 }, // Time In
-                    6: { cellWidth: 20 }, // Time Out
-                    7: { cellWidth: 25 }, // Reason
-                    8: { cellWidth: 20 }  // Status
-                },
-                margin: { top: 25 }
+            // Wait for both images to load
+            Promise.all([
+                new Promise(resolve => {
+                    ucImg.onload = resolve;
+                    ucImg.onerror = resolve;
+                }),
+                new Promise(resolve => {
+                    ccsImg.onload = resolve;
+                    ccsImg.onerror = resolve;
+                })
+            ]).then(() => {
+                // Add logos
+                doc.addImage(ucImg, 'PNG', 20, 10, 25, 25); // Left side
+                doc.addImage(ccsImg, 'PNG', 165, 10, 25, 25); // Right side
+
+                // Add title and university name (adjusted Y positions to accommodate logos)
+                doc.setFontSize(16);
+                doc.text('CCS Lab Sit-in Reports', doc.internal.pageSize.width/2, 25, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text('University of Cebu Main Campus', doc.internal.pageSize.width/2, 32, { align: 'center' });
+
+                // Get table data
+                const table = document.getElementById('sit-in-table');
+                const rows = Array.from(table.querySelectorAll('tr'));
+                const headers = Array.from(rows[0].querySelectorAll('th')).map(header => header.textContent);
+                const data = rows.slice(1).map(row => {
+                    return Array.from(row.querySelectorAll('td')).map(cell => cell.textContent);
+                });
+
+                // Create table (adjusted startY to accommodate logos and headers)
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: 40,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [0, 0, 128],
+                        textColor: [255, 255, 255],
+                        fontSize: 8
+                    },
+                    bodyStyles: {
+                        fontSize: 8
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 15 },
+                        1: { cellWidth: 20 },
+                        2: { cellWidth: 30 },
+                        3: { cellWidth: 25 },
+                        4: { cellWidth: 20 },
+                        5: { cellWidth: 20 },
+                        6: { cellWidth: 20 },
+                        7: { cellWidth: 25 },
+                        8: { cellWidth: 20 }
+                    },
+                    margin: { top: 40 }
+                });
+
+                doc.save('sit_in_reports.pdf');
             });
-
-            // Save the PDF
-            doc.save('sit_in_reports.pdf');
         }
 
         function printTable() {
@@ -298,28 +327,37 @@ $result = mysqli_query($conn, $query);
             newWindow.document.write(`
                 <html>
                     <head>
-                        <title>CCS Sit-in Reports</title>
+                        <title>CCS Lab Sit-in Reports</title>
                         <style>
-                            table {
-                                width: 100%;
-                                border-collapse: collapse;
-                            }
-                            th, td {
-                                border: 1px solid #ddd;
-                                padding: 8px;
-                                text-align: left;
-                            }
-                            th {
-                                background-color: #f4f4f4;
-                            }
-                            h2 {
-                                text-align: center;
+                            table { width: 100%; border-collapse: collapse; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f4f4f4; }
+                            h1, h2 { text-align: center; margin-bottom: 10px; }
+                            .subtitle { font-size: 18px; margin-bottom: 20px; }
+                            .header-container {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
                                 margin-bottom: 20px;
+                                padding: 0 20px;
+                            }
+                            .logo { width: 80px; height: auto; }
+                            .title-container {
+                                text-align: center;
+                                flex-grow: 1;
+                                padding: 0 20px;
                             }
                         </style>
                     </head>
                     <body>
-                        <h2>CCS Sit-in Reports</h2>
+                        <div class="header-container">
+                            <img src="../imgs/uc.png" class="logo" />
+                            <div class="title-container">
+                                <h1>CCS Lab Sit-in Reports</h1>
+                                <h2 class="subtitle">University of Cebu Main Campus</h2>
+                            </div>
+                            <img src="../imgs/ccs.png" class="logo" />
+                        </div>
                         ${table}
                     </body>
                 </html>
