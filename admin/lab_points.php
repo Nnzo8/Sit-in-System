@@ -135,28 +135,49 @@ include '../header.php';
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
                             <?php
-                            include '../db_connection.php';
+                            $servername = "localhost";
+                            $username = "root";
+                            $password = "";
+                            $dbname = "sit_in_db";
+                            
+                            // Create connection
+                            $conn = new mysqli($servername, $username, $password, $dbname);
+                            
+                            // Check connection
+                            if ($conn->connect_error) {
+                                die("Connection failed: " . $conn->connect_error);
+                            }
 
-                            // Query to get top 5 students based on total hours
                             $sql = "SELECT 
                                     s.student_id,
                                     s.first_name,
                                     s.last_name,
                                     COUNT(*) as visit_count,
-                                    SUM(TIMESTAMPDIFF(HOUR, r.time_in, r.time_out)) as total_hours
+                                    COALESCE(SUM(
+                                        TIMESTAMPDIFF(HOUR, r.time_in, 
+                                        CASE 
+                                            WHEN r.time_out IS NULL THEN NOW()
+                                            ELSE r.time_out
+                                        END)
+                                    ), 0) as total_hours
                                 FROM students s
                                 JOIN reports r ON s.student_id = r.student_id
-                                WHERE r.status = 'completed'
-                                GROUP BY s.student_id
-                                ORDER BY total_hours DESC
+                                WHERE r.status = 'completed' 
+                                AND r.time_in IS NOT NULL 
+                                AND r.time_out IS NOT NULL
+                                GROUP BY s.student_id, s.first_name, s.last_name
+                                ORDER BY total_hours DESC, visit_count DESC
                                 LIMIT 5";
 
                             $result = $conn->query($sql);
-                            $rank = 1;
-
-                            if ($result->num_rows > 0) {
-                                while($row = $result->fetch_assoc()) {
-                                    $points = ($row['total_hours'] * 5) + ($row['visit_count'] * 2); // Calculate points
+                            
+                            if (!$result) {
+                                echo "Error: " . $conn->error;
+                            } else {
+                                $rank = 1;
+                                if ($result->num_rows > 0) {
+                                    while($row = $result->fetch_assoc()) {
+                                        $points = ($row['total_hours'] * 5) + ($row['visit_count'] * 2);
                                     ?>
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <td class="px-6 py-4 text-gray-500 dark:text-gray-300"><?php echo $rank++; ?></td>
@@ -167,13 +188,14 @@ include '../header.php';
                                         <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?php echo $row['total_hours']; ?></td>
                                     </tr>
                                     <?php
+                                    }
+                                } else {
+                                    ?>
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No records found</td>
+                                    </tr>
+                                    <?php
                                 }
-                            } else {
-                                ?>
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No records found</td>
-                                </tr>
-                                <?php
                             }
                             $conn->close();
                             ?>
@@ -213,6 +235,7 @@ include '../header.php';
                 }
             });
         });
+    
     </script>
 </body>
 </html>
