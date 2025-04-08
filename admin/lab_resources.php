@@ -10,7 +10,26 @@ include '../header.php';
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<body class="bg-gray-100">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Resources</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#000080',
+                        secondary: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/admin-dark-mode.css">
+</head>
+<body class="bg-gray-100 dark:bg-gray-900">
     <!-- Navigation -->
     <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
@@ -76,11 +95,9 @@ include '../header.php';
             </div>
         </div>
     </nav>
-</head>
-<body class="bg-gray-100 dark:bg-gray-900">
     
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Lab Resources Management</h1>
+        <h1 class="text-2xl font-bold text-gray-600 dark:text-white mb-6">Lab Resources Management</h1>
         
         <!-- Resource Management Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -123,5 +140,37 @@ include '../header.php';
             </div>
         </div>
     </div>
+
+    <script>
+        // Mobile navigation toggle function
+        function toggleNav() {
+            const navbarNav = document.getElementById('navbarNav');
+            navbarNav.classList.toggle('hidden');
+        }
+
+        // Dark mode toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const html = document.documentElement;
+            
+            // Check for saved dark mode preference
+            const darkMode = localStorage.getItem('adminDarkMode');
+            if (darkMode === 'enabled') {
+                html.classList.add('dark');
+            }
+            
+            // Toggle dark mode
+            darkModeToggle.addEventListener('click', function() {
+                html.classList.toggle('dark');
+                
+                // Save preference
+                if (html.classList.contains('dark')) {
+                    localStorage.setItem('adminDarkMode', 'enabled');
+                } else {
+                    localStorage.setItem('adminDarkMode', null);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
