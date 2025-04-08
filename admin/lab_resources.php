@@ -113,7 +113,14 @@ include '../header.php';
                         <span class="text-gray-600 dark:text-gray-300">Lab 526:</span>
                         <span class="text-yellow-500">28/30 Working</span>
                     </div>
-                    <!-- Add more labs -->
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 dark:text-gray-300">Lab 530:</span>
+                        <span class="text-yellow-500">12/30 Working</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 dark:text-gray-300">Lab 542:</span>
+                        <span class="text-yellow-500">25/30 Working</span>
+                    </div>
                 </div>
                 <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                     Update Status
@@ -137,6 +144,162 @@ include '../header.php';
                 <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                     Manage Software
                 </button>
+            </div>
+        </div>
+
+        <!-- Courses Section -->
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Courses Using Lab Resources</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Course Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">Integrative Programming</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 20370</p>
+                        </div>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 526</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: MW 4:30-7:00 PM</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Mr. Wilson Gayo</p>
+                    </div>
+                </div>
+                <!-- Course Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">Information Management(DB Sys.2)</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 23145</p>
+                        </div>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 530</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: FS 4:00-6:30 PM</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Ms. Beverly Lahaylahay</p>
+                    </div>
+                </div>
+                <!-- Course Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">Information Assurance and Security</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 98761</p>
+                        </div>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 530A</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: MW 7:00-9:30 PM</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Mr. Huebert Ferolino</p>
+                    </div>
+                </div>
+                <!-- Course Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">System Integration and Architecture</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 87521</p>
+                        </div>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 524</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: TTH 10:30-1:00 PM</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Mr. Jeff Salimbangon</p>
+                    </div>
+                </div>
+                <!-- Course Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">Technopreneurship</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 12345</p>
+                        </div>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 542</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: TTH 3:00-4:30 PM</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Ms. Leah Ybanez</p>
+                    </div>
+                </div>
+                <!-- Course Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">IT-Fretrends</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 64821</p>
+                        </div>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 542</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: TTH 1:00-3:00 PM</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Mr. Franz Caminade</p>
+                    </div>
+                </div>
+                <!-- Add Course Card -->
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center">
+                    <button onclick="openAddCourseModal()" class="text-gray-500 dark:text-gray-400 hover:text-primary">
+                        <i class="fas fa-plus text-2xl"></i>
+                        <p class="mt-2">Add New Course</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Course Modal -->
+    <div id="addCourseModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Add New Course</h3>
+                <form id="addCourseForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="courseName">
+                            Course Name
+                        </label>
+                        <input type="text" id="courseName" name="courseName" required
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="courseCode">
+                            Course Code
+                        </label>
+                        <input type="text" id="courseCode" name="courseCode" required
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="lab">
+                            Lab
+                        </label>
+                        <input type="text" id="lab" name="lab" required
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="schedule">
+                            Schedule
+                        </label>
+                        <input type="text" id="schedule" name="schedule" required
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="instructor">
+                            Instructor
+                        </label>
+                        <input type="text" id="instructor" name="instructor" required
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div class="flex justify-end gap-4">
+                        <button type="button" onclick="closeAddCourseModal()"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Cancel</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Add Course</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -169,6 +332,39 @@ include '../header.php';
                 } else {
                     localStorage.setItem('adminDarkMode', null);
                 }
+            });
+        });
+
+        // Modal functions
+        function openAddCourseModal() {
+            document.getElementById('addCourseModal').classList.remove('hidden');
+        }
+
+        function closeAddCourseModal() {
+            document.getElementById('addCourseModal').classList.add('hidden');
+        }
+
+        // Form submission
+        document.getElementById('addCourseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('add_course.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Course added successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error adding course: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
             });
         });
     </script>
