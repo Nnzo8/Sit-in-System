@@ -98,7 +98,7 @@ include '../header.php';
 <body class="bg-gray-100 dark:bg-gray-900">
     
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-600 dark:text-white mb-6">Lab Usage Points System</h1>
+        <h1 class="text-2xl font-bold mb-6">Lab Usage Points System</h1>
         
         <!-- Points Management -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

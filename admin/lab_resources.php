@@ -97,7 +97,7 @@ include '../header.php';
     </nav>
     
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-600 dark:text-white mb-6">Lab Resources Management</h1>
+        <h1 class="text-2xl font-bold mb-6 ">Lab Resources Management</h1>
         
         <!-- Resource Management Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

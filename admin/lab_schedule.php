@@ -97,7 +97,7 @@ include '../header.php';
     </nav>
 
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-600 dark:text-white mb-6">Lab Schedule Management</h1>
+        <h1 class="text-2xl font-bold mb-6">Lab Schedule Management</h1>
         
         <!-- Schedule Management -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
