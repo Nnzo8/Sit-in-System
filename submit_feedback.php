@@ -8,23 +8,26 @@ $database = "users";
 
 $conn = new mysqli($servername, $username, $password, $database);
 
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $idno = $_POST['idno'];
     $lab = $_POST['lab'];
-    $date = $_POST['date'];
     $message = $_POST['message'];
-    
-    $sql = "INSERT INTO feedback (IDNO, lab, date, message) VALUES (?, ?, ?, ?)";
+    $rating = (int)$_POST['rating'];
+    $date = $_POST['date'];
+
+    $sql = "INSERT INTO feedback (IDNO, lab_room, message, rating, date) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isss", $idno, $lab, $date, $message);
-    
+    $stmt->bind_param("sssis", $idno, $lab, $message, $rating, $date);
+
     if ($stmt->execute()) {
         header("Location: history.php?status=success");
     } else {
         header("Location: history.php?status=error");
     }
-} else {
-    header("Location: history.php");
 }
 
 $conn->close();

@@ -138,7 +138,7 @@ include '../header.php';
                             $servername = "localhost";
                             $username = "root";
                             $password = "";
-                            $dbname = "sit_in_db";
+                            $dbname = "users"; // Changed from sit_in_db to users
                             
                             // Create connection
                             $conn = new mysqli($servername, $username, $password, $dbname);
@@ -149,24 +149,25 @@ include '../header.php';
                             }
 
                             $sql = "SELECT 
-                                    s.student_id,
-                                    s.first_name,
-                                    s.last_name,
-                                    COUNT(*) as visit_count,
-                                    COALESCE(SUM(
-                                        TIMESTAMPDIFF(HOUR, r.time_in, 
-                                        CASE 
-                                            WHEN r.time_out IS NULL THEN NOW()
-                                            ELSE r.time_out
-                                        END)
-                                    ), 0) as total_hours
+                                    s.IDNO as student_id,
+                                    s.First_Name as first_name,
+                                    s.Last_Name as last_name,
+                                    COUNT(DISTINCT CASE WHEN d.status = 'completed' THEN d.id END) + 
+                                    COUNT(DISTINCT CASE WHEN r.status = 'completed' THEN r.id END) as visit_count,
+                                    COALESCE(
+                                        SUM(
+                                            TIMESTAMPDIFF(HOUR, 
+                                                COALESCE(d.time_in, r.time_in), 
+                                                COALESCE(d.time_out, r.time_out)
+                                            )
+                                        ), 0
+                                    ) as total_hours
                                 FROM students s
-                                JOIN reports r ON s.student_id = r.student_id
-                                WHERE r.status = 'completed' 
-                                AND r.time_in IS NOT NULL 
-                                AND r.time_out IS NOT NULL
-                                GROUP BY s.student_id, s.first_name, s.last_name
-                                ORDER BY total_hours DESC, visit_count DESC
+                                LEFT JOIN direct_sitin d ON s.IDNO = d.IDNO
+                                LEFT JOIN sit_in_records r ON s.IDNO = r.IDNO
+                                WHERE (d.status = 'completed' OR r.status = 'completed')
+                                GROUP BY s.IDNO, s.First_Name, s.Last_Name
+                                ORDER BY visit_count DESC, total_hours DESC
                                 LIMIT 5";
 
                             $result = $conn->query($sql);
@@ -177,6 +178,7 @@ include '../header.php';
                                 $rank = 1;
                                 if ($result->num_rows > 0) {
                                     while($row = $result->fetch_assoc()) {
+                                        // Calculate points: 5 points per hour + 2 points per visit
                                         $points = ($row['total_hours'] * 5) + ($row['visit_count'] * 2);
                                     ?>
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
