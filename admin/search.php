@@ -34,7 +34,21 @@ return $labs;
 }
 
 function getProgrammingLanguages() {
-return ['ASP.Net', 'C', 'C++', 'C#', 'Java', 'PHP', 'Python'];
+return [
+    'ASP.Net',
+    'C',
+    'C++', 
+    'C#',
+    'Java',
+    'PHP',
+    'Python',
+    'Database',
+    'Digital Logic and Design',
+    'Embedded System & IOT',
+    'SysArch',
+    'Computer Application',
+    'Webdev'
+];
 }
 
 // Add these validation functions after database connection
@@ -502,6 +516,8 @@ confirmButtonColor: '#3085d6'
 <option value="Lab 528">Lab 528</option>
 <option value="Lab 530">Lab 530</option>
 <option value="Lab 542">Lab 542</option>
+<option value="Lab 544">Lab 544</option>
+<option value="Lab 517">Lab 517</option>
 </select>
 </div>
 
