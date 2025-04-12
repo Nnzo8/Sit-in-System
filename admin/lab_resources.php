@@ -99,9 +99,10 @@ include '../header.php';
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-2xl font-bold mb-6 ">Lab Resources Management</h1>
         
-        <!-- Resource Management Section -->
+    
+        <!-- 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Computer Status Section -->
+        
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
                 <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Computer Status</h2>
                 <div class="space-y-4">
@@ -127,7 +128,7 @@ include '../header.php';
                 </button>
             </div>
 
-            <!-- Software Management -->
+
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
                 <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Software Management</h2>
                 <div class="space-y-4">
@@ -139,13 +140,14 @@ include '../header.php';
                         <span class="text-gray-600 dark:text-gray-300">Eclipse IDE</span>
                         <span class="text-green-500">Installed</span>
                     </div>
-                    <!-- Add more software -->
+              
                 </div>
                 <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                     Manage Software
                 </button>
             </div>
         </div>
+         -->
 
         <!-- Courses Section -->
         <div class="mt-8">
