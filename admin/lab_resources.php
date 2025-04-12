@@ -295,7 +295,7 @@ include '../header.php';
                     </div>
                     <div class="flex justify-end gap-4">
                         <button type="button" onclick="closeAddCourseModal()"
-                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Cancel</button>
+                            class="px-4 py-2 bg-red-500 text-white-700 rounded hover:bg-gray-400">Cancel</button>
                         <button type="submit"
                             class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Add Course</button>
                     </div>

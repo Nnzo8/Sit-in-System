@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
     <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
-                <span class="text-white text-xl font-bold py-4">Admin Dashboard</span>
+                <span class="text-white text-xl font-bold py-4">Current Sit-in</span>
                 <div class="flex space-x-4">
                     <div class="hidden md:flex items-center space-x-4">
                         <a href="dashboard.php" class="nav-link text-white hover:text-gray-200">Dashboard</a>
@@ -208,8 +208,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                         <div class="w-64 h-64">
                             <canvas id="languageChart"></canvas>
                         </div>
-                        <!-- Language legend remains the same -->
-                        <div class="mt-4 text-sm grid grid-cols-2 gap-2">
+                        <!-- Language legend with 3 columns -->
+                        <div class="mt-4 text-sm grid grid-cols-3 gap-2">
                             <div class="flex items-center">
                                 <span class="w-3 h-3 inline-block mr-2" style="background-color: #FF6384;"></span>
                                 <span class="text-xs">ASP.Net</span>
@@ -237,6 +237,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                             <div class="flex items-center">
                                 <span class="w-3 h-3 inline-block mr-2" style="background-color: #c371cd;"></span>
                                 <span class="text-xs">Python</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #2ecc71;"></span>
+                                <span class="text-xs">Database</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #e67e22;"></span>
+                                <span class="text-xs">Digilog</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #8e44ad;"></span>
+                                <span class="text-xs">ES & IOT</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #d35400;"></span>
+                                <span class="text-xs">SysArch</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #16a085;"></span>
+                                <span class="text-xs">CompApp</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #2980b9;"></span>
+                                <span class="text-xs">Webdev</span>
                             </div>
                         </div>
                     </div>
@@ -268,6 +292,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                             <div class="flex items-center">
                                 <span class="w-3 h-3 inline-block mr-2" style="background-color: #682cbd;"></span>
                                 <span class="text-xs">Lab 542</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #e74c3c;"></span>
+                                <span class="text-xs">Lab 544</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-3 h-3 inline-block mr-2" style="background-color: #27ae60;"></span>
+                                <span class="text-xs">Lab 517</span>
                             </div>
                         </div>
                     </div>
@@ -374,14 +406,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                     'C#': '#4BC0C0',
                     'Java': '#9d1a67',
                     'PHP': '#682cbd',
-                    'Python': '#c371cd'
+                    'Python': '#c371cd',
+                    'Database': '#2ecc71',
+                    'Digital Logic and Design': '#e67e22',
+                    'Digilog': '#e67e22',
+                    'Embedded System & IOT': '#8e44ad',
+                    'ES & IOT': '#8e44ad',
+                    'SysArch': '#d35400',
+                    'Computer Application': '#16a085',
+                    'CompApp': '#16a085',
+                    'Webdev': '#2980b9'
                 },
                 labRooms: {
                     'Lab 524': '#FF9F40',
                     'Lab 526': '#4BC0C0',
                     'Lab 528': '#36A2EB',
                     'Lab 530': '#FF6384',
-                    'Lab 542': '#682cbd'
+                    'Lab 542': '#682cbd',
+                    'Lab 544': '#e74c3c',
+                    'Lab 517': '#27ae60'
                 }
             };
 
