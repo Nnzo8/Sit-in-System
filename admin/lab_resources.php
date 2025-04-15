@@ -306,6 +306,60 @@ include '../header.php';
         </div>
     </div>
 
+    <!-- Edit Course Modal -->
+    <div id="editCourseModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Edit Course</h3>
+                <form id="editCourseForm">
+                    <input type="hidden" id="editCourseId">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editCourseName">
+                            Course Name
+                        </label>
+                        <input type="text" id="editCourseName" name="courseName" required
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <!-- Same fields as add form but with edit prefix -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editCourseCode">
+                            Course Code
+                        </label>
+                        <input type="text" id="editCourseCode" name="courseCode" required
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editLab">
+                            Lab
+                        </label>
+                        <input type="text" id="editLab" name="lab" required
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editSchedule">
+                            Schedule
+                        </label>
+                        <input type="text" id="editSchedule" name="schedule" required
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editInstructor">
+                            Instructor
+                        </label>
+                        <input type="text" id="editInstructor" name="instructor" required
+                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div class="flex justify-end gap-4">
+                        <button type="button" onclick="closeEditCourseModal()"
+                            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Cancel</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Mobile navigation toggle function
         function toggleNav() {
@@ -346,13 +400,22 @@ include '../header.php';
             document.getElementById('addCourseModal').classList.add('hidden');
         }
 
-        // Form submission
+        function openEditCourseModal() {
+            document.getElementById('editCourseModal').classList.remove('hidden');
+        }
+
+        function closeEditCourseModal() {
+            document.getElementById('editCourseModal').classList.add('hidden');
+        }
+
+        // Form submission for adding course
         document.getElementById('addCourseForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
+            formData.append('action', 'add');
             
-            fetch('add_course.php', {
+            fetch('course_operations.php', {
                 method: 'POST',
                 body: formData
             })
@@ -360,15 +423,137 @@ include '../header.php';
             .then(data => {
                 if (data.success) {
                     alert('Course added successfully!');
-                    window.location.reload();
+                    closeAddCourseModal();
+                    loadCourses();
+                    this.reset();
                 } else {
-                    alert('Error adding course: ' + data.message);
+                    alert('Error adding course: ' + (data.message || 'Unknown error'));
                 }
             })
             .catch(error => {
                 alert('Error: ' + error);
+                console.error('Error:', error);
             });
         });
+
+        // Load courses from database
+        function loadCourses() {
+            fetch('course_operations.php')
+                .then(response => response.json())
+                .then(courses => {
+                    const coursesContainer = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-3');
+                    let coursesHTML = '';
+
+                    courses.forEach(course => {
+                        coursesHTML += `
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-700 dark:text-white">${course.course_name}</h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: ${course.course_code}</p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button onclick="editCourse(${course.id})" class="text-blue-500 hover:text-blue-700">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick="deleteCourse(${course.id})" class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">Lab: ${course.lab}</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: ${course.schedule}</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: ${course.instructor}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // Add the "Add Course" card
+                    coursesHTML += `
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center">
+                            <button onclick="openAddCourseModal()" class="text-gray-500 dark:text-gray-400 hover:text-primary">
+                                <i class="fas fa-plus text-2xl"></i>
+                                <p class="mt-2">Add New Course</p>
+                            </button>
+                        </div>
+                    `;
+
+                    coursesContainer.innerHTML = coursesHTML;
+                });
+        }
+
+        // Load courses when page loads
+        document.addEventListener('DOMContentLoaded', loadCourses);
+
+        // Edit course functions
+        function editCourse(id) {
+            fetch('course_operations.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=get&id=${id}`
+            })
+            .then(response => response.json())
+            .then(course => {
+                document.getElementById('editCourseId').value = course.id;
+                document.getElementById('editCourseName').value = course.course_name;
+                document.getElementById('editCourseCode').value = course.course_code;
+                document.getElementById('editLab').value = course.lab;
+                document.getElementById('editSchedule').value = course.schedule;
+                document.getElementById('editInstructor').value = course.instructor;
+                document.getElementById('editCourseModal').classList.remove('hidden');
+            });
+        }
+
+        // Edit Course Form Submission
+        document.getElementById('editCourseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            formData.append('action', 'edit');
+            formData.append('id', document.getElementById('editCourseId').value);
+            
+            fetch('course_operations.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Course updated successfully!');
+                    closeEditCourseModal();
+                    loadCourses();
+                } else {
+                    alert('Error updating course: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+                console.error('Error:', error);
+            });
+        });
+
+        // Delete course function
+        function deleteCourse(id) {
+            if (confirm('Are you sure you want to delete this course?')) {
+                fetch('course_operations.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=delete&id=${id}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadCourses();
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>
