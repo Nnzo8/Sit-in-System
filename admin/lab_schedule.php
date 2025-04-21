@@ -99,32 +99,102 @@ include '../header.php';
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-2xl font-bold mb-6">Lab Schedule Management</h1>
         
-        <!-- Schedule Management -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-            <div class="flex justify-between mb-6">
-                <h2 class="text-xl font-semibold text-gray-700 dark:text-white">Weekly Schedule</h2>
-                <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    Add New Schedule
-                </button>
+        <!-- Lab Rooms Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Lab 524 -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Lab 524</h2>
+                <div class="space-y-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Schedule</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                                <tr>
+                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">System Integration and Architecture</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">TTH 10:30-1:00 PM</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            
-            <!-- Schedule Table -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full">
-                    <thead class="bg-gray-50 dark:bg-gray-700">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Time</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Monday</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Tuesday</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Wednesday</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Thursday</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Friday</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-                        <!-- Add schedule rows -->
-                    </tbody>
-                </table>
+
+            <!-- Lab 526 -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Lab 526</h2>
+                <div class="space-y-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Schedule</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                                <tr>
+                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">Integrative Programming</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">MW 4:30-7:00 PM</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lab 530 -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Lab 530</h2>
+                <div class="space-y-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Schedule</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                                <tr>
+                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">Information Management(DB Sys.2)</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">FS 4:00-6:30 PM</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lab 542 -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Lab 542</h2>
+                <div class="space-y-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Schedule</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                                <tr>
+                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">Technopreneurship</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">TTH 3:00-4:30 PM</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">IT-Fretrends</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">TTH 1:00-3:00 PM</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

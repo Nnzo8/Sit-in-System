@@ -104,33 +104,27 @@ include '../header.php';
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Points Overview -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Points System</h2>
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Lab Hours System</h2>
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
-                        <span class="text-gray-600 dark:text-gray-300">Points per Hour:</span>
-                        <span class="font-bold dark:text-white">5 points</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-600 dark:text-gray-300">Bonus Points:</span>
-                        <span class="font-bold dark:text-white">+2 points/completion</span>
+                        <span class="text-gray-600 dark:text-gray-300">Session Reward:</span>
+                        <span class="font-bold dark:text-white">+1 session per hour</span>
                     </div>
                 </div>
-                <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    Update Points System
-                </button>
             </div>
 
             <!-- Student Rankings -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:col-span-2">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Top Students</h2>
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Top Students by Hours</h2>
                 <div class="overflow-x-auto">
                     <table class="min-w-full">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Rank</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Student</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Points</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Hours</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Hours</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Sessions Left</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
@@ -148,12 +142,40 @@ include '../header.php';
                                 die("Connection failed: " . $conn->connect_error);
                             }
 
+                            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_session'])) {
+                                $student_id = $_POST['student_id'];
+                                
+                                // Check current sessions first
+                                $check_sql = "SELECT remaining_sessions FROM student_session WHERE id_number = ?";
+                                $check_stmt = $conn->prepare($check_sql);
+                                $check_stmt->bind_param("s", $student_id);
+                                $check_stmt->execute();
+                                $result = $check_stmt->get_result();
+                                $current_sessions = $result->fetch_assoc()['remaining_sessions'];
+                                
+                                if ($current_sessions >= 30) {
+                                    echo "<script>alert('Maximum sessions (30) reached!');</script>";
+                                } else {
+                                    // Update sessions in the database
+                                    $update_sql = "UPDATE student_session 
+                                                   SET remaining_sessions = remaining_sessions + 1 
+                                                   WHERE id_number = ?";
+                                    $stmt = $conn->prepare($update_sql);
+                                    $stmt->bind_param("s", $student_id);
+                                    
+                                    if ($stmt->execute()) {
+                                        echo "<script>alert('Session added successfully!');</script>";
+                                    } else {
+                                        echo "<script>alert('Error adding session!');</script>";
+                                    }
+                                }
+                            }
+
                             $sql = "SELECT 
                                     s.IDNO as student_id,
                                     s.First_Name as first_name,
                                     s.Last_Name as last_name,
-                                    COUNT(DISTINCT CASE WHEN d.status = 'completed' THEN d.id END) + 
-                                    COUNT(DISTINCT CASE WHEN r.status = 'completed' THEN r.id END) as visit_count,
+                                    ss.remaining_sessions,
                                     COALESCE(
                                         SUM(
                                             TIMESTAMPDIFF(HOUR, 
@@ -163,11 +185,12 @@ include '../header.php';
                                         ), 0
                                     ) as total_hours
                                 FROM students s
+                                LEFT JOIN student_session ss ON s.IDNO = ss.id_number
                                 LEFT JOIN direct_sitin d ON s.IDNO = d.IDNO
                                 LEFT JOIN sit_in_records r ON s.IDNO = r.IDNO
                                 WHERE (d.status = 'completed' OR r.status = 'completed')
-                                GROUP BY s.IDNO, s.First_Name, s.Last_Name
-                                ORDER BY visit_count DESC, total_hours DESC
+                                GROUP BY s.IDNO, s.First_Name, s.Last_Name, ss.remaining_sessions
+                                ORDER BY total_hours DESC
                                 LIMIT 5";
 
                             $result = $conn->query($sql);
@@ -178,16 +201,27 @@ include '../header.php';
                                 $rank = 1;
                                 if ($result->num_rows > 0) {
                                     while($row = $result->fetch_assoc()) {
-                                        // Calculate points: 5 points per hour + 2 points per visit
-                                        $points = ($row['total_hours'] * 5) + ($row['visit_count'] * 2);
                                     ?>
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <td class="px-6 py-4 text-gray-500 dark:text-gray-300"><?php echo $rank++; ?></td>
                                         <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
                                             <?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>
                                         </td>
-                                        <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?php echo $points; ?></td>
                                         <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?php echo $row['total_hours']; ?></td>
+                                        <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?php echo $row['remaining_sessions']; ?></td>
+                                        <td class="px-6 py-4">
+                                            <?php if ($row['remaining_sessions'] >= 30): ?>
+                                                <span class="text-gray-400">Max sessions reached</span>
+                                            <?php else: ?>
+                                                <form method="POST" class="inline">
+                                                    <input type="hidden" name="student_id" value="<?php echo $row['student_id']; ?>">
+                                                    <button type="submit" name="add_session" 
+                                                        class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
+                                                        Add Session
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </td>
                                     </tr>
                                     <?php
                                     }
