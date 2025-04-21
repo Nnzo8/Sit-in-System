@@ -278,8 +278,17 @@ include '../header.php';
                         <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="lab">
                             Lab
                         </label>
-                        <input type="text" id="lab" name="lab" required
+                        <select id="lab" name="lab" required
                             class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">Select a Lab</option>
+                            <option value="Lab 524">Lab 524</option>
+                            <option value="Lab 526">Lab 526</option>
+                            <option value="Lab 528">Lab 528</option>
+                            <option value="Lab 530">Lab 530</option>
+                            <option value="Lab 542">Lab 542</option>
+                            <option value="Lab 544">Lab 544</option>
+                            <option value="Lab 517">Lab 517</option>
+                        </select>
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="schedule">
@@ -332,8 +341,17 @@ include '../header.php';
                         <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editLab">
                             Lab
                         </label>
-                        <input type="text" id="editLab" name="lab" required
+                        <select id="editLab" name="lab" required
                             class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">Select a Lab</option>
+                            <option value="Lab 524">Lab 524</option>
+                            <option value="Lab 526">Lab 526</option>
+                            <option value="Lab 528">Lab 528</option>
+                            <option value="Lab 530">Lab 530</option>
+                            <option value="Lab 542">Lab 542</option>
+                            <option value="Lab 544">Lab 544</option>
+                            <option value="Lab 517">Lab 517</option>
+                        </select>
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editSchedule">

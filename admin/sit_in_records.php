@@ -234,19 +234,19 @@ $recentEntries = $conn->query($recentEntriesSql);
 <body class="bg-gray-100">
     <div class="max-w-7xl mx-auto py-6 px-4">
         <!-- Dashboard Header -->
-        <h1 class="text-2xl font-bold text-center mb-6 dark:text-white">Current Sit-in Records</h1>
+        <h1 class="text-2xl font-bold text-black text-center mb-6 dark:text-white-80">Current Sit-in Records</h1>
         
         <!-- Dashboard Charts -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <!-- Programming Languages Chart -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="bg-white rounded-lg shadow p-4">
                 <div class="h-64">
                     <canvas id="languagesChart"></canvas>
                 </div>
             </div>
             
             <!-- Lab Rooms Chart -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="bg-white rounded-lg shadow p-4">
                 <div class="h-64">
                     <canvas id="labsChart"></canvas>
                 </div>
@@ -254,53 +254,53 @@ $recentEntries = $conn->query($recentEntriesSql);
         </div>
         
         <!-- Dashboard Controls -->
-        <div class="bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow p-4 mb-8 flex flex-col md:flex-row justify-between items-center">
+        <div class="bg-white rounded-lg shadow p-4 mb-8 flex flex-col md:flex-row justify-between items-center">
             <div class="mb-4 md:mb-0">
-                <label for="entriesPerPage" class="mr-2">Show</label>
+                <label for="entriesPerPage" class="mr-2 text-gray-700">Show</label>
                 <select id="entriesPerPage" class="border rounded px-2 py-1">
                     <option value="10" selected>10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
                 </select>
-                <span class="ml-2">entries per page</span>
+                <span class="ml-2 text-gray-700">entries per page</span>
             </div>
             
             <div class="w-full md:w-auto">
-                <label for="searchBox" class="mr-2">Search:</label>
+                <label for="searchBox" class="mr-2 text-gray-700">Search:</label>
                 <input type="text" id="searchBox" class="border rounded px-2 py-1 w-full md:w-64">
             </div>
         </div>
         
         <!-- Recent Entries Table -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden mb-8">
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
             <table class="min-w-full">
-                <thead class="bg-gray-50 dark:bg-gray-700">
+                <thead class="bg-white">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Sit-in Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">ID Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Purpose</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Lab</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Time In</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Time Out</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sit-in Number</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Number</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time In</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time Out</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                <tbody class="bg-white divide-y divide-gray-200">
                     <?php 
                     $count = 1;
                     date_default_timezone_set('Asia/Manila'); // Set timezone to Philippines
                     while($row = $result->fetch_assoc()): 
                         $statusColor = $row['status'] === 'completed' ? 'text-green-600' : 'text-blue-600';
                     ?>
-                        <tr>
+                        <tr class="text-gray-700">
                             <td class="px-6 py-4"><?= $count++ ?></td>
                             <td class="px-6 py-4"><?= htmlspecialchars($row['IDNO']) ?></td>
                             <td class="px-6 py-4">
                                 <?= htmlspecialchars($row['Last_Name'] . ', ' . $row['First_Name']) ?>
                                 <br>
-                                <span class="text-xs text-gray-500">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">
                                     <?= htmlspecialchars($row['Course']) ?> - <?= htmlspecialchars($row['Year_lvl']) ?>
                                 </span>
                                 <br>
@@ -332,14 +332,14 @@ $recentEntries = $conn->query($recentEntriesSql);
         </div>
         
         <!-- Pagination -->
-        <div class="bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow p-4 flex items-center justify-between">
+        <div class="bg-white rounded-lg shadow p-4 flex items-center justify-between text-gray-700">
             <div>
                 Showing 1 to 1 of 1 entry
             </div>
             <div class="flex gap-1">
-                <a href="#" class="border px-3 py-1 rounded">&lt;</a>
+                <a href="#" class="border px-3 py-1 rounded text-gray-700 hover:bg-gray-100">&lt;</a>
                 <a href="#" class="border px-3 py-1 rounded bg-primary text-white">1</a>
-                <a href="#" class="border px-3 py-1 rounded">&gt;</a>
+                <a href="#" class="border px-3 py-1 rounded text-gray-700 hover:bg-gray-100">&gt;</a>
             </div>
         </div>
         
