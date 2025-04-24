@@ -97,105 +97,83 @@ include '../header.php';
     </nav>
 
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold mb-6">Lab Schedule Management</h1>
+        <h1 class="text-2xl font-bold mb-6 dark:text-white">Lab Schedule Management</h1>
         
         <!-- Lab Rooms Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Lab 524 -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Lab 524</h2>
-                <div class="space-y-4">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full">
-                            <thead class="bg-gray-50 dark:bg-gray-700">
-                                <tr>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Schedule</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-                                <tr>
-                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">System Integration and Architecture</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">TTH 10:30-1:00 PM</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <?php
+            $servername = "localhost";
+            $username = "root";
+            $password = "";
+            $dbname = "users";
 
-            <!-- Lab 526 -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Lab 526</h2>
-                <div class="space-y-4">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full">
-                            <thead class="bg-gray-50 dark:bg-gray-700">
-                                <tr>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Schedule</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-                                <tr>
-                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">Integrative Programming</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">MW 4:30-7:00 PM</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            // Create connection
+            $conn = new mysqli($servername, $username, $password, $dbname);
 
-            <!-- Lab 530 -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Lab 530</h2>
-                <div class="space-y-4">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full">
-                            <thead class="bg-gray-50 dark:bg-gray-700">
-                                <tr>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Schedule</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-                                <tr>
-                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">Information Management(DB Sys.2)</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">FS 4:00-6:30 PM</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            // Check connection
+            if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
+            }
 
-            <!-- Lab 542 -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Lab 542</h2>
-                <div class="space-y-4">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full">
-                            <thead class="bg-gray-50 dark:bg-gray-700">
-                                <tr>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Schedule</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-                                <tr>
-                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">Technopreneurship</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">TTH 3:00-4:30 PM</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">IT-Fretrends</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">TTH 1:00-3:00 PM</td>
-                                </tr>
-                            </tbody>
-                        </table>
+            // Get unique lab rooms
+            $sql = "SELECT DISTINCT lab FROM courses ORDER BY lab";
+            $result = $conn->query($sql);
+
+            if ($result->num_rows > 0) {
+                while($lab = $result->fetch_assoc()) {
+                    $lab_room = $lab['lab'];
+                    ?>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                        <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white"><?php echo htmlspecialchars($lab_room); ?></h2>
+                        <div class="space-y-4">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full">
+                                    <thead class="bg-gray-50 dark:bg-gray-700">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Schedule</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Instructor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                                        <?php
+                                        $courses_sql = "SELECT course_name, schedule, instructor FROM courses WHERE lab = ? ORDER BY schedule";
+                                        $stmt = $conn->prepare($courses_sql);
+                                        $stmt->bind_param("s", $lab_room);
+                                        $stmt->execute();
+                                        $courses_result = $stmt->get_result();
+
+                                        if ($courses_result->num_rows > 0) {
+                                            while($course = $courses_result->fetch_assoc()) {
+                                                ?>
+                                                <tr>
+                                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300"><?php echo htmlspecialchars($course['course_name']); ?></td>
+                                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300"><?php echo htmlspecialchars($course['schedule']); ?></td>
+                                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300"><?php echo htmlspecialchars($course['instructor']); ?></td>
+                                                </tr>
+                                                <?php
+                                            }
+                                        } else {
+                                            ?>
+                                            <tr>
+                                                <td colspan="3" class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 text-center">No courses scheduled</td>
+                                            </tr>
+                                            <?php
+                                        }
+                                        $stmt->close();
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                    <?php
+                }
+            } else {
+                echo "<div class='col-span-2 text-center text-gray-500 dark:text-gray-400'>No labs found</div>";
+            }
+            $conn->close();
+            ?>
         </div>
     </div>
 

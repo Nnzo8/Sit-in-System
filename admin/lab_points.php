@@ -190,6 +190,7 @@ include '../header.php';
                                 LEFT JOIN sit_in_records r ON s.IDNO = r.IDNO
                                 WHERE (d.status = 'completed' OR r.status = 'completed')
                                 GROUP BY s.IDNO, s.First_Name, s.Last_Name, ss.remaining_sessions
+                                HAVING total_hours >= 1
                                 ORDER BY total_hours DESC
                                 LIMIT 5";
 
@@ -203,12 +204,12 @@ include '../header.php';
                                     while($row = $result->fetch_assoc()) {
                                     ?>
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                        <td class="px-6 py-4 text-gray-500 dark:text-gray-300"><?php echo $rank++; ?></td>
-                                        <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
+                                        <td class="px-6 py-4 text-white-500 dark:text-gray-300"><?php echo $rank++; ?></td>
+                                        <td class="px-6 py-4 text-white-800 dark:text-gray-200">
                                             <?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>
                                         </td>
-                                        <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?php echo $row['total_hours']; ?></td>
-                                        <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?php echo $row['remaining_sessions']; ?></td>
+                                        <td class="px-6 py-4 text-white-800 dark:text-gray-200"><?php echo $row['total_hours']; ?></td>
+                                        <td class="px-6 py-4 text-white-800 dark:text-gray-200"><?php echo $row['remaining_sessions']; ?></td>
                                         <td class="px-6 py-4">
                                             <?php if ($row['remaining_sessions'] >= 30): ?>
                                                 <span class="text-gray-400">Max sessions reached</span>
@@ -228,7 +229,7 @@ include '../header.php';
                                 } else {
                                     ?>
                                     <tr>
-                                        <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No records found</td>
+                                        <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No sit-ins found that exceeds 1 hour</td>
                                     </tr>
                                     <?php
                                 }
