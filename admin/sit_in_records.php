@@ -472,4 +472,31 @@ $recentEntries = $conn->query($recentEntriesSql);
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
+<style>
+    
+    .group:hover .group-hover\:opacity-100 {
+        opacity: 1;
+    }
+    .group:hover .group-hover\:visible {
+        visibility: visible;
+    }
+    .nav-link {
+        position: relative;
+        padding: 0.5rem;
+    }
+    .nav-link:after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: white;
+        transition: width 0.3s ease;
+    }
+    .nav-link:hover:after {
+        width: 100%;
+    }
+</style>
+
 </html>

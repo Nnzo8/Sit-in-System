@@ -208,10 +208,16 @@ include '../header.php';
                             $displayOrder[] = ['student' => $students[2], 'rank' => 3]; // 3rd place
                         }
 
-                        // Add 4th and 5th places to additional arrays
+                        // Store 4th and 5th places for the next slide
                         $extraCards = [];
-                        if (isset($students[3])) $extraCards[] = ['student' => $students[3], 'rank' => 4];
-                        if (isset($students[4])) $extraCards[] = ['student' => $students[4], 'rank' => 5];
+                        if (isset($students[3]) || isset($students[4])) {
+                            $extraCards[] = [
+                                'students' => array_filter([
+                                    isset($students[3]) ? ['student' => $students[3], 'rank' => 4] : null,
+                                    isset($students[4]) ? ['student' => $students[4], 'rank' => 5] : null
+                                ])
+                            ];
+                        }
 
                         // Display top 3 in the center
                         foreach($displayOrder as $item) {
@@ -248,34 +254,37 @@ include '../header.php';
                     
                     <!-- Separate container for extra cards -->
                     <div class="extra-cards-container absolute top-0 left-0 w-full h-full">
-                        <?php foreach($extraCards as $item): 
-                            $row = $item['student'];
-                            $rank = $item['rank'];
-                            $image = $row['profile_image'] ? '../' . $row['profile_image'] : '../images/default-avatar.png';
-                            $trophy_color = 'bg-blue-500';
-                        ?>
-                            <div class="leaderboard-card extra-card absolute top-1/2 left-1/2 w-72" data-rank="<?php echo $rank; ?>">
-                                <!-- Card content -->
-                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center relative">
-                                    <div class="absolute top-2 left-2 <?php echo $trophy_color; ?> text-white rounded-full px-3 py-1 text-sm font-bold">
-                                        Top <?php echo $rank; ?>
-                                    </div>
-                                    <div class="relative">
-                                        <img src="<?php echo $image; ?>" alt="Profile" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-white dark:border-gray-700">
-                                        <div class="absolute -top-2 -right-2 <?php echo $trophy_color; ?> rounded-full p-2">
-                                            <i class="fas fa-trophy text-white"></i>
+                        <?php foreach($extraCards as $group): ?>
+                            <div class="leaderboard-card extra-card absolute top-1/2 left-1/2 w-full flex justify-center gap-8" style="transform: translate(-50%, -50%)">
+                                <?php foreach($group['students'] as $item):
+                                    $row = $item['student'];
+                                    $rank = $item['rank'];
+                                    $image = $row['profile_image'] ? '../' . $row['profile_image'] : '../images/default-avatar.png';
+                                    $trophy_color = 'bg-blue-500';
+                                ?>
+                                    <div class="w-72">
+                                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center relative">
+                                            <div class="absolute top-2 left-2 <?php echo $trophy_color; ?> text-white rounded-full px-3 py-1 text-sm font-bold">
+                                                Top <?php echo $rank; ?>
+                                            </div>
+                                            <div class="relative">
+                                                <img src="<?php echo $image; ?>" alt="Profile" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-white dark:border-gray-700">
+                                                <div class="absolute -top-2 -right-2 <?php echo $trophy_color; ?> rounded-full p-2">
+                                                    <i class="fas fa-trophy text-white"></i>
+                                                </div>
+                                            </div>
+                                            <h3 class="font-semibold text-gray-800 dark:text-white mb-2">
+                                                <?php echo htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']); ?>
+                                            </h3>
+                                            <p class="text-gray-600 dark:text-gray-300 text-sm mb-2">
+                                                <i class="fas fa-graduation-cap mr-2"></i><?php echo htmlspecialchars($row['Course']); ?>
+                                            </p>
+                                            <p class="text-lg font-bold text-primary dark:text-blue-400">
+                                                <i class="fas fa-star mr-2"></i><?php echo $row['points']; ?> Points
+                                            </p>
                                         </div>
                                     </div>
-                                    <h3 class="font-semibold text-gray-800 dark:text-white mb-2">
-                                        <?php echo htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']); ?>
-                                    </h3>
-                                    <p class="text-gray-600 dark:text-gray-300 text-sm mb-2">
-                                        <i class="fas fa-graduation-cap mr-2"></i><?php echo htmlspecialchars($row['Course']); ?>
-                                    </p>
-                                    <p class="text-lg font-bold text-primary dark:text-blue-400">
-                                        <i class="fas fa-star mr-2"></i><?php echo $row['points']; ?> Points
-                                    </p>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -284,6 +293,30 @@ include '../header.php';
         </div>
 
         <style>
+    .group:hover .group-hover\:opacity-100 {
+        opacity: 1;
+    }
+    .group:hover .group-hover\:visible {
+        visibility: visible;
+    }
+    .nav-link {
+        position: relative;
+        padding: 0.5rem;
+    }
+    .nav-link:after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: white;
+        transition: width 0.3s ease;
+    }
+    .nav-link:hover:after {
+        width: 100%;
+    }
+
             .leaderboard-card.active {
                 transform: scale(1.1);
                 z-index: 10;
@@ -407,17 +440,27 @@ include '../header.php';
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
                         <?php
+                        // First, ensure all students have session records
+                        $init_sql = "INSERT IGNORE INTO student_session (id_number, remaining_sessions)
+                                   SELECT IDNO, 30 FROM students 
+                                   WHERE IDNO NOT IN (SELECT id_number FROM student_session)";
+                        $conn->query($init_sql);
+
+                        // Now fetch student data with their actual session counts
                         $sql = "SELECT 
                                 s.IDNO,
                                 s.First_Name,
                                 s.Last_Name,
                                 s.Course,
                                 COALESCE(sp.points, 0) as points,
-                                ss.remaining_sessions
+                                CASE 
+                                    WHEN ss.remaining_sessions IS NULL THEN 30
+                                    ELSE ss.remaining_sessions 
+                                END as remaining_sessions
                             FROM students s
                             LEFT JOIN student_points sp ON s.IDNO = sp.IDNO
                             LEFT JOIN student_session ss ON s.IDNO = ss.id_number
-                            ORDER BY s.Last_Name";
+                            ORDER BY COALESCE(sp.points, 0) DESC, s.Last_Name ASC";  // Changed ORDER BY clause
 
                         $result = $conn->query($sql);
                         while($row = $result->fetch_assoc()) {

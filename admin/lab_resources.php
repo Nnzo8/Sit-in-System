@@ -29,6 +29,31 @@ include '../header.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/admin-dark-mode.css">
 </head>
+<style>
+    .group:hover .group-hover\:opacity-100 {
+        opacity: 1;
+    }
+    .group:hover .group-hover\:visible {
+        visibility: visible;
+    }
+    .nav-link {
+        position: relative;
+        padding: 0.5rem;
+    }
+    .nav-link:after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: white;
+        transition: width 0.3s ease;
+    }
+    .nav-link:hover:after {
+        width: 100%;
+    }
+</style>
 <body class="bg-gray-100 dark:bg-gray-900">
     <!-- Navigation -->
     <nav class="bg-primary shadow-lg">
