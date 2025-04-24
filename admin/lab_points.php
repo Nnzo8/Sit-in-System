@@ -4,6 +4,55 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header("Location: ../login.php");
     exit();
 }
+
+// Handle point addition before any output
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_point'])) {
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "users";
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    
+    $student_id = $_POST['student_id'];
+    
+    // Check if student exists in student_points table
+    $check_sql = "SELECT points FROM student_points WHERE IDNO = ?";
+    $check_stmt = $conn->prepare($check_sql);
+    $check_stmt->bind_param("i", $student_id);
+    $check_stmt->execute();
+    $result = $check_stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $update_sql = "UPDATE student_points SET points = points + 1 WHERE IDNO = ?";
+        $stmt = $conn->prepare($update_sql);
+        $stmt->bind_param("i", $student_id);
+    } else {
+        $insert_sql = "INSERT INTO student_points (IDNO, points) VALUES (?, 1)";
+        $stmt = $conn->prepare($insert_sql);
+        $stmt->bind_param("i", $student_id);
+    }
+    
+    if ($stmt->execute()) {
+        $name_sql = "SELECT First_Name, Last_Name FROM students WHERE IDNO = ?";
+        $name_stmt = $conn->prepare($name_sql);
+        $name_stmt->bind_param("i", $student_id);
+        $name_stmt->execute();
+        $student = $name_stmt->get_result()->fetch_assoc();
+        
+        $_SESSION['success_message'] = "Successfully added 1 point to " . $student['First_Name'] . " " . $student['Last_Name'];
+    } else {
+        $_SESSION['error_message'] = "Error adding point to student.";
+    }
+    
+    $conn->close();
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
 include '../header.php';
 ?>
 
@@ -28,6 +77,8 @@ include '../header.php';
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/admin-dark-mode.css">
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-100">
     <!-- Navigation -->
@@ -100,149 +151,445 @@ include '../header.php';
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-2xl font-bold mb-6 dark:text-white">Lab Usage Points System</h1>
         
-        <!-- Points Management -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Points Overview -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Lab Hours System</h2>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-600 dark:text-gray-300">Session Reward:</span>
-                        <span class="font-bold dark:text-white">+1 session per hour</span>
+        <!-- Top 5 Students -->
+        <div class="relative max-w-6xl mx-auto mb-8">
+            <button id="prevBtn" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-primary/80 hover:bg-primary text-white rounded-full p-3 z-20 transition-all duration-300 disabled:opacity-50">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button id="nextBtn" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-primary/80 hover:bg-primary text-white rounded-full p-3 z-20 transition-all duration-300 disabled:opacity-50">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            
+            <div class="overflow-hidden px-12">
+                <div id="leaderboard" class="relative flex justify-center items-center min-h-[400px]">
+                    <div class="main-cards flex justify-center items-center gap-8 transition-all duration-500">
+                        <?php
+                        $servername = "localhost";
+                        $username = "root";
+                        $password = "";
+                        $dbname = "users"; // Changed from sit_in_db to users
+                        
+                        // Create connection
+                        $conn = new mysqli($servername, $username, $password, $dbname);
+                        
+                        // Check connection
+                        if ($conn->connect_error) {
+                            die("Connection failed: " . $conn->connect_error);
+                        }
+
+                        // Get top 5 students ordered by points
+                        $sql = "SELECT 
+                                s.IDNO,
+                                s.First_Name,
+                                s.Last_Name,
+                                s.Course,
+                                s.profile_image,
+                                COALESCE(sp.points, 0) as points,
+                                ss.remaining_sessions
+                            FROM students s
+                            LEFT JOIN student_points sp ON s.IDNO = sp.IDNO
+                            LEFT JOIN student_session ss ON s.IDNO = ss.id_number
+                            ORDER BY COALESCE(sp.points, 0) DESC, s.Last_Name ASC
+                            LIMIT 5";
+
+                        $result = $conn->query($sql);
+                        $students = [];
+                        while($row = $result->fetch_assoc()) {
+                            $students[] = $row;
+                        }
+
+                        // Determine number of cards to show
+                        $totalStudents = count($students);
+                        $displayOrder = [];
+
+                        if ($totalStudents >= 3) {
+                            $displayOrder[] = ['student' => $students[1], 'rank' => 2]; // 2nd place
+                            $displayOrder[] = ['student' => $students[0], 'rank' => 1]; // 1st place
+                            $displayOrder[] = ['student' => $students[2], 'rank' => 3]; // 3rd place
+                        }
+
+                        // Add 4th and 5th places to additional arrays
+                        $extraCards = [];
+                        if (isset($students[3])) $extraCards[] = ['student' => $students[3], 'rank' => 4];
+                        if (isset($students[4])) $extraCards[] = ['student' => $students[4], 'rank' => 5];
+
+                        // Display top 3 in the center
+                        foreach($displayOrder as $item) {
+                            $row = $item['student'];
+                            $rank = $item['rank'];
+                            $image = $row['profile_image'] ? '../' . $row['profile_image'] : '../images/default-avatar.png';
+                            $trophy_color = $rank == 1 ? 'bg-yellow-500' : ($rank == 2 ? 'bg-gray-400' : 'bg-orange-500');
+                            $card_class = $rank == 1 ? 'w-80 transform scale-110 z-10' : 'w-72';
+                        ?>
+                            <div class="leaderboard-card flex-none <?php echo $card_class; ?> transition-all duration-500" data-rank="<?php echo $rank; ?>">
+                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center relative">
+                                    <div class="absolute top-2 left-2 <?php echo $trophy_color; ?> text-white rounded-full px-3 py-1 text-sm font-bold">
+                                        Top <?php echo $rank; ?>
+                                    </div>
+                                    <div class="relative">
+                                        <img src="<?php echo $image; ?>" alt="Profile" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-white dark:border-gray-700">
+                                        <div class="absolute -top-2 -right-2 <?php echo $trophy_color; ?> rounded-full p-2">
+                                            <i class="fas fa-trophy text-white"></i>
+                                        </div>
+                                    </div>
+                                    <h3 class="font-semibold text-gray-800 dark:text-white mb-2">
+                                        <?php echo htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']); ?>
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300 text-sm mb-2">
+                                        <i class="fas fa-graduation-cap mr-2"></i><?php echo htmlspecialchars($row['Course']); ?>
+                                    </p>
+                                    <p class="text-lg font-bold text-primary dark:text-blue-400">
+                                        <i class="fas fa-star mr-2"></i><?php echo $row['points']; ?> Points
+                                    </p>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                    
+                    <!-- Separate container for extra cards -->
+                    <div class="extra-cards-container absolute top-0 left-0 w-full h-full">
+                        <?php foreach($extraCards as $item): 
+                            $row = $item['student'];
+                            $rank = $item['rank'];
+                            $image = $row['profile_image'] ? '../' . $row['profile_image'] : '../images/default-avatar.png';
+                            $trophy_color = 'bg-blue-500';
+                        ?>
+                            <div class="leaderboard-card extra-card absolute top-1/2 left-1/2 w-72" data-rank="<?php echo $rank; ?>">
+                                <!-- Card content -->
+                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center relative">
+                                    <div class="absolute top-2 left-2 <?php echo $trophy_color; ?> text-white rounded-full px-3 py-1 text-sm font-bold">
+                                        Top <?php echo $rank; ?>
+                                    </div>
+                                    <div class="relative">
+                                        <img src="<?php echo $image; ?>" alt="Profile" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-white dark:border-gray-700">
+                                        <div class="absolute -top-2 -right-2 <?php echo $trophy_color; ?> rounded-full p-2">
+                                            <i class="fas fa-trophy text-white"></i>
+                                        </div>
+                                    </div>
+                                    <h3 class="font-semibold text-gray-800 dark:text-white mb-2">
+                                        <?php echo htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']); ?>
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-300 text-sm mb-2">
+                                        <i class="fas fa-graduation-cap mr-2"></i><?php echo htmlspecialchars($row['Course']); ?>
+                                    </p>
+                                    <p class="text-lg font-bold text-primary dark:text-blue-400">
+                                        <i class="fas fa-star mr-2"></i><?php echo $row['points']; ?> Points
+                                    </p>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Student Rankings -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:col-span-2">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Top Students by Hours</h2>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Rank</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Student</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Total Hours</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Sessions Left</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
+        <style>
+            .leaderboard-card.active {
+                transform: scale(1.1);
+                z-index: 10;
+            }
+            
+            .leaderboard-card.inactive {
+                transform: scale(0.9);
+                opacity: 0.6;
+            }
+            
+            #leaderboard {
+                scroll-behavior: smooth;
+                position: relative;
+                min-height: 400px;
+            }
+
+            .extra-card {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%) scale(0.9);
+                opacity: 0;
+                pointer-events: none;
+                transition: all 0.5s ease;
+            }
+
+            .extra-card.visible {
+                opacity: 1;
+                pointer-events: auto;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+
+            .main-cards {
+                transition: all 0.5s ease;
+            }
+
+            .main-cards.hidden {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+        </style>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const leaderboard = document.getElementById('leaderboard');
+                const mainCardsContainer = document.querySelector('.main-cards');
+                const extraCards = Array.from(document.querySelectorAll('.extra-card'));
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                
+                // Hide navigation buttons if no extra cards
+                if (extraCards.length === 0) {
+                    prevBtn.style.display = 'none';
+                    nextBtn.style.display = 'none';
+                }
+
+                let currentView = 0; // 0 = default view, 1 = top 4, 2 = top 5
+
+                function updateView() {
+                    // Hide all extra cards first
+                    extraCards.forEach(card => {
+                        card.classList.remove('visible');
+                    });
+
+                    if (currentView === 0) {
+                        // Show main cards
+                        mainCardsContainer.classList.remove('hidden');
+                    } else {
+                        // Hide main cards
+                        mainCardsContainer.classList.add('hidden');
+                        // Show current extra card
+                        const activeCard = extraCards[currentView - 1];
+                        if (activeCard) {
+                            activeCard.classList.add('visible');
+                        }
+                    }
+
+                    // Update button states
+                    prevBtn.disabled = currentView === 0;
+                    nextBtn.disabled = currentView === extraCards.length;
+                }
+
+                // Initialize
+                updateView();
+
+                prevBtn.addEventListener('click', () => {
+                    if (currentView > 0) {
+                        currentView--;
+                        updateView();
+                    }
+                });
+
+                nextBtn.addEventListener('click', () => {
+                    if (currentView < extraCards.length) {
+                        currentView++;
+                        updateView();
+                    }
+                });
+
+                // Add keyboard navigation
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft' && !prevBtn.disabled) prevBtn.click();
+                    if (e.key === 'ArrowRight' && !nextBtn.disabled) nextBtn.click();
+                });
+            });
+        </script>
+
+        <!-- All Students Table -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">All Students</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Student</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Sessions Left</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Points</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                        <?php
+                        $sql = "SELECT 
+                                s.IDNO,
+                                s.First_Name,
+                                s.Last_Name,
+                                s.Course,
+                                COALESCE(sp.points, 0) as points,
+                                ss.remaining_sessions
+                            FROM students s
+                            LEFT JOIN student_points sp ON s.IDNO = sp.IDNO
+                            LEFT JOIN student_session ss ON s.IDNO = ss.id_number
+                            ORDER BY s.Last_Name";
+
+                        $result = $conn->query($sql);
+                        while($row = $result->fetch_assoc()) {
+                        ?>
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
+                                    <?php echo htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']); ?>
+                                </td>
+                                <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
+                                    <?php echo htmlspecialchars($row['Course']); ?>
+                                </td>
+                                <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
+                                    <?php echo $row['remaining_sessions']; ?>
+                                </td>
+                                <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
+                                    <?php echo $row['points']; ?>
+                                </td>
+                                <td class="px-6 py-4 space-x-2">
+                                    <form method="POST" class="inline">
+                                        <input type="hidden" name="student_id" value="<?php echo $row['IDNO']; ?>">
+                                        <button type="button" onclick="confirmAddPoint(this.form, '<?php echo htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']); ?>')" 
+                                            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
+                                            <i class="fas fa-plus-circle mr-1"></i> Point
+                                        </button>
+                                        <button type="submit" name="add_session" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                                            <i class="fas fa-clock mr-1"></i> Session
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-                            <?php
-                            $servername = "localhost";
-                            $username = "root";
-                            $password = "";
-                            $dbname = "users"; // Changed from sit_in_db to users
-                            
-                            // Create connection
-                            $conn = new mysqli($servername, $username, $password, $dbname);
-                            
-                            // Check connection
-                            if ($conn->connect_error) {
-                                die("Connection failed: " . $conn->connect_error);
-                            }
-
-                            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_session'])) {
-                                $student_id = $_POST['student_id'];
-                                
-                                // Check current sessions first
-                                $check_sql = "SELECT remaining_sessions FROM student_session WHERE id_number = ?";
-                                $check_stmt = $conn->prepare($check_sql);
-                                $check_stmt->bind_param("s", $student_id);
-                                $check_stmt->execute();
-                                $result = $check_stmt->get_result();
-                                $current_sessions = $result->fetch_assoc()['remaining_sessions'];
-                                
-                                if ($current_sessions >= 30) {
-                                    echo "<script>alert('Maximum sessions (30) reached!');</script>";
-                                } else {
-                                    // Update sessions in the database
-                                    $update_sql = "UPDATE student_session 
-                                                   SET remaining_sessions = remaining_sessions + 1 
-                                                   WHERE id_number = ?";
-                                    $stmt = $conn->prepare($update_sql);
-                                    $stmt->bind_param("s", $student_id);
-                                    
-                                    if ($stmt->execute()) {
-                                        echo "<script>alert('Session added successfully!');</script>";
-                                    } else {
-                                        echo "<script>alert('Error adding session!');</script>";
-                                    }
-                                }
-                            }
-
-                            $sql = "SELECT 
-                                    s.IDNO as student_id,
-                                    s.First_Name as first_name,
-                                    s.Last_Name as last_name,
-                                    ss.remaining_sessions,
-                                    COALESCE(
-                                        SUM(
-                                            TIMESTAMPDIFF(HOUR, 
-                                                COALESCE(d.time_in, r.time_in), 
-                                                COALESCE(d.time_out, r.time_out)
-                                            )
-                                        ), 0
-                                    ) as total_hours
-                                FROM students s
-                                LEFT JOIN student_session ss ON s.IDNO = ss.id_number
-                                LEFT JOIN direct_sitin d ON s.IDNO = d.IDNO
-                                LEFT JOIN sit_in_records r ON s.IDNO = r.IDNO
-                                WHERE (d.status = 'completed' OR r.status = 'completed')
-                                GROUP BY s.IDNO, s.First_Name, s.Last_Name, ss.remaining_sessions
-                                HAVING total_hours >= 1
-                                ORDER BY total_hours DESC
-                                LIMIT 5";
-
-                            $result = $conn->query($sql);
-                            
-                            if (!$result) {
-                                echo "Error: " . $conn->error;
-                            } else {
-                                $rank = 1;
-                                if ($result->num_rows > 0) {
-                                    while($row = $result->fetch_assoc()) {
-                                    ?>
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                        <td class="px-6 py-4 text-white-500 dark:text-gray-300"><?php echo $rank++; ?></td>
-                                        <td class="px-6 py-4 text-white-800 dark:text-gray-200">
-                                            <?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>
-                                        </td>
-                                        <td class="px-6 py-4 text-white-800 dark:text-gray-200"><?php echo $row['total_hours']; ?></td>
-                                        <td class="px-6 py-4 text-white-800 dark:text-gray-200"><?php echo $row['remaining_sessions']; ?></td>
-                                        <td class="px-6 py-4">
-                                            <?php if ($row['remaining_sessions'] >= 30): ?>
-                                                <span class="text-gray-400">Max sessions reached</span>
-                                            <?php else: ?>
-                                                <form method="POST" class="inline">
-                                                    <input type="hidden" name="student_id" value="<?php echo $row['student_id']; ?>">
-                                                    <button type="submit" name="add_session" 
-                                                        class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
-                                                        Add Session
-                                                    </button>
-                                                </form>
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                    <?php
-                                    }
-                                } else {
-                                    ?>
-                                    <tr>
-                                        <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No sit-ins found that exceeds 1 hour</td>
-                                    </tr>
-                                    <?php
-                                }
-                            }
-                            $conn->close();
-                            ?>
-                        </tbody>
-                    </table>
-                </div>
+                        <?php } ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+
+    <?php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_session'])) {
+        $student_id = $_POST['student_id'];
+        
+        // Check current sessions first
+        $check_sql = "SELECT remaining_sessions FROM student_session WHERE id_number = ?";
+        $check_stmt = $conn->prepare($check_sql);
+        $check_stmt->bind_param("s", $student_id);
+        $check_stmt->execute();
+        $result = $check_stmt->get_result();
+        $current_sessions = $result->fetch_assoc()['remaining_sessions'];
+        
+        if ($current_sessions >= 30) {
+            echo "<script>alert('Maximum sessions (30) reached!');</script>";
+        } else {
+            // Update sessions in the database
+            $update_sql = "UPDATE student_session 
+                           SET remaining_sessions = remaining_sessions + 1 
+                           WHERE id_number = ?";
+            $stmt = $conn->prepare($update_sql);
+            $stmt->bind_param("s", $student_id);
+            
+            if ($stmt->execute()) {
+                echo "<script>alert('Session added successfully!');</script>";
+            } else {
+                echo "<script>alert('Error adding session!');</script>";
+            }
+        }
+    }
+
+    $sql = "SELECT 
+            s.IDNO as student_id,
+            s.First_Name as first_name,
+            s.Last_Name as last_name,
+            ss.remaining_sessions,
+            COALESCE(
+                SUM(
+                    TIMESTAMPDIFF(HOUR, 
+                        COALESCE(d.time_in, r.time_in), 
+                        COALESCE(d.time_out, r.time_out)
+                    )
+                ), 0
+            ) as total_hours
+        FROM students s
+        LEFT JOIN student_session ss ON s.IDNO = ss.id_number
+        LEFT JOIN direct_sitin d ON s.IDNO = d.IDNO
+        LEFT JOIN sit_in_records r ON s.IDNO = r.IDNO
+        WHERE (d.status = 'completed' OR r.status = 'completed')
+        GROUP BY s.IDNO, s.First_Name, s.Last_Name, ss.remaining_sessions
+        HAVING total_hours >= 1
+        ORDER BY total_hours DESC
+        LIMIT 5";
+
+    $result = $conn->query($sql);
+    
+    if (!$result) {
+        echo "Error: " . $conn->error;
+    } else {
+        $rank = 1;
+        if ($result->num_rows > 0) {
+            while($row = $result->fetch_assoc()) {
+            ?>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td class="px-6 py-4 text-white-500 dark:text-gray-300"><?php echo $rank++; ?></td>
+                <td class="px-6 py-4 text-white-800 dark:text-gray-200">
+                    <?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>
+                </td>
+                <td class="px-6 py-4 text-white-800 dark:text-gray-200"><?php echo $row['total_hours']; ?></td>
+                <td class="px-6 py-4 text-white-800 dark:text-gray-200"><?php echo $row['remaining_sessions']; ?></td>
+                <td class="px-6 py-4">
+                    <?php if ($row['remaining_sessions'] >= 30): ?>
+                        <span class="text-gray-400">Max sessions reached</span>
+                    <?php else: ?>
+                        <form method="POST" class="inline">
+                            <input type="hidden" name="student_id" value="<?php echo $row['student_id']; ?>">
+                            <button type="submit" name="add_session" 
+                                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
+                                Add Session
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <?php
+            }
+        } else {
+            
+        }
+    }
+    $conn->close();
+    ?>
+    <!-- Add this right after the header navigation -->
+    <?php if (isset($_SESSION['success_message'])): ?>
+        <div id="successAlert" class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">
+            <span class="block sm:inline"><?php echo $_SESSION['success_message']; ?></span>
+            <button onclick="this.parentElement.style.display='none'" class="absolute top-0 right-0 px-4 py-3">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <?php unset($_SESSION['success_message']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error_message'])): ?>
+        <div id="errorAlert" class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">
+            <span class="block sm:inline"><?php echo $_SESSION['error_message']; ?></span>
+            <button onclick="this.parentElement.style.display='none'" class="absolute top-0 right-0 px-4 py-3">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <?php unset($_SESSION['error_message']); ?>
+    <?php endif; ?>
+
     <script>
+        async function confirmAddPoint(form, studentName) {
+            const result = await Swal.fire({
+                title: 'Add Point',
+                text: `Are you sure you want to add a point to ${studentName}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, add point',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (result.isConfirmed) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'add_point';
+                input.value = '1';
+                form.appendChild(input);
+                form.submit();
+            }
+        }
+
         // Mobile navigation toggle function
         function toggleNav() {
             const navbarNav = document.getElementById('navbarNav');
@@ -273,6 +620,32 @@ include '../header.php';
             });
         });
     
+        // Auto-hide alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const successAlert = document.getElementById('successAlert');
+                const errorAlert = document.getElementById('errorAlert');
+                if (successAlert) successAlert.style.display = 'none';
+                if (errorAlert) errorAlert.style.display = 'none';
+            }, 5000);
+        });
+
+        function confirmAction(form, studentName) {
+            if (form.add_point) {
+                return Swal.fire({
+                    title: 'Confirm Point Addition',
+                    text: `Are you sure you want to add a point to ${studentName}?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, add point'
+                }).then((result) => {
+                    return result.isConfirmed;
+                });
+            }
+            return true; // For other form submissions
+        }
     </script>
 </body>
 </html>
