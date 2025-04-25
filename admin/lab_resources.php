@@ -122,158 +122,56 @@ include '../header.php';
     </nav>
     
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold mb-6 ">Lab Resources Management</h1>
+        <h1 class="text-2xl font-bold mb-6 dark:text-white">Lab Resources Management</h1>
         
-    
-        <!-- 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Computer Status</h2>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-600 dark:text-gray-300">Lab 524:</span>
-                        <span class="text-green-500">30/30 Working</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-600 dark:text-gray-300">Lab 526:</span>
-                        <span class="text-yellow-500">28/30 Working</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-600 dark:text-gray-300">Lab 530:</span>
-                        <span class="text-yellow-500">12/30 Working</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-600 dark:text-gray-300">Lab 542:</span>
-                        <span class="text-yellow-500">25/30 Working</span>
-                    </div>
-                </div>
-                <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    Update Status
-                </button>
-            </div>
-
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Software Management</h2>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-600 dark:text-gray-300">Visual Studio</span>
-                        <span class="text-green-500">Installed</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-600 dark:text-gray-300">Eclipse IDE</span>
-                        <span class="text-green-500">Installed</span>
-                    </div>
-              
-                </div>
-                <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    Manage Software
-                </button>
-            </div>
-        </div>
-         -->
-
         <!-- Courses Section -->
-        <div class="mt-8">
+        <div class="mt-8 mb-8">
             <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Courses Using Lab Resources</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Course Card -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">Integrative Programming</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 20370</p>
-                        </div>
-                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
-                    </div>
-                    <div class="mt-4">
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 526</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: MW 4:30-7:00 PM</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Mr. Wilson Gayo</p>
-                    </div>
-                </div>
-                <!-- Course Card -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">Information Management(DB Sys.2)</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 23145</p>
-                        </div>
-                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
-                    </div>
-                    <div class="mt-4">
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 530</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: FS 4:00-6:30 PM</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Ms. Beverly Lahaylahay</p>
-                    </div>
-                </div>
-                <!-- Course Card -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">Information Assurance and Security</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 98761</p>
-                        </div>
-                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
-                    </div>
-                    <div class="mt-4">
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 530A</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: MW 7:00-9:30 PM</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Mr. Huebert Ferolino</p>
-                    </div>
-                </div>
-                <!-- Course Card -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">System Integration and Architecture</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 87521</p>
-                        </div>
-                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
-                    </div>
-                    <div class="mt-4">
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 524</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: TTH 10:30-1:00 PM</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Mr. Jeff Salimbangon</p>
-                    </div>
-                </div>
-                <!-- Course Card -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">Technopreneurship</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 12345</p>
-                        </div>
-                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
-                    </div>
-                    <div class="mt-4">
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 542</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: TTH 3:00-4:30 PM</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Ms. Leah Ybanez</p>
-                    </div>
-                </div>
-                <!-- Course Card -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-white">IT-Fretrends</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: 64821</p>
-                        </div>
-                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Active</span>
-                    </div>
-                    <div class="mt-4">
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Lab: 542</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: TTH 1:00-3:00 PM</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: Mr. Franz Caminade</p>
-                    </div>
-                </div>
+       
                 <!-- Add Course Card -->
                 <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center">
                     <button onclick="openAddCourseModal()" class="text-gray-500 dark:text-gray-400 hover:text-primary">
                         <i class="fas fa-plus text-2xl"></i>
                         <p class="mt-2">Add New Course</p>
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PC Status Monitor Section -->
+        <div class="mt-8">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-700 dark:text-white">
+                        <i class="fas fa-desktop mr-2"></i>PC Status Monitor
+                    </h2>
+                    <select id="labFilter" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">Select Lab Room</option>
+                        <option value="Lab 524">Lab 524</option>
+                        <option value="Lab 526">Lab 526</option>
+                        <option value="Lab 528">Lab 528</option>
+                        <option value="Lab 530">Lab 530</option>
+                        <option value="Lab 542">Lab 542</option>
+                        <option value="Lab 544">Lab 544</option>
+                        <option value="Lab 517">Lab 517</option>
+                    </select>
+                </div>
+
+                <div id="pcGrid" class="grid grid-cols-6 gap-4 mt-4">
+                    <p class="col-span-6 text-center text-gray-500 dark:text-gray-400">Please select a lab room</p>
+                </div>
+
+                <!-- Status Legend -->
+                <div class="mt-6 flex gap-4 justify-center">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded bg-green-100 dark:bg-green-900 mr-2"></div>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">Available</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded bg-red-100 dark:bg-red-900 mr-2"></div>
+                        <span class="text-sm text-gray-600 dark:text-gray-300">In Use</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -597,6 +495,119 @@ include '../header.php';
                 });
             }
         }
+
+        // Add this after your existing scripts
+        document.addEventListener('DOMContentLoaded', function() {
+            const labFilter = document.getElementById('labFilter');
+            const pcGrid = document.getElementById('pcGrid');
+
+            // Function to create PC status elements
+            function createPCGrid(labRoom) {
+                fetch(`get_pc_status.php?lab=${labRoom}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        pcGrid.innerHTML = '';
+                        for (let i = 1; i <= 30; i++) {
+                            const pcStatus = data.find(pc => pc.pc_number === i) || { status: 'available' };
+                            const isInUse = pcStatus.status === 'in-use';
+                            
+                            const pcElement = document.createElement('div');
+                            pcElement.className = `p-4 rounded-lg ${isInUse ? 'bg-red-100 dark:bg-red-900' : 'bg-green-100 dark:bg-green-900'} text-center`;
+                            pcElement.innerHTML = `
+                                <i class="fas fa-desktop text-2xl ${isInUse ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}"></i>
+                                <p class="mt-2 font-semibold ${isInUse ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">PC ${i}</p>
+                                <p class="text-sm ${isInUse ? 'text-red-500 dark:text-red-300' : 'text-green-500 dark:text-green-300'}">
+                                    ${isInUse ? 'In Use' : 'Available'}
+                                </p>
+                                ${isInUse ? `<p class="text-xs text-red-500 dark:text-red-300">User: ${pcStatus.student_id || 'N/A'}</p>` : ''}
+                            `;
+                            pcGrid.appendChild(pcElement);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            // Event listener for lab filter changes
+            labFilter.addEventListener('change', function() {
+                if (this.value) {
+                    createPCGrid(this.value);
+                } else {
+                    pcGrid.innerHTML = '<p class="col-span-6 text-center text-gray-500 dark:text-gray-400">Please select a lab room</p>';
+                }
+            });
+
+            // Auto-refresh status every 30 seconds
+            setInterval(() => {
+                if (labFilter.value) {
+                    createPCGrid(labFilter.value);
+                }
+            }, 30000);
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const labFilter = document.getElementById('labFilter');
+            const pcGrid = document.getElementById('pcGrid');
+
+            function createPCGrid(labRoom) {
+                fetch(`get_pc_status.php?lab=${encodeURIComponent(labRoom)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        pcGrid.innerHTML = ''; // Clear existing grid
+                        
+                        // Create 6x5 grid for 30 PCs
+                        for (let i = 1; i <= 30; i++) {
+                            // Find if this PC is in use
+                            const pcStatus = data.find(pc => parseInt(pc.pc_number) === i);
+                            const isInUse = pcStatus ? true : false;
+                            
+                            const pcElement = document.createElement('div');
+                            pcElement.className = `
+                                p-4 rounded-lg 
+                                ${isInUse ? 'bg-red-100 dark:bg-red-900' : 'bg-green-100 dark:bg-green-900'} 
+                                text-center transition-all duration-200 transform hover:scale-105 hover:shadow-lg
+                            `;
+                            
+                            pcElement.innerHTML = `
+                                <i class="fas fa-desktop text-2xl ${isInUse ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}"></i>
+                                <p class="mt-2 font-semibold ${isInUse ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">
+                                    PC ${i}
+                                </p>
+                                <p class="text-sm ${isInUse ? 'text-red-500 dark:text-red-300' : 'text-green-500 dark:text-green-300'}">
+                                    ${isInUse ? 'In Use' : 'Available'}
+                                </p>
+                                ${isInUse ? `
+                                    <p class="text-xs text-red-500 dark:text-red-300 mt-1">
+                                        ID: ${pcStatus.student_id}
+                                    </p>
+                                ` : ''}
+                            `;
+                            
+                            pcGrid.appendChild(pcElement);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        pcGrid.innerHTML = '<p class="col-span-6 text-center text-red-500">Error loading PC status</p>';
+                    });
+            }
+
+            // Event listener for lab filter changes
+            labFilter.addEventListener('change', function() {
+                if (this.value) {
+                    createPCGrid(this.value);
+                } else {
+                    pcGrid.innerHTML = '<p class="col-span-6 text-center text-gray-500 dark:text-gray-400">Please select a lab room</p>';
+                }
+            });
+
+            // Auto-refresh every 30 seconds if a lab is selected
+            setInterval(() => {
+                if (labFilter.value) {
+                    createPCGrid(labFilter.value);
+                }
+            }, 30000);
+        });
     </script>
 </body>
 </html>

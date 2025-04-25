@@ -104,6 +104,37 @@ $stmt->execute();
 return $stmt->get_result()->fetch_assoc()['count'] ?? 0;
 }
 
+// Add this function after the database connection
+function getLowestAvailablePCNumber($conn, $lab_room) {
+    // Get all occupied PC numbers in the lab
+    $sql = "SELECT pc_number FROM (
+        SELECT pc_number FROM direct_sitin 
+        WHERE lab_room = ? AND status = 'active'
+        UNION 
+        SELECT pc_number FROM sit_in_records 
+        WHERE lab_room = ? AND status = 'active'
+    ) as occupied_pcs 
+    ORDER BY pc_number";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('ss', $lab_room, $lab_room);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $occupied_pcs = [];
+    while($row = $result->fetch_assoc()) {
+        $occupied_pcs[] = $row['pc_number'];
+    }
+    
+    // Find the lowest available number
+    $pc_number = 1;
+    while(in_array($pc_number, $occupied_pcs)) {
+        $pc_number++;
+    }
+    
+    return $pc_number;
+}
+
 // Handle reservation submission
 if(isset($_POST['reserve_submit'])) {
 $student_id = $_POST['student_id'];
@@ -124,22 +155,25 @@ $errors[] = "Lab rooms are only available between 7:00 AM and 8:00 PM.";
 
 // If no errors, proceed with direct sit-in
 if (empty($errors)) {
-$insert_sql = "INSERT INTO direct_sitin (IDNO, lab_room, purpose, time_in, status) 
-VALUES (?, ?, ?, ?, 'active')";
-$stmt = $conn->prepare($insert_sql);
-$stmt->bind_param('ssss', $student_id, $lab_room, $purpose, $time_in_datetime);
+    // Get lowest available PC number
+    $pc_number = getLowestAvailablePCNumber($conn, $lab_room);
+    
+    $insert_sql = "INSERT INTO direct_sitin (IDNO, lab_room, purpose, time_in, status, pc_number) 
+    VALUES (?, ?, ?, ?, 'active', ?)";
+    $stmt = $conn->prepare($insert_sql);
+    $stmt->bind_param('ssssi', $student_id, $lab_room, $purpose, $time_in_datetime, $pc_number);
 
-if($stmt->execute()) {
-echo json_encode([
-'status' => 'success', 
-'message' => 'Direct sit-in created successfully!',
-'time' => date('g:i A', strtotime($time_in_datetime))
-]);
+    if($stmt->execute()) {
+        echo json_encode([
+            'status' => 'success', 
+            'message' => 'Direct sit-in created successfully! Assigned to PC ' . $pc_number,
+            'time' => date('g:i A', strtotime($time_in_datetime))
+        ]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to create direct sit-in']);
+    }
 } else {
-echo json_encode(['status' => 'error', 'message' => 'Failed to create direct sit-in']);
-}
-} else {
-echo json_encode(['status' => 'error', 'message' => implode(' ', $errors)]);
+    echo json_encode(['status' => 'error', 'message' => implode(' ', $errors)]);
 }
 exit();
 }
