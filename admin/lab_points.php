@@ -146,10 +146,10 @@ include '../header.php';
             </div>
         </div>
     </nav>
-<body class="bg-gray-100 dark:bg-gray-900">
-    
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold mb-6 dark:text-white">Lab Usage Points System</h1>
+    <body class="bg-gray-100">
+    <div class="max-w-7xl mx-auto py-6 px-4">
+        <!-- Dashboard Header -->
+        <h1 class="text-2xl font-bold text-black text-center mb-6 dark:text-white">Current Sit-in Records</h1>
         
         <!-- Top 5 Students -->
         <div class="relative max-w-6xl mx-auto mb-8">
@@ -485,8 +485,9 @@ include '../header.php';
                                             class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
                                             <i class="fas fa-plus-circle mr-1"></i> Point
                                         </button>
-                                        <button type="submit" name="add_session" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
-                                            <i class="fas fa-clock mr-1"></i> Session
+                                        <button type="button" onclick="confirmAddSession(this.form, '<?php echo htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']); ?>')" 
+                                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                                            <i class="fas fa-clock mr-1"></i> Add Session
                                         </button>
                                     </form>
                                 </td>
@@ -633,14 +634,36 @@ include '../header.php';
             }
         }
 
+        async function confirmAddSession(form, studentName) {
+            const result = await Swal.fire({
+                title: 'Add Session',
+                text: `Are you sure you want to add a session for ${studentName}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, add session',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (result.isConfirmed) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'add_session';
+                input.value = '1';
+                form.appendChild(input);
+                form.submit();
+            }
+        }
+
         // Mobile navigation toggle function
         function toggleNav() {
             const navbarNav = document.getElementById('navbarNav');
             navbarNav.classList.toggle('hidden');
         }
 
-        // Dark mode toggle functionality
-        document.addEventListener('DOMContentLoaded', function() {
+         // Dark mode toggle functionality
+ document.addEventListener('DOMContentLoaded', function() {
             const darkModeToggle = document.getElementById('darkModeToggle');
             const html = document.documentElement;
             

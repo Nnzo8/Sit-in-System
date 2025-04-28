@@ -120,8 +120,10 @@ include '../header.php';
         width: 100%;
     }
 </style>
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold mb-6 dark:text-white">Lab Schedule Management</h1>
+<body class="bg-gray-100">
+    <div class="max-w-7xl mx-auto py-6 px-4">
+        <!-- Dashboard Header -->
+        <h1 class="text-2xl font-bold text-black text-center mb-6 dark:text-white">Current Sit-in Records</h1>
         
         <!-- Lab Rooms Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -209,7 +211,7 @@ include '../header.php';
         }
 
         // Dark mode toggle functionality
-        document.addEventListener('DOMContentLoaded', function() {
+ document.addEventListener('DOMContentLoaded', function() {
             const darkModeToggle = document.getElementById('darkModeToggle');
             const html = document.documentElement;
             

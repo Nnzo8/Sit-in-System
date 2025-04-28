@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 24, 2025 at 02:44 PM
+-- Generation Time: Apr 28, 2025 at 06:15 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -72,21 +72,25 @@ CREATE TABLE `direct_sitin` (
   `time_out` datetime DEFAULT NULL,
   `status` enum('active','completed','','') NOT NULL DEFAULT 'active',
   `purpose` varchar(50) NOT NULL,
-  `date_updated` timestamp NOT NULL DEFAULT current_timestamp()
+  `date_updated` timestamp NOT NULL DEFAULT current_timestamp(),
+  `pc_number` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `direct_sitin`
 --
 
-INSERT INTO `direct_sitin` (`id`, `IDNO`, `lab_room`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`) VALUES
-(6, '2323', 'Lab 530', '2025-03-20 08:00:03', '2025-03-20 08:00:16', 'completed', 'Python', '2025-03-20 00:00:03'),
-(7, '2323', 'Lab 530', '2025-03-31 13:27:10', '2025-03-31 13:27:31', 'completed', 'Java', '2025-03-31 05:27:10'),
-(8, '1111', 'Lab 528', '2025-04-12 12:11:41', '2025-04-12 12:15:26', 'completed', 'Database', '2025-04-12 04:11:41'),
-(9, '2222', 'Lab 530', '2025-04-12 12:17:40', '2025-04-12 12:17:48', 'completed', 'Embedded System & IOT', '2025-04-12 04:17:40'),
-(10, '2222', 'Lab 530', '2025-04-12 12:20:26', '2025-04-12 12:20:34', 'completed', 'SysArch', '2025-04-12 04:20:26'),
-(11, '2222', 'Lab 544', '2025-04-12 12:28:06', '2025-04-12 12:28:16', 'completed', 'SysArch', '2025-04-12 04:28:06'),
-(12, '2222', 'Lab 530', '2025-04-21 11:34:48', '2025-04-21 11:34:51', 'completed', 'C#', '2025-04-21 03:34:48');
+INSERT INTO `direct_sitin` (`id`, `IDNO`, `lab_room`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`, `pc_number`) VALUES
+(6, '2323', 'Lab 530', '2025-03-20 08:00:03', '2025-04-28 23:10:57', 'completed', 'Python', '2025-03-20 00:00:03', 0),
+(7, '2323', 'Lab 530', '2025-03-31 13:27:10', '2025-03-31 13:27:31', 'completed', 'Java', '2025-03-31 05:27:10', 0),
+(8, '1111', 'Lab 528', '2025-04-12 12:11:41', '2025-04-29 00:15:11', 'completed', 'Database', '2025-04-12 04:11:41', 0),
+(9, '2222', 'Lab 530', '2025-04-12 12:17:40', '2025-04-12 12:17:48', 'completed', 'Embedded System & IOT', '2025-04-12 04:17:40', 0),
+(10, '2222', 'Lab 530', '2025-04-12 12:20:26', '2025-04-12 12:20:34', 'completed', 'SysArch', '2025-04-12 04:20:26', 0),
+(11, '2222', 'Lab 544', '2025-04-12 12:28:06', '2025-04-12 12:28:16', 'completed', 'SysArch', '2025-04-12 04:28:06', 0),
+(12, '2222', 'Lab 530', '2025-04-21 11:34:48', '2025-04-21 11:34:51', 'completed', 'C#', '2025-04-21 03:34:48', 0),
+(13, '888', 'Lab 528', '2025-04-25 09:31:42', '2025-04-25 09:31:53', 'completed', 'C++', '2025-04-25 01:31:42', 0),
+(14, '2323', 'Lab 524', '2025-04-25 09:47:46', '2025-04-25 09:48:06', 'completed', 'C++', '2025-04-25 01:47:46', 1),
+(15, '1111', 'Lab 528', '2025-04-12 12:11:41', '2025-04-29 00:15:11', 'completed', 'Database', '2025-04-28 16:15:11', 0);
 
 -- --------------------------------------------------------
 
@@ -101,14 +105,6 @@ CREATE TABLE `feedback` (
   `date` varchar(25) NOT NULL,
   `message` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `feedback`
---
-
-INSERT INTO `feedback` (`feedback_id`, `IDNO`, `lab`, `date`, `message`) VALUES
-(0, 2323, 0, '2025-03-20', 'Good'),
-(0, 2323, 0, '2025-04-09', 'haha bati');
 
 -- --------------------------------------------------------
 
@@ -125,7 +121,7 @@ CREATE TABLE `reservation` (
   `lab` varchar(25) NOT NULL,
   `purpose` varchar(100) NOT NULL,
   `IDNO` int(11) NOT NULL,
-  `status` varchar(100) NOT NULL
+  `status` varchar(100) NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -145,6 +141,13 @@ CREATE TABLE `sit_in_records` (
   `purpose` varchar(100) NOT NULL,
   `date_updated` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `sit_in_records`
+--
+
+INSERT INTO `sit_in_records` (`id`, `IDNO`, `lab_room`, `pc_number`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`) VALUES
+(8, '44444', 'Lab 542', 1, '2025-04-28 23:50:55', NULL, 'active', 'Webdev', '2025-04-28 15:50:55');
 
 -- --------------------------------------------------------
 
@@ -173,10 +176,8 @@ CREATE TABLE `students` (
 
 INSERT INTO `students` (`StudID`, `IDNO`, `Last_Name`, `First_Name`, `Mid_Name`, `Course`, `Year_lvl`, `Username`, `Password`, `profile_image`, `Email`, `Address`) VALUES
 (1, 2323, 'asdas', 'dasdas', 'dasdas', 'College of Engineering', 1, 'asdasd', '$2y$10$E3lrN9Gylvi2a/wdGIuvSepFpR3Yjwx71kZ8q1oeTYVGPuFsBuKMi', 'uploads/67d94937c06be.png', 'asdas@gmail.com', 'asdasd'),
-(2, 888, 'Ocliasa', 'Ninzo', 'Dumandan', 'BSIT', 3, 'qweqwe', '$2y$10$qzH5V3co3NfiiQ15B32MZe4/hVG6Sisb9I29Xagx7KcM.JoDSPuky', 'uploads/67bfd4fcdaca2.jpg', 'ninorollaneocliasa@gmail.com', 'Lahug Cebu City'),
-(4, 22683361, 'Ocliasa', 'Nino Rollane ', 'Dumandan', 'BSIT', 3, 'qwerty', '$2y$10$5M/txXWM9CXnZLDrChSJX.1DXIq06vrBIJZltcyGG/CcIwNm.TZQW', 'uploads/67ca5ae740e75.png', 'ninorollaneocliasa@gmail.com', 'Cebu City'),
-(9, 1111, 'doe', 'john', 'dan', 'BSCS', 1, 'dadada', '$2y$10$EVvLWhC/iKghRHjolv4obeAyTKDS/oLms4GYlX18V5jn1g3Stgwhq', '', '', ''),
-(10, 2222, 'zen', 'san', '', 'BSBA', 3, 'saddas', '$2y$10$v.h0ZJd80pDU3dRsGAYESOF/xP/VFdH8tNN0grysKBbSLzN.uVWjC', '', '', '');
+(12, 55555, 'Eight', 'Ninzo', 'Dumandan', 'BSIT', 3, 'zxczxc', '$2y$10$xDPjRvdRE6eHNUlQ9NCtIesT1Z7XEQ3gsvWqYSnbuzJPLRZez85bW', 'uploads/680f75f6c2e2d.png', 'egiht@mgail.com', 'asdreghieht'),
+(13, 44444, 'Foure', 'San', 'Men', 'BSHM', 2, 'qweqwe', '$2y$10$FC7qA9Doqso8CqIoV529luKUNcL23Wh0szRx481ml9iRnl6DRJqpK', 'uploads/680f75d175235.jpg', 'asdad@gmail.com', 'asdasdas');
 
 -- --------------------------------------------------------
 
@@ -190,6 +191,19 @@ CREATE TABLE `student_points` (
   `points` int(11) NOT NULL DEFAULT 0,
   `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `student_points`
+--
+
+INSERT INTO `student_points` (`id`, `IDNO`, `points`, `last_updated`) VALUES
+(1, 1111, 13, '2025-04-24 14:07:38'),
+(2, 2323, 17, '2025-04-28 13:50:15'),
+(3, 22683361, 5, '2025-04-24 13:34:06'),
+(4, 888, 19, '2025-04-28 12:24:56'),
+(5, 2222, 16, '2025-04-24 14:07:44'),
+(6, 55555, 9, '2025-04-28 13:50:39'),
+(7, 44444, 3, '2025-04-28 13:50:11');
 
 -- --------------------------------------------------------
 
@@ -207,10 +221,11 @@ CREATE TABLE `student_session` (
 --
 
 INSERT INTO `student_session` (`id_number`, `remaining_sessions`) VALUES
-(888, 30),
-(2323, 30),
-(1111, 30),
-(2222, 30);
+(2323, 20),
+(1111, 23),
+(2222, 30),
+(55555, 30),
+(44444, 30);
 
 --
 -- Indexes for dumped tables
@@ -254,31 +269,31 @@ ALTER TABLE `student_points`
 -- AUTO_INCREMENT for table `courses`
 --
 ALTER TABLE `courses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `direct_sitin`
 --
 ALTER TABLE `direct_sitin`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `sit_in_records`
 --
 ALTER TABLE `sit_in_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `StudID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `StudID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `student_points`
 --
 ALTER TABLE `student_points`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

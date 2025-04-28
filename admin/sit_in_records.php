@@ -234,7 +234,7 @@ $recentEntries = $conn->query($recentEntriesSql);
 <body class="bg-gray-100">
     <div class="max-w-7xl mx-auto py-6 px-4">
         <!-- Dashboard Header -->
-        <h1 class="text-2xl font-bold text-black text-center mb-6 dark:text-white-80">Current Sit-in Records</h1>
+        <h1 class="text-2xl font-bold text-black text-center mb-6 dark:text-white">Current Sit-in Records</h1>
         
         <!-- Dashboard Charts -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -473,7 +473,6 @@ $recentEntries = $conn->query($recentEntriesSql);
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 <style>
-    
     .group:hover .group-hover\:opacity-100 {
         opacity: 1;
     }

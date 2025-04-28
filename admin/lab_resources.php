@@ -120,10 +120,10 @@ include '../header.php';
             </div>
         </div>
     </nav>
-    
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold mb-6 dark:text-white">Lab Resources Management</h1>
-        
+    <body class="bg-gray-100">
+    <div class="max-w-7xl mx-auto py-6 px-4">
+        <!-- Dashboard Header -->
+        <h1 class="text-2xl font-bold text-black text-center mb-6 dark:text-white">Current Sit-in Records</h1>
         <!-- Courses Section -->
         <div class="mt-8 mb-8">
             <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Courses Using Lab Resources</h2>
@@ -309,7 +309,7 @@ include '../header.php';
         }
 
         // Dark mode toggle functionality
-        document.addEventListener('DOMContentLoaded', function() {
+ document.addEventListener('DOMContentLoaded', function() {
             const darkModeToggle = document.getElementById('darkModeToggle');
             const html = document.documentElement;
             

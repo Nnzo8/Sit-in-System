@@ -32,13 +32,17 @@ if(isset($_POST['submit_reservation'])) {
     $purpose = $_POST['purpose'];
     $date = $_POST['date'];
     $time = $_POST['time_in'];
-    $time_in = $date . ' ' . $time . ':00';
+    $time_out = date('H:i', strtotime($time . ' +1 hour')); // Set time_out to 1 hour after time_in
 
-    // Check if student has an active sit-in for the same time slot
-    $active_sitin = getActiveSitIn($conn, $student_id, $time_in);
+    // Check if student has an existing reservation for the same time slot
+    $check_sql = "SELECT * FROM reservation WHERE IDNO = ? AND reservation_date = ? AND 
+                  ((time_in <= ? AND time_out >= ?) OR (time_in <= ? AND time_out >= ?))";
+    $stmt = $conn->prepare($check_sql);
+    $stmt->bind_param("ssssss", $student_id, $date, $time, $time, $time_out, $time_out);
+    $stmt->execute();
+    $result = $stmt->get_result();
     
-    if($active_sitin) {
-        $error = "You already have a reservation for this time slot.";
+    if($result->num_rows > 0) {
         echo "<script>
             setTimeout(function() {
                 Swal.fire({
@@ -50,8 +54,15 @@ if(isset($_POST['submit_reservation'])) {
             }, 100);
         </script>";
     } else {
-        if(createSitInRecord($conn, $student_id, $lab_room, $pc_number, $purpose, $time_in)) {
-            $success = "Sit-in reservation created successfully!";
+        // Insert new reservation
+        $insert_sql = "INSERT INTO reservation (reservation_date, time_in, time_out, pc, lab, purpose, IDNO, status) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')";
+        $stmt = $conn->prepare($insert_sql);
+        $time_in_int = (int)str_replace(':', '', $time);
+        $time_out_int = (int)str_replace(':', '', $time_out);
+        $stmt->bind_param("siiissi", $date, $time_in_int, $time_out_int, $pc_number, $lab_room, $purpose, $student_id);
+        
+        if($stmt->execute()) {
             echo "<script>
                 setTimeout(function() {
                     Swal.fire({
@@ -62,16 +73,27 @@ if(isset($_POST['submit_reservation'])) {
                     });
                 }, 100);
             </script>";
-            
-            
         } else {
-            $error = "Error creating reservation.";
+            echo "<script>
+                setTimeout(function() {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Error creating reservation: " . $conn->error . "',
+                        icon: 'error',
+                        confirmButtonColor: '#000080'
+                    });
+                }, 100);
+            </script>";
         }
     }
 }
 
-// Get student's sit-in history
-$history = getSitInHistory($conn, $_SESSION['IDNO'], 5);
+// Get student's reservation history - updated to use reservation table
+$history_sql = "SELECT * FROM reservation WHERE IDNO = ? ORDER BY reservation_date DESC, time_in DESC LIMIT 5";
+$stmt = $conn->prepare($history_sql);
+$stmt->bind_param("i", $_SESSION['IDNO']);
+$stmt->execute();
+$history = $stmt->get_result();
 
 // Get student's remaining sessions
 $idno = $_SESSION['IDNO'];
@@ -153,6 +175,8 @@ $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
                         <option value="Lab 528">Lab 528</option>
                         <option value="Lab 530">Lab 530</option>
                         <option value="Lab 542">Lab 542</option>
+                        <option value="Lab 544">Lab 544</option>
+                        <option value="Lab 517">Lab 517</option>
                     </select>
                 </div>
                 <div>
@@ -188,6 +212,12 @@ $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
                         <option value="Java">Java</option>
                         <option value="PHP">PHP</option>
                         <option value="Python">Python</option>
+                        <area value="Database">Database</option>
+                        <option value="Digital Logic and Design">Digital Logic and Design</option>
+                        <option value="Embedded System & IOT">Embedded System & IOT</option>
+                        <option value="SysArch">SysArch</option>
+                        <option value="Computer Application">Computer Application</option>
+                        <option value="Webdev">Webdev</option>
                     </select>
                 </div>
 

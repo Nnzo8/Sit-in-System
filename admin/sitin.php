@@ -57,48 +57,72 @@ $lab_room_count = array_count_values($lab_rooms);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
     $record_id = $_POST['record_id'];
-    $table = $_POST['table']; // Identify the table (sit_in_records or direct_sitin)
+    $table = $_POST['table']; 
 
-    // Fetch the reservation details
-    $fetch_sql = "SELECT * FROM $table WHERE id = ?";
-    $stmt = $conn->prepare($fetch_sql);
-    $stmt->bind_param('i', $record_id);
-    $stmt->execute();
-    $reservation_details = $stmt->get_result()->fetch_assoc();
+    // Start transaction
+    $conn->begin_transaction();
 
-    if ($reservation_details) {
-        // Get current time with correct timezone
-        $time_out = date('Y-m-d H:i:s');
-        $update_sql = "UPDATE $table SET time_out = ?, status = 'completed' WHERE id = ?";
-        $stmt = $conn->prepare($update_sql);
-        $stmt->bind_param('si', $time_out, $record_id);
+    try {
+        // Fetch the reservation details
+        $fetch_sql = "SELECT * FROM $table WHERE id = ?";
+        $stmt = $conn->prepare($fetch_sql);
+        $stmt->bind_param('i', $record_id);
         $stmt->execute();
+        $reservation_details = $stmt->get_result()->fetch_assoc();
 
-        // Update remaining sessions in student_session table using the correct IDNO
-        $update_sessions = "UPDATE student_session SET remaining_sessions = remaining_sessions - 1 
-        WHERE id_number = ? AND remaining_sessions > 0";
-        $stmt3 = $conn->prepare($update_sessions);
-        $stmt3->bind_param('s', $reservation_details['IDNO']);  // Use IDNO from reservation_details
-        $stmt3->execute();
-        // Format the time for display
-        $formatted_time_out = date('g:i A', strtotime($time_out));
+        if ($reservation_details) {
+            $time_out = date('Y-m-d H:i:s');
+            
+            // Update status to completed in original table
+            $update_sql = "UPDATE $table SET time_out = ?, status = 'completed' WHERE id = ?";
+            $stmt = $conn->prepare($update_sql);
+            $stmt->bind_param('si', $time_out, $record_id);
+            $stmt->execute();
 
-        // Return the details of the completed reservation as JSON
-        echo json_encode([
-            'status' => 'success',
-            'message' => 'Reservation completed successfully.',
-            'data' => [
-                'IDNO' => $reservation_details['IDNO'],
-                'lab_room' => $reservation_details['lab_room'],
-                'purpose' => $reservation_details['purpose'],
-                'time_in' => date('g:i A', strtotime($reservation_details['time_in'])),
-                'time_out' => $formatted_time_out
-            ]
-        ]);
-    } else {
+            // Always insert into direct_sitin regardless of source table
+            $insert_sql = "INSERT INTO direct_sitin (IDNO, lab_room, time_in, time_out, status, purpose) 
+                          VALUES (?, ?, ?, ?, 'completed', ?)";
+            $stmt2 = $conn->prepare($insert_sql);
+            $stmt2->bind_param('sssss', 
+                $reservation_details['IDNO'],
+                $reservation_details['lab_room'],
+                $reservation_details['time_in'],
+                $time_out,
+                $reservation_details['purpose']
+            );
+            $stmt2->execute();
+
+            // Update remaining sessions
+            $update_sessions = "UPDATE student_session SET remaining_sessions = remaining_sessions - 1 
+                              WHERE id_number = ? AND remaining_sessions > 0";
+            $stmt3 = $conn->prepare($update_sessions);
+            $stmt3->bind_param('s', $reservation_details['IDNO']);
+            $stmt3->execute();
+
+            $conn->commit();
+
+            // Format time for display
+            $formatted_time_out = date('g:i A', strtotime($time_out));
+
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Reservation completed successfully.',
+                'data' => [
+                    'IDNO' => $reservation_details['IDNO'],
+                    'lab_room' => $reservation_details['lab_room'],
+                    'purpose' => $reservation_details['purpose'],
+                    'time_in' => date('g:i A', strtotime($reservation_details['time_in'])),
+                    'time_out' => $formatted_time_out
+                ]
+            ]);
+        } else {
+            throw new Exception('Reservation not found');
+        }
+    } catch (Exception $e) {
+        $conn->rollback();
         echo json_encode([
             'status' => 'error',
-            'message' => 'Reservation not found.'
+            'message' => 'Error: ' . $e->getMessage()
         ]);
     }
     exit();
@@ -196,33 +220,101 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
             </div>
         </div>
     </nav>
-    <style>
-    .group:hover .group-hover\:opacity-100 {
-        opacity: 1;
-    }
-    .group:hover .group-hover\:visible {
-        visibility: visible;
-    }
-    .nav-link {
-        position: relative;
-        padding: 0.5rem;
-    }
-    .nav-link:after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        bottom: 0;
-        left: 0;
-        background-color: white;
-        transition: width 0.3s ease;
-    }
-    .nav-link:hover:after {
-        width: 100%;
-    }
-</style>
-<body class="bg-gray-100">
-    <div class="max-w-7xl mx-auto py-6 px-4">
+
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Pending Reservations Table -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">
+                <i class="fas fa-clock text-yellow-600 mr-2"></i>
+                Pending Reservations
+            </h2>
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <?php
+                // Fetch pending reservations from reservation table instead of sit_in_records
+                $pending_sql = "SELECT 
+                    r.reservation_id as id, 
+                    r.IDNO,
+                    r.purpose,
+                    r.lab as lab_room,
+                    r.pc as pc_number,
+                    r.reservation_date,
+                    DATE_FORMAT(STR_TO_DATE(r.time_in, '%H%i'), '%H:%i') as time_in,
+                    s.First_Name,
+                    s.Last_Name,
+                    s.Course,
+                    s.Year_lvl,
+                    ss.remaining_sessions
+                FROM reservation r
+                JOIN students s ON r.IDNO = s.IDNO
+                LEFT JOIN student_session ss ON r.IDNO = ss.id_number
+                WHERE r.status = 'pending'
+                ORDER BY r.reservation_date ASC, r.time_in ASC";
+                
+                $pending_result = $conn->query($pending_sql);
+                
+                if($pending_result->num_rows > 0):
+                ?>
+                    <table class="min-w-full pending-reservations-table">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Full Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab Room</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">PC Number</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sessions Left</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <?php while($row = $pending_result->fetch_assoc()): ?>
+                                <tr class="hover:bg-gray-50" id="pending-row-<?= $row['id'] ?>">
+                                    <td class="px-6 py-4"><?= htmlspecialchars($row['IDNO']) ?></td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?></td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($row['purpose']) ?></td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($row['lab_room']) ?></td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($row['pc_number']) ?></td>
+                                    <td class="px-6 py-4">
+                                        <span class="<?= $row['remaining_sessions'] <= 5 ? 'text-red-500 font-bold' : '' ?>">
+                                            <?= htmlspecialchars($row['remaining_sessions']) ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <?php 
+                                            // Convert integer time (HHMM) to formatted time
+                                            $time_int = $row['time_in'];
+                                            $hours = floor($time_int / 100);
+                                            $minutes = $time_int % 100;
+                                            $time = sprintf("%02d:%02d", $hours, $minutes);
+                                            echo date('g:i A', strtotime($time)); 
+                                        ?>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex space-x-2">
+                                            <button onclick="handleReservation(<?= $row['id'] ?>, 'approve')" 
+                                                    class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">
+                                                <i class="fas fa-check mr-1"></i> Approve
+                                            </button>
+                                            <button onclick="handleReservation(<?= $row['id'] ?>, 'decline')" 
+                                                    class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
+                                                <i class="fas fa-times mr-1"></i> Decline
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <div class="p-6 text-center text-gray-500">
+                        <i class="fas fa-info-circle text-blue-500 mb-2 text-2xl"></i>
+                        <p>No pending reservations at this time.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
         <!-- Analytics Section -->
         <div class="flex flex-col items-center justify-center mb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
@@ -674,6 +766,109 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                 });
             });
         });
+
+        function handleReservation(recordId, action) {
+            Swal.fire({
+                title: `Confirm ${action}`,
+                text: `Are you sure you want to ${action} this reservation?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: `Yes, ${action} it!`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const row = document.getElementById(`pending-row-${recordId}`);
+                    const purpose = row.querySelector('td:nth-child(3)').textContent.trim();
+                    const labRoom = row.querySelector('td:nth-child(4)').textContent.trim();
+
+                    fetch('handle_reservation.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `action=${action}&record_id=${recordId}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Remove the row from pending table
+                            if (row) {
+                                row.remove();
+                            }
+                            
+                            // Update charts and UI for approve action
+                            if (action === 'approve') {
+                                // Update language chart
+                                if (languageChart) {
+                                    const purposeIndex = languageChart.data.labels.indexOf(purpose);
+                                    if (purposeIndex !== -1) {
+                                        languageChart.data.datasets[0].data[purposeIndex]++;
+                                    } else {
+                                        languageChart.data.labels.push(purpose);
+                                        languageChart.data.datasets[0].data.push(1);
+                                    }
+                                    languageChart.update();
+                                }
+
+                                // Update lab room chart
+                                if (labRoomChart) {
+                                    const labIndex = labRoomChart.data.labels.indexOf(labRoom);
+                                    if (labIndex !== -1) {
+                                        labRoomChart.data.datasets[0].data[labIndex]++;
+                                    } else {
+                                        labRoomChart.data.labels.push(labRoom);
+                                        labRoomChart.data.datasets[0].data.push(1);
+                                    }
+                                    labRoomChart.update();
+                                }
+
+                                Swal.fire({
+                                    title: 'Success',
+                                    text: 'Reservation approved successfully',
+                                    icon: 'success',
+                                    timer: 1500
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Success',
+                                    text: 'Reservation declined successfully',
+                                    icon: 'success',
+                                    timer: 1500
+                                });
+                            }
+
+                            // Check if pending table is empty
+                            const pendingTable = document.querySelector('.pending-reservations-table tbody');
+                            if (pendingTable && pendingTable.children.length === 0) {
+                                const container = pendingTable.closest('.bg-white');
+                                container.innerHTML = `
+                                    <div class="p-6 text-center text-gray-500">
+                                        <i class="fas fa-info-circle text-blue-500 mb-2 text-2xl"></i>
+                                        <p>No pending reservations at this time.</p>
+                                    </div>`;
+                            }
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                data.message || 'Something went wrong.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire(
+                            'Error!',
+                            'Something went wrong.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        }
     </script>
 </body>
 </html>
