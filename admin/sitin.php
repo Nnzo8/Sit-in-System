@@ -20,7 +20,27 @@ $database = "users";
 
 $conn = new mysqli($servername, $username, $password, $database);
 
-// Fetch active sit-in records from both sit_in_records and direct_sitin
+// Modified query to only fetch from reservation table
+$pending_sql = "SELECT 
+    r.reservation_id as id, 
+    r.IDNO,
+    r.purpose,
+    r.lab as lab_room,
+    r.pc as pc_number,
+    r.reservation_date,
+    r.time_in,
+    s.First_Name,
+    s.Last_Name,
+    s.Course,
+    s.Year_lvl,
+    ss.remaining_sessions
+FROM reservation r
+JOIN students s ON r.IDNO = s.IDNO
+LEFT JOIN student_session ss ON r.IDNO = ss.id_number
+WHERE r.status = 'pending'
+ORDER BY r.reservation_date ASC, r.time_in ASC";
+
+// Modified query to only fetch from sit_in_records table
 $active_sql = "
     SELECT sr.id, sr.IDNO, sr.lab_room, sr.time_in, sr.purpose, 
            s.First_Name, s.Last_Name, s.Course, s.Year_lvl,
@@ -29,15 +49,8 @@ $active_sql = "
     JOIN students s ON sr.IDNO = s.IDNO
     LEFT JOIN student_session ss ON sr.IDNO = ss.id_number
     WHERE sr.status = 'active'
-    UNION
-    SELECT ds.id, ds.IDNO, ds.lab_room, ds.time_in, ds.purpose, 
-           s.First_Name, s.Last_Name, s.Course, s.Year_lvl,
-           ss.remaining_sessions
-    FROM direct_sitin ds
-    JOIN students s ON ds.IDNO = s.IDNO
-    LEFT JOIN student_session ss ON ds.IDNO = ss.id_number
-    WHERE ds.status = 'active'
 ";
+
 $active_result = $conn->query($active_sql);
 
 if (!$active_result) {
@@ -57,14 +70,13 @@ $lab_room_count = array_count_values($lab_rooms);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
     $record_id = $_POST['record_id'];
-    $table = $_POST['table']; 
-
+    
     // Start transaction
     $conn->begin_transaction();
 
     try {
-        // Fetch the reservation details
-        $fetch_sql = "SELECT * FROM $table WHERE id = ?";
+        // Fetch the reservation details from sit_in_records
+        $fetch_sql = "SELECT * FROM sit_in_records WHERE id = ?";
         $stmt = $conn->prepare($fetch_sql);
         $stmt->bind_param('i', $record_id);
         $stmt->execute();
@@ -73,22 +85,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
         if ($reservation_details) {
             $time_out = date('Y-m-d H:i:s');
             
-            // Update status to completed in original table
-            $update_sql = "UPDATE $table SET time_out = ?, status = 'completed' WHERE id = ?";
+            // Update status to completed in sit_in_records
+            $update_sql = "UPDATE sit_in_records SET time_out = ?, status = 'completed' WHERE id = ?";
             $stmt = $conn->prepare($update_sql);
             $stmt->bind_param('si', $time_out, $record_id);
             $stmt->execute();
 
-            // Always insert into direct_sitin regardless of source table
-            $insert_sql = "INSERT INTO direct_sitin (IDNO, lab_room, time_in, time_out, status, purpose) 
-                          VALUES (?, ?, ?, ?, 'completed', ?)";
+            // Insert into direct_sitin
+            $insert_sql = "INSERT INTO direct_sitin (IDNO, lab_room, time_in, time_out, status, purpose, pc_number) 
+                          VALUES (?, ?, ?, ?, 'completed', ?, ?)";
             $stmt2 = $conn->prepare($insert_sql);
-            $stmt2->bind_param('sssss', 
+            $stmt2->bind_param('sssssi', 
                 $reservation_details['IDNO'],
                 $reservation_details['lab_room'],
                 $reservation_details['time_in'],
                 $time_out,
-                $reservation_details['purpose']
+                $reservation_details['purpose'],
+                $reservation_details['pc_number']
             );
             $stmt2->execute();
 
@@ -106,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
 
             echo json_encode([
                 'status' => 'success',
-                'message' => 'Reservation completed successfully.',
+                'message' => 'Student timed out successfully.',
                 'data' => [
                     'IDNO' => $reservation_details['IDNO'],
                     'lab_room' => $reservation_details['lab_room'],
@@ -116,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                 ]
             ]);
         } else {
-            throw new Exception('Reservation not found');
+            throw new Exception('Record not found');
         }
     } catch (Exception $e) {
         $conn->rollback();
