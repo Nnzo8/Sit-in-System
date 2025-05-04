@@ -192,6 +192,7 @@ $total_sitins = $result->fetch_assoc()['total_count'];
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -206,10 +207,17 @@ $total_sitins = $result->fetch_assoc()['total_count'];
     <!-- Add Chart.js for pie chart and bar graph -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <link rel="stylesheet" href="../css/admin-dark-mode.css">
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+    <style>
+        /* Add transition styles */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <!-- Navigation -->
-    <nav class="bg-primary shadow-lg">
+<body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">
+   <!-- Navigation -->
+   <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
                 <span class="text-white text-xl font-bold py-4">Admin Dashboard</span>
@@ -243,9 +251,11 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                         <a href="feedback.php" class="nav-link text-white hover:text-gray-200">View Feedbacks</a>
                         <a href="../logout.php" class="nav-link text-white hover:text-gray-200">Logout</a>
                         <button id="darkModeToggle" class="p-2 rounded-lg text-white hover:text-gray-200">
+                            <!-- Sun icon - Shows in light mode -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
+                            <!-- Moon icon - Shows in dark mode -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                             </svg>

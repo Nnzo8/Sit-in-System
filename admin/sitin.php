@@ -156,6 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
     <link rel="stylesheet" href="../css/admin-dark-mode.css">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -166,8 +167,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
             }
         }
     </script>
+    <style>
+        /* Add transition styles */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">
     <!-- Navigation -->
     <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
@@ -237,11 +244,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
     <div class="max-w-7xl mx-auto px-4 py-6">
         <!-- Pending Reservations Table -->
         <div class="mb-8">
-            <h2 class="text-2xl font-bold mb-4">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
                 <i class="fas fa-clock text-yellow-600 mr-2"></i>
                 Pending Reservations
             </h2>
-            <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
                 <?php
                 // Fetch pending reservations from reservation table instead of sit_in_records
                 $pending_sql = "SELECT 
@@ -268,32 +275,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                 if($pending_result->num_rows > 0):
                 ?>
                     <table class="min-w-full pending-reservations-table">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Full Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab Room</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">PC Number</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sessions Left</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Full Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Purpose</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Lab Room</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">PC Number</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Sessions Left</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
                             <?php while($row = $pending_result->fetch_assoc()): ?>
-                                <tr class="hover:bg-gray-50" id="pending-row-<?= $row['id'] ?>">
-                                    <td class="px-6 py-4"><?= htmlspecialchars($row['IDNO']) ?></td>
-                                    <td class="px-6 py-4"><?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?></td>
-                                    <td class="px-6 py-4"><?= htmlspecialchars($row['purpose']) ?></td>
-                                    <td class="px-6 py-4"><?= htmlspecialchars($row['lab_room']) ?></td>
-                                    <td class="px-6 py-4"><?= htmlspecialchars($row['pc_number']) ?></td>
-                                    <td class="px-6 py-4">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700" id="pending-row-<?= $row['id'] ?>">
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?= htmlspecialchars($row['IDNO']) ?></td>
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?></td>
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?= htmlspecialchars($row['purpose']) ?></td>
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?= htmlspecialchars($row['lab_room']) ?></td>
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?= htmlspecialchars($row['pc_number']) ?></td>
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
                                         <span class="<?= $row['remaining_sessions'] <= 5 ? 'text-red-500 font-bold' : '' ?>">
                                             <?= htmlspecialchars($row['remaining_sessions']) ?>
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
                                         <?php 
                                             // Convert integer time (HHMM) to formatted time
                                             $time_int = $row['time_in'];
@@ -303,7 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                                             echo date('g:i A', strtotime($time)); 
                                         ?>
                                     </td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
                                         <div class="flex space-x-2">
                                             <button onclick="handleReservation(<?= $row['id'] ?>, 'approve')" 
                                                     class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">
@@ -331,8 +338,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
         <!-- Analytics Section -->
         <div class="flex flex-col items-center justify-center mb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-lg font-semibold mb-4 text-center">Programming Languages Distribution</h3>
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4 text-center text-gray-800 dark:text-white">Programming Languages Distribution</h3>
                     <div class="flex flex-col items-center">
                         <div class="w-64 h-64">
                             <canvas id="languageChart"></canvas>
@@ -394,8 +401,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                         </div>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-lg font-semibold mb-4 text-center">Lab Room Distribution</h3>
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4 text-center text-gray-800 dark:text-white">Lab Room Distribution</h3>
                     <div class="flex flex-col items-center">
                         <div class="w-64 h-64">
                             <canvas id="labRoomChart"></canvas>
@@ -438,45 +445,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
 
         <!-- Active Sit-in Students -->
         <div class="mb-8">
-            <h2 class="text-2xl font-bold mb-4">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
                 <i class="fas fa-user-check text-green-600 mr-2"></i>
                 Currently Active Sit-in Students
             </h2>
-            <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
                 <?php 
                 $active_result->data_seek(0);
                 if($active_result->num_rows > 0): ?>
                     <table class="min-w-full active-students-table">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab Room</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time In</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sessions Left</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Student</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Lab Room</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Time In</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Purpose</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Sessions Left</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
                             <?php 
                             $active_result->data_seek(0);
                             while ($row = $active_result->fetch_assoc()): 
                                 $table = isset($row['pc_number']) ? 'sit_in_records' : 'direct_sitin'; // Determine table
                             ?>
-                                <tr class="hover:bg-gray-50" id="student-row-<?= $row['id'] ?>">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700" id="student-row-<?= $row['id'] ?>">
                                     <td class="px-6 py-4">
-                                        <p class="font-medium"><?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?></p>
-                                        <p class="text-sm text-gray-500"><?= htmlspecialchars($row['Course']) ?> - <?= htmlspecialchars($row['Year_lvl']) ?></p>
+                                        <p class="font-medium text-gray-800 dark:text-white"><?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?></p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400"><?= htmlspecialchars($row['Course']) ?> - <?= htmlspecialchars($row['Year_lvl']) ?></p>
                                     </td>
-                                    <td class="px-6 py-4"><?= htmlspecialchars($row['lab_room']) ?></td>
-                                    <td class="px-6 py-4"><?= date('g:i A', strtotime($row['time_in'])) ?></td>
-                                    <td class="px-6 py-4"><?= htmlspecialchars($row['purpose']) ?></td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?= htmlspecialchars($row['lab_room']) ?></td>
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?= date('g:i A', strtotime($row['time_in'])) ?></td>
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200"><?= htmlspecialchars($row['purpose']) ?></td>
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
                                         <span class="<?= $row['remaining_sessions'] <= 5 ? 'text-red-500 font-bold' : '' ?>">
                                             <?= htmlspecialchars($row['remaining_sessions']) ?>
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
                                         <form class="flex gap-2 timeout-form" data-id="<?= $row['id'] ?>" data-table="<?= $table ?>">
                                             <button type="button" 
                                                     class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 flex items-center timeout-button">

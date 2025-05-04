@@ -31,9 +31,9 @@ if ($search) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sit-in Records</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../css/admin-dark-mode.css">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -44,9 +44,16 @@ if ($search) {
             }
         }
     </script>
+    <style>
+        /* Add transition styles */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+    <link rel="stylesheet" href="../css/admin-dark-mode.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">
     <!-- Navigation -->
     <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
@@ -112,7 +119,7 @@ if ($search) {
             </div>
         </div>
     </nav>
-<body class="bg-gray-100">
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
 <style>
     .group:hover .group-hover\:opacity-100 {
         opacity: 1;
@@ -144,8 +151,8 @@ if ($search) {
             <form method="GET" class="flex gap-2">
                 <input type="text" name="search" placeholder="Search by ID or Name" 
                        value="<?= htmlspecialchars($search) ?>"
-                       class="flex-1 border p-2 rounded">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">
+                       class="flex-1 border p-2 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                     Search
                 </button>
             </form>
@@ -159,9 +166,9 @@ if ($search) {
             </div>
         <?php endif; ?>
 
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Student List</h2>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Student List</h2>
                 <div class="space-x-2">
                     <form action="reset_sessions.php" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to reset all student sessions to 30?');">
                         <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -175,25 +182,25 @@ if ($search) {
             </div>
 
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Number</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Year Level</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">ID Number</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Year Level</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
                         <?php
                         if ($result->num_rows > 0) {
                             while($row = $result->fetch_assoc()) {
-                                echo "<tr class='hover:bg-gray-50'>";
-                                echo "<td class='px-6 py-4'>" . htmlspecialchars($row['IDNO']) . "</td>";
-                                echo "<td class='px-6 py-4'>" . htmlspecialchars($row['Last_Name'] . ", " . $row['First_Name']) . "</td>";
-                                echo "<td class='px-6 py-4'>" . htmlspecialchars($row['Course']) . "</td>";
-                                echo "<td class='px-6 py-4'>" . htmlspecialchars($row['Year_lvl']) . "</td>";
+                                echo "<tr class='hover:bg-gray-50 dark:hover:bg-gray-700'>";
+                                echo "<td class='px-6 py-4 text-gray-900 dark:text-gray-200'>" . htmlspecialchars($row['IDNO']) . "</td>";
+                                echo "<td class='px-6 py-4 text-gray-900 dark:text-gray-200'>" . htmlspecialchars($row['Last_Name'] . ", " . $row['First_Name']) . "</td>";
+                                echo "<td class='px-6 py-4 text-gray-900 dark:text-gray-200'>" . htmlspecialchars($row['Course']) . "</td>";
+                                echo "<td class='px-6 py-4 text-gray-900 dark:text-gray-200'>" . htmlspecialchars($row['Year_lvl']) . "</td>";
                                 echo "<td class='px-6 py-4'>
                                         <button onclick='deleteStudent(" . $row['IDNO'] . ")' 
                                                 class='bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded'>
@@ -213,25 +220,29 @@ if ($search) {
     </div>
 
     <!-- Add Student Modal -->
-    <div id="addStudentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-xl w-96">
-            <h2 class="text-xl font-bold mb-4">Add New Student</h2>
+    <div id="addStudentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-96">
+            <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Add New Student</h2>
             <form action="add_student.php" method="POST">
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="idno">ID Number</label>
-                    <input type="text" id="idno" name="idno" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required min = "0">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="idno">ID Number</label>
+                    <input type="text" id="idno" name="idno" required 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 
+                        text-gray-700 dark:text-gray-200 
+                        bg-white dark:bg-gray-700
+                        border-gray-300 dark:border-gray-600">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="firstname">First Name</label>
-                    <input type="text" id="firstname" name="firstname" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="firstname">First Name</label>
+                    <input type="text" id="firstname" name="firstname" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="lastname">Last Name</label>
-                    <input type="text" id="lastname" name="lastname" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="lastname">Last Name</label>
+                    <input type="text" id="lastname" name="lastname" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="course">Course</label>
-                    <select id="course" name="course" required class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="course">Course</label>
+                    <select id="course" name="course" required class="shadow border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                         <option value="" disabled selected>Select Course</option>
                         <option value="BSIT">BSIT</option>
                         <option value="BSCS">BSCS</option>
@@ -245,8 +256,8 @@ if ($search) {
                     </select>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="yearlevel">Year Level</label>
-                    <select id="yearlevel" name="yearlevel" required class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="yearlevel">Year Level</label>
+                    <select id="yearlevel" name="yearlevel" required class="shadow border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                         <option value="1">1st Year</option>
                         <option value="2">2nd Year</option>
                         <option value="3">3rd Year</option>
@@ -254,12 +265,12 @@ if ($search) {
                     </select>
                 </div>
                 <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username</label>
-                <input type="text" name="username" class="form-control" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="username">Username</label>
+                <input type="text" name="username" class="form-control" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                 </div>
                 <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
-                <input type="password" name="password" class="form-control" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="password">Password</label>
+                <input type="password" name="password" class="form-control" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
                 </div>
                 <div class="flex justify-end space-x-2">
                     <button type="button" onclick="closeAddStudentModal()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">

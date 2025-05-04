@@ -14,8 +14,10 @@ include '../header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lab Resources</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/admin-dark-mode.css">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -28,6 +30,12 @@ include '../header.php';
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/admin-dark-mode.css">
+    <style>
+        /* Add transition styles */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
 </head>
 <style>
     .group:hover .group-hover\:opacity-100 {
@@ -54,12 +62,12 @@ include '../header.php';
         width: 100%;
     }
 </style>
-<body class="bg-gray-100 dark:bg-gray-900">
+<body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">
     <!-- Navigation -->
     <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
-                <span class="text-white text-xl font-bold py-4">Admin Dashboard</span>
+                <span class="text-white text-xl font-bold py-4">Lab Resources</span>
                 <div class="flex space-x-4">
                     <div class="hidden md:flex items-center space-x-4">
                         <a href="dashboard.php" class="nav-link text-white hover:text-gray-200">Dashboard</a>
@@ -123,7 +131,7 @@ include '../header.php';
     <body class="bg-gray-100">
     <div class="max-w-7xl mx-auto py-6 px-4">
         <!-- Dashboard Header -->
-        <h1 class="text-2xl font-bold text-black text-center mb-6 dark:text-white">Current Sit-in Records</h1>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Lab Resources</h1>
         <!-- Courses Section -->
         <div class="mt-8 mb-8">
             <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Courses Using Lab Resources</h2>
@@ -308,29 +316,7 @@ include '../header.php';
             navbarNav.classList.toggle('hidden');
         }
 
-        // Dark mode toggle functionality
- document.addEventListener('DOMContentLoaded', function() {
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const html = document.documentElement;
-            
-            // Check for saved dark mode preference
-            const darkMode = localStorage.getItem('adminDarkMode');
-            if (darkMode === 'enabled') {
-                html.classList.add('dark');
-            }
-            
-            // Toggle dark mode
-            darkModeToggle.addEventListener('click', function() {
-                html.classList.toggle('dark');
-                
-                // Save preference
-                if (html.classList.contains('dark')) {
-                    localStorage.setItem('adminDarkMode', 'enabled');
-                } else {
-                    localStorage.setItem('adminDarkMode', null);
-                }
-            });
-        });
+    
 
         // Modal functions
         function openAddCourseModal() {
@@ -607,6 +593,29 @@ include '../header.php';
                     createPCGrid(labFilter.value);
                 }
             }, 30000);
+        });
+        // Dark mode toggle functionality
+ document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const html = document.documentElement;
+            
+            // Check for saved dark mode preference
+            const darkMode = localStorage.getItem('adminDarkMode');
+            if (darkMode === 'enabled') {
+                html.classList.add('dark');
+            }
+            
+            // Toggle dark mode
+            darkModeToggle.addEventListener('click', function() {
+                html.classList.toggle('dark');
+                
+                // Save preference
+                if (html.classList.contains('dark')) {
+                    localStorage.setItem('adminDarkMode', 'enabled');
+                } else {
+                    localStorage.setItem('adminDarkMode', null);
+                }
+            });
         });
     </script>
 </body>

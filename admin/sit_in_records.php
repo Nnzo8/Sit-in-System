@@ -150,9 +150,9 @@ $recentEntries = $conn->query($recentEntriesSql);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sit-in Records</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../css/admin-dark-mode.css">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -163,6 +163,13 @@ $recentEntries = $conn->query($recentEntriesSql);
             }
         }
     </script>
+    <style>
+        /* Add transition styles */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+    <link rel="stylesheet" href="../css/admin-dark-mode.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js for visualizations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -231,22 +238,22 @@ $recentEntries = $conn->query($recentEntriesSql);
             </div>
         </div>
     </nav>
-<body class="bg-gray-100">
+<body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">
     <div class="max-w-7xl mx-auto py-6 px-4">
         <!-- Dashboard Header -->
-        <h1 class="text-2xl font-bold text-black text-center mb-6 dark:text-white">Current Sit-in Records</h1>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Current Sit-in Records</h1>
         
         <!-- Dashboard Charts -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <!-- Programming Languages Chart -->
-            <div class="bg-white rounded-lg shadow p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                 <div class="h-64">
                     <canvas id="languagesChart"></canvas>
                 </div>
             </div>
             
             <!-- Lab Rooms Chart -->
-            <div class="bg-white rounded-lg shadow p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                 <div class="h-64">
                     <canvas id="labsChart"></canvas>
                 </div>
@@ -254,47 +261,47 @@ $recentEntries = $conn->query($recentEntriesSql);
         </div>
         
         <!-- Dashboard Controls -->
-        <div class="bg-white rounded-lg shadow p-4 mb-8 flex flex-col md:flex-row justify-between items-center">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-8 flex flex-col md:flex-row justify-between items-center">
             <div class="mb-4 md:mb-0">
-                <label for="entriesPerPage" class="mr-2 text-gray-700">Show</label>
-                <select id="entriesPerPage" class="border rounded px-2 py-1">
+                <label for="entriesPerPage" class="mr-2 text-gray-700 dark:text-gray-300">Show</label>
+                <select id="entriesPerPage" class="border rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                     <option value="10" selected>10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
                 </select>
-                <span class="ml-2 text-gray-700">entries per page</span>
+                <span class="ml-2 text-gray-700 dark:text-gray-300">entries per page</span>
             </div>
             
             <div class="w-full md:w-auto">
-                <label for="searchBox" class="mr-2 text-gray-700">Search:</label>
-                <input type="text" id="searchBox" class="border rounded px-2 py-1 w-full md:w-64">
+                <label for="searchBox" class="mr-2 text-gray-700 dark:text-gray-300">Search:</label>
+                <input type="text" id="searchBox" class="border rounded px-2 py-1 w-full md:w-64 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300">
             </div>
         </div>
         
         <!-- Recent Entries Table -->
-        <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden mb-8">
             <table class="min-w-full">
-                <thead class="bg-white">
+                <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sit-in Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purpose</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lab</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time In</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time Out</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Sit-in Number</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">ID Number</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Purpose</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Lab</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Time In</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Time Out</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Date</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
                     <?php 
                     $count = 1;
                     date_default_timezone_set('Asia/Manila'); // Set timezone to Philippines
                     while($row = $result->fetch_assoc()): 
                         $statusColor = $row['status'] === 'completed' ? 'text-green-600' : 'text-blue-600';
                     ?>
-                        <tr class="text-gray-700">
+                        <tr class="text-gray-700 dark:text-gray-300">
                             <td class="px-6 py-4"><?= $count++ ?></td>
                             <td class="px-6 py-4"><?= htmlspecialchars($row['IDNO']) ?></td>
                             <td class="px-6 py-4">
@@ -332,14 +339,14 @@ $recentEntries = $conn->query($recentEntriesSql);
         </div>
         
         <!-- Pagination -->
-        <div class="bg-white rounded-lg shadow p-4 flex items-center justify-between text-gray-700">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center justify-between text-gray-700 dark:text-gray-300">
             <div>
                 Showing 1 to 1 of 1 entry
             </div>
             <div class="flex gap-1">
-                <a href="#" class="border px-3 py-1 rounded text-gray-700 hover:bg-gray-100">&lt;</a>
+                <a href="#" class="border px-3 py-1 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">&lt;</a>
                 <a href="#" class="border px-3 py-1 rounded bg-primary text-white">1</a>
-                <a href="#" class="border px-3 py-1 rounded text-gray-700 hover:bg-gray-100">&gt;</a>
+                <a href="#" class="border px-3 py-1 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">&gt;</a>
             </div>
         </div>
         
@@ -358,7 +365,7 @@ $recentEntries = $conn->query($recentEntriesSql);
             const languagesCtx = document.getElementById('languagesChart').getContext('2d');
             const languagesData = <?= json_encode($languagesData) ?>;
             
-            new Chart(languagesCtx, {
+            window.languagesChart = new Chart(languagesCtx, {
                 type: 'pie',
                 data: {
                     labels: languagesData.map(item => item.language),
@@ -381,10 +388,14 @@ $recentEntries = $conn->query($recentEntriesSql);
                     plugins: {
                         legend: {
                             position: 'top',
+                            labels: {
+                                color: '#666'
+                            }
                         },
                         title: {
                             display: true,
-                            text: 'Programming Languages Distribution'
+                            text: 'Programming Languages Distribution',
+                            color: '#666'
                         }
                     }
                 }
@@ -394,7 +405,7 @@ $recentEntries = $conn->query($recentEntriesSql);
             const labsCtx = document.getElementById('labsChart').getContext('2d');
             const labsData = <?= json_encode($labsData) ?>;
             
-            new Chart(labsCtx, {
+            window.labsChart = new Chart(labsCtx, {
                 type: 'pie',
                 data: {
                     labels: labsData.map(item => item.lab_room),
@@ -417,10 +428,14 @@ $recentEntries = $conn->query($recentEntriesSql);
                     plugins: {
                         legend: {
                             position: 'top',
+                            labels: {
+                                color: '#666'
+                            }
                         },
                         title: {
                             display: true,
-                            text: 'Lab Distribution'
+                            text: 'Lab Distribution',
+                            color: '#666'
                         }
                     }
                 }
@@ -454,20 +469,38 @@ $recentEntries = $conn->query($recentEntriesSql);
             const darkMode = localStorage.getItem('adminDarkMode');
             if (darkMode === 'enabled') {
                 html.classList.add('dark');
+                updateChartColors(true);
             }
             
             // Toggle dark mode
             darkModeToggle.addEventListener('click', function() {
                 html.classList.toggle('dark');
+                const isDark = html.classList.contains('dark');
                 
                 // Save preference
-                if (html.classList.contains('dark')) {
+                if (isDark) {
                     localStorage.setItem('adminDarkMode', 'enabled');
                 } else {
                     localStorage.setItem('adminDarkMode', null);
                 }
+                
+                // Update chart colors
+                updateChartColors(isDark);
             });
         });
+
+        // Function to update chart colors based on dark mode
+        function updateChartColors(isDark) {
+            // Update chart colors and redraw charts
+            if (window.languagesChart) {
+                languagesChart.options.plugins.legend.labels.color = isDark ? '#fff' : '#666';
+                languagesChart.update();
+            }
+            if (window.labsChart) {
+                labsChart.options.plugins.legend.labels.color = isDark ? '#fff' : '#666';
+                labsChart.update();
+            }
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

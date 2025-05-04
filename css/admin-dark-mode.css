@@ -3,14 +3,19 @@
     color-scheme: dark;
 }
 
+.dark body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
 /* Background colors */
 .dark .bg-white {
-    background-color: #1a1a1a;
+    background-color: #2d2d2d;
 }
 
 .dark .bg-gray-50,
 .dark .bg-gray-100 {
-    background-color: #262626;
+    background-color: #383838;
 }
 
 /* Text colors */
@@ -21,22 +26,55 @@
     color: #d1d5db;
 }
 
+.dark .text-gray-700 {
+    color: #e5e5e5;
+}
+
+.dark .text-gray-600 {
+    color: #d1d1d1;
+}
+
+.dark .text-gray-500 {
+    color: #bdbdbd;
+}
+
+/* Title text colors */
+.title-text {
+    color: #000000;
+}
+
+.dark .title-text {
+    color: #ffffff;
+}
+
 /* Table styles */
 .dark .divide-gray-200 > * + * {
-    border-color: #374151;
+    border-color: #404040;
 }
 
 .dark .border-gray-200 {
-    border-color: #374151;
+    border-color: #404040;
+}
+
+.dark table thead {
+    background-color: #383838;
+}
+
+.dark table tbody tr:hover {
+    background-color: #363636;
 }
 
 /* Form elements */
 .dark input,
 .dark select,
 .dark textarea {
-    background-color: #262626;
-    border-color: #4b5563;
+    background-color: #383838;
+    border-color: #404040;
     color: #ffffff;
+}
+
+.dark input::placeholder {
+    color: #8e8e8e;
 }
 
 /* Cards */
@@ -48,4 +86,35 @@
 /* Hover states */
 .dark .hover\:bg-gray-50:hover {
     background-color: #374151;
+}
+
+/* Container background override */
+.dark .container-bg-toggle {
+    background-color: #1a1a1a !important;
+    color: #ffffff;
+}
+
+.container-bg-toggle {
+    background-color: #ffffff;
+    color: #1a1a1a;
+}
+
+/* Lab page specific styles */
+.dark .lab-card {
+    background-color: #2d2d2d;
+    border-color: #404040;
+}
+
+.dark .lab-schedule-item {
+    background-color: #383838;
+    border-color: #404040;
+}
+
+/* Lab content text colors */
+.dark .lab-title {
+    color: #ffffff;
+}
+
+.dark .lab-text {
+    color: #d1d5db;
 }

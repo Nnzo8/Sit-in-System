@@ -1,0 +1,67 @@
+/* Dark mode styles for user pages */
+.dark {
+    color-scheme: dark;
+}
+
+/* Background colors */
+.dark body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+.dark .bg-white {
+    background-color: #2d2d2d;
+}
+
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+    background-color: #383838;
+}
+
+/* Text colors */
+.dark .text-gray-500,
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-900 {
+    color: #d1d5db;
+}
+
+/* Form elements */
+.dark input,
+.dark select,
+.dark textarea {
+    background-color: #383838;
+    border-color: #404040;
+    color: #ffffff;
+}
+
+/* Cards and containers */
+.dark .shadow-lg,
+.dark .shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+
+.dark .container-bg {
+    background-color: #2d2d2d;
+}
+
+/* Table styles */
+.dark table thead {
+    background-color: #383838;
+}
+
+.dark table tbody tr:hover {
+    background-color: #363636;
+}
+
+.dark .divide-gray-200 > * + * {
+    border-color: #404040;
+}
+
+.dark .border-gray-200 {
+    border-color: #404040;
+}
+
+.dark .hover\:bg-gray-50:hover {
+    background-color: #374151;
+}

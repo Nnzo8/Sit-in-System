@@ -63,8 +63,10 @@ include '../header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lab Points</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/admin-dark-mode.css">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -75,17 +77,23 @@ include '../header.php';
             }
         }
     </script>
+    <style>
+        /* Add transition styles */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/admin-dark-mode.css">
     <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">
     <!-- Navigation -->
     <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
-                <span class="text-white text-xl font-bold py-4">Admin Dashboard</span>
+                <span class="text-white text-xl font-bold py-4">Lab Points</span>
                 <div class="flex space-x-4">
                     <div class="hidden md:flex items-center space-x-4">
                         <a href="dashboard.php" class="nav-link text-white hover:text-gray-200">Dashboard</a>
@@ -149,8 +157,8 @@ include '../header.php';
     <body class="bg-gray-100">
     <div class="max-w-7xl mx-auto py-6 px-4">
         <!-- Dashboard Header -->
-        <h1 class="text-2xl font-bold text-black text-center mb-6 dark:text-white">Current Sit-in Records</h1>
-        
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Lab Points</h1>
+
         <!-- Top 5 Students -->
         <div class="relative max-w-6xl mx-auto mb-8">
             <button id="prevBtn" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-primary/80 hover:bg-primary text-white rounded-full p-3 z-20 transition-all duration-300 disabled:opacity-50">
@@ -428,7 +436,7 @@ include '../header.php';
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
             <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">All Students</h2>
             <div class="overflow-x-auto">
-                <table class="min-w-full">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
                     <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Student</th>
@@ -662,8 +670,8 @@ include '../header.php';
             navbarNav.classList.toggle('hidden');
         }
 
-         // Dark mode toggle functionality
- document.addEventListener('DOMContentLoaded', function() {
+// Dark mode toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
             const darkModeToggle = document.getElementById('darkModeToggle');
             const html = document.documentElement;
             

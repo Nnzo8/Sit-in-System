@@ -14,8 +14,10 @@ include '../header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lab Schedule</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/admin-dark-mode.css">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -26,15 +28,21 @@ include '../header.php';
             }
         }
     </script>
+    <style>
+        /* Add transition styles */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../css/admin-dark-mode.css">
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
+<body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">
     <!-- Navigation -->
     <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
-                <span class="text-white text-xl font-bold py-4">Admin Dashboard</span>
+                <span class="text-white text-xl font-bold py-4">Lab Schedules</span>
                 <div class="flex space-x-4">
                     <div class="hidden md:flex items-center space-x-4">
                         <a href="dashboard.php" class="nav-link text-white hover:text-gray-200">Dashboard</a>
@@ -123,7 +131,7 @@ include '../header.php';
 <body class="bg-gray-100">
     <div class="max-w-7xl mx-auto py-6 px-4">
         <!-- Dashboard Header -->
-        <h1 class="text-2xl font-bold text-black text-center mb-6 dark:text-white">Current Sit-in Records</h1>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Lab Schedule</h1>
         
         <!-- Lab Rooms Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -209,7 +217,6 @@ include '../header.php';
             const navbarNav = document.getElementById('navbarNav');
             navbarNav.classList.toggle('hidden');
         }
-
         // Dark mode toggle functionality
  document.addEventListener('DOMContentLoaded', function() {
             const darkModeToggle = document.getElementById('darkModeToggle');

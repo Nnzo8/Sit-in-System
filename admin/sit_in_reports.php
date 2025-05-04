@@ -55,6 +55,7 @@ $result = mysqli_query($conn, $query);
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -70,7 +71,14 @@ $result = mysqli_query($conn, $query);
     <!-- Add these lines after the font-awesome import -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        /* Add transition styles */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
 </head>
+<body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">
 <!-- Navigation -->
 <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
@@ -138,9 +146,9 @@ $result = mysqli_query($conn, $query);
 
 
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-center w-full">CCS Sit-in Reports</h2>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white text-center w-full">CCS Sit-in Reports</h2>
             </div>
             <div class="space-x-2 text-right">
                 <button onclick="exportToCSV()" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
@@ -159,8 +167,8 @@ $result = mysqli_query($conn, $query);
             
             <div class="overflow-x-auto">
                 <?php if (mysqli_num_rows($result) > 0): ?>
-                    <table id="sit-in-table" class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <table id="sit-in-table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
                             <tr>
                                 <th scope="col" class="px-6 py-3">ID</th>
                                 <th scope="col" class="px-6 py-3">Student ID</th>
@@ -173,25 +181,25 @@ $result = mysqli_query($conn, $query);
                                 <th scope="col" class="px-6 py-3">Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
                             <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                                <tr class="bg-white border-b hover:bg-gray-50">
-                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['id']); ?></td>
-                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['student_id']); ?></td>
-                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['name']); ?></td>
-                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['course']); ?></td>
-                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['date']); ?></td>
-                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['time_in']); ?></td>
-                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['time_out']); ?></td>
-                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['reason']); ?></td>
-                                    <td class="px-6 py-4"><?php echo htmlspecialchars($row['status']); ?></td>
+                                <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="px-6 py-4 text-gray-900 dark:text-gray-300"><?php echo htmlspecialchars($row['id']); ?></td>
+                                    <td class="px-6 py-4 text-gray-900 dark:text-gray-300"><?php echo htmlspecialchars($row['student_id']); ?></td>
+                                    <td class="px-6 py-4 text-gray-900 dark:text-gray-300"><?php echo htmlspecialchars($row['name']); ?></td>
+                                    <td class="px-6 py-4 text-gray-900 dark:text-gray-300"><?php echo htmlspecialchars($row['course']); ?></td>
+                                    <td class="px-6 py-4 text-gray-900 dark:text-gray-300"><?php echo htmlspecialchars($row['date']); ?></td>
+                                    <td class="px-6 py-4 text-gray-900 dark:text-gray-300"><?php echo htmlspecialchars($row['time_in']); ?></td>
+                                    <td class="px-6 py-4 text-gray-900 dark:text-gray-300"><?php echo htmlspecialchars($row['time_out']); ?></td>
+                                    <td class="px-6 py-4 text-gray-900 dark:text-gray-300"><?php echo htmlspecialchars($row['reason']); ?></td>
+                                    <td class="px-6 py-4 text-gray-900 dark:text-gray-300"><?php echo htmlspecialchars($row['status']); ?></td>
                                 </tr>
                             <?php endwhile; ?>
                         </tbody>
                     </table>
                 <?php else: ?>
-                    <div class="p-6 text-center text-gray-500">
-                        <i class="fas fa-clipboard-list text-blue-500 mb-2 text-2xl"></i>
+                    <div class="p-6 text-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-clipboard-list text-blue-500 dark:text-blue-400 mb-2 text-2xl"></i>
                         <p>No sit-in records found.</p>
                     </div>
                 <?php endif; ?>
@@ -251,6 +259,11 @@ $result = mysqli_query($conn, $query);
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
+            const isDarkMode = document.documentElement.classList.contains('dark');
+
+            // Set colors based on dark mode
+            const textColor = isDarkMode ? [255, 255, 255] : [0, 0, 0];
+            const headerFillColor = isDarkMode ? [48, 48, 48] : [0, 0, 128];
 
             // Add UC logo
             const ucImg = new Image();
@@ -296,12 +309,13 @@ $result = mysqli_query($conn, $query);
                     startY: 40,
                     theme: 'grid',
                     headStyles: {
-                        fillColor: [0, 0, 128],
+                        fillColor: headerFillColor,
                         textColor: [255, 255, 255],
                         fontSize: 8
                     },
                     bodyStyles: {
-                        fontSize: 8
+                        fontSize: 8,
+                        textColor: textColor
                     },
                     columnStyles: {
                         0: { cellWidth: 15 },

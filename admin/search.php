@@ -214,6 +214,7 @@ exit();
 <link rel="stylesheet" href="../css/admin-dark-mode.css">
 <script>
 tailwind.config = {
+darkMode: 'class',
 theme: {
 extend: {
 colors: {
@@ -224,8 +225,14 @@ secondary: '#1e293b'
 }
 }
 </script>
+<style>
+    /* Add transition styles */
+    * {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+</style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">
     <!-- Navigation -->
     <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
@@ -291,26 +298,33 @@ secondary: '#1e293b'
             </div>
         </div>
     </nav>
-<!-- Search Button -->
-<div class="max-w-7xl mx-auto px-4 py-6">
-    <button onclick="openSearchModal()" 
-        class="group relative bg-primary hover:bg-blue-700 text-white px-8 py-4 rounded-lg 
-        transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg 
-        flex items-center space-x-3 overflow-hidden">
-        <div class="absolute inset-0 w-3 bg-blue-600 transition-all duration-300 ease-in-out transform 
-            group-hover:w-full opacity-50"></div>
-        <i class="fas fa-search text-xl relative z-10"></i>
-        <span class="font-semibold text-lg relative z-10">Search Student</span>
-    </button>
+<!-- Search Container -->
+<div class="max-w-7xl mx-auto p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-200">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Search Student</h2>
+        <button onclick="openSearchModal()" 
+            class="group relative bg-primary hover:bg-blue-700 text-white px-8 py-4 rounded-lg 
+            transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg 
+            flex items-center space-x-3 overflow-hidden w-full md:w-auto justify-center">
+            <div class="absolute inset-0 w-3 bg-blue-600 transition-all duration-300 ease-in-out transform 
+                group-hover:w-full opacity-50"></div>
+            <i class="fas fa-search text-xl relative z-10"></i>
+            <span class="font-semibold text-lg relative z-10">Search Student</span>
+        </button>
+    </div>
 </div>
 
 <!-- Search Modal -->
-<div id="searchModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full modal-animation">
-<div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white modal-content-animation">
+<div id="searchModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-50 hidden overflow-y-auto h-full w-full modal-animation">
+<div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800 modal-content-animation">
 <div class="mt-3 text-center">
-<h3 class="text-lg leading-6 font-medium text-gray-900">Search Student</h3>
+<h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Search Student</h3>
 <div class="mt-2 px-7 py-3">
-<input type="text" id="searchInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter Student ID">
+<input type="text" id="searchInput" 
+    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
+    focus:outline-none focus:ring-2 focus:ring-blue-500 
+    bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+    placeholder="Enter Student ID">
 </div>
 <div class="items-center px-4 py-3">
 <button id="searchButton" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
@@ -527,23 +541,23 @@ confirmButtonColor: '#3085d6'
 </script>
 
 <!-- Reservation Modal -->
-<div id="reservationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
-<div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+<div id="reservationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-50 hidden overflow-y-auto h-full w-full">
+<div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
 <div class="mt-3 text-center">
-<h3 class="text-lg leading-6 font-medium text-gray-900">New Reservation</h3>
+<h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">New Reservation</h3>
 <form id="reservationForm" method="POST" class="mt-4">
 <input type="hidden" id="student_id" name="student_id">
 <div class="mb-4">
-<label class="block text-gray-700 text-sm font-bold mb-2">Student Name:</label>
-<input type="text" id="student_name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight" readonly>
+<label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Student Name:</label>
+<input type="text" id="student_name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 leading-tight" readonly>
 </div>
 <div class="mb-4">
-<label class="block text-gray-700 text-sm font-bold mb-2">Remaining Sessions:</label>
+<label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Remaining Sessions:</label>
 <p id="remaining_sessions" class="text-lg font-bold text-blue-600"></p>
 </div>
 <div class="mb-4">
-<label class="block text-gray-700 text-sm font-bold mb-2">Lab Room:</label>
-<select name="lab_room" id="lab_room" class="shadow border rounded w-full py-2 px-3 text-gray-700" required>
+<label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Lab Room:</label>
+<select name="lab_room" id="lab_room" class="shadow border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600" required>
 <option value="">Select Lab Room</option>
 <option value="Lab 524">Lab 524</option>
 <option value="Lab 526">Lab 526</option>
@@ -556,8 +570,8 @@ confirmButtonColor: '#3085d6'
 </div>
 
 <div class="mb-4">
-<label class="block text-gray-700 text-sm font-bold mb-2">Purpose:</label>
-<select name="purpose" class="shadow border rounded w-full py-2 px-3 text-gray-700" required>
+<label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Purpose:</label>
+<select name="purpose" class="shadow border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600" required>
 <?php foreach(getProgrammingLanguages() as $language): ?>
 <option value="<?= htmlspecialchars($language) ?>"><?= htmlspecialchars($language) ?></option>
 <?php endforeach; ?>
