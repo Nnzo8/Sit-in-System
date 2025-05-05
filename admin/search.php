@@ -230,6 +230,35 @@ secondary: '#1e293b'
     * {
         transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
+    
+    /* Dark mode colors */
+    .dark .dark\:bg-gray-800 {
+        background-color: #1a1a1a;
+    }
+    
+    .dark .dark\:bg-gray-700 {
+        background-color: #2d2d2d;
+    }
+    
+    .dark .dark\:bg-gray-900 {
+        background-color: #121212;
+    }
+    
+    .dark .dark\:bg-blue-900 {
+        background-color: #1a1a1a;
+    }
+    
+    .dark .dark\:hover\:bg-gray-600:hover {
+        background-color: #383838;
+    }
+    
+    .dark .dark\:hover\:bg-gray-700:hover {
+        background-color: #404040;
+    }
+    
+    .dark .dark\:hover\:bg-blue-800:hover {
+        background-color: #2d2d2d;
+    }
 </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">

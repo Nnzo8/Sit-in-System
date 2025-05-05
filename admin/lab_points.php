@@ -53,6 +53,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_point'])) {
     exit();
 }
 
+// Add this after the point handling code but before including header.php
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_session'])) {
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "users";
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    
+    $student_id = $_POST['student_id'];
+    
+    // Update sessions in the database
+    $update_sql = "UPDATE student_session SET remaining_sessions = remaining_sessions + 1 WHERE id_number = ?";
+    $stmt = $conn->prepare($update_sql);
+    $stmt->bind_param("i", $student_id);
+    
+    if ($stmt->execute()) {
+        $name_sql = "SELECT First_Name, Last_Name FROM students WHERE IDNO = ?";
+        $name_stmt = $conn->prepare($name_sql);
+        $name_stmt->bind_param("i", $student_id);
+        $name_stmt->execute();
+        $student = $name_stmt->get_result()->fetch_assoc();
+        
+        $_SESSION['success_message'] = "Successfully added 1 session to " . $student['First_Name'] . " " . $student['Last_Name'];
+    } else {
+        $_SESSION['error_message'] = "Error adding session to student.";
+    }
+    
+    $conn->close();
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
 include '../header.php';
 ?>
 
@@ -507,97 +543,6 @@ include '../header.php';
         </div>
     </div>
 
-    <?php
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_session'])) {
-        $student_id = $_POST['student_id'];
-        
-        // Check current sessions first
-        $check_sql = "SELECT remaining_sessions FROM student_session WHERE id_number = ?";
-        $check_stmt = $conn->prepare($check_sql);
-        $check_stmt->bind_param("s", $student_id);
-        $check_stmt->execute();
-        $result = $check_stmt->get_result();
-        $current_sessions = $result->fetch_assoc()['remaining_sessions'];
-        
-        if ($current_sessions >= 30) {
-            echo "<script>alert('Maximum sessions (30) reached!');</script>";
-        } else {
-            // Update sessions in the database
-            $update_sql = "UPDATE student_session 
-                           SET remaining_sessions = remaining_sessions + 1 
-                           WHERE id_number = ?";
-            $stmt = $conn->prepare($update_sql);
-            $stmt->bind_param("s", $student_id);
-            
-            if ($stmt->execute()) {
-                echo "<script>alert('Session added successfully!');</script>";
-            } else {
-                echo "<script>alert('Error adding session!');</script>";
-            }
-        }
-    }
-
-    $sql = "SELECT 
-            s.IDNO as student_id,
-            s.First_Name as first_name,
-            s.Last_Name as last_name,
-            ss.remaining_sessions,
-            COALESCE(
-                SUM(
-                    TIMESTAMPDIFF(HOUR, 
-                        COALESCE(d.time_in, r.time_in), 
-                        COALESCE(d.time_out, r.time_out)
-                    )
-                ), 0
-            ) as total_hours
-        FROM students s
-        LEFT JOIN student_session ss ON s.IDNO = ss.id_number
-        LEFT JOIN direct_sitin d ON s.IDNO = d.IDNO
-        LEFT JOIN sit_in_records r ON s.IDNO = r.IDNO
-        WHERE (d.status = 'completed' OR r.status = 'completed')
-        GROUP BY s.IDNO, s.First_Name, s.Last_Name, ss.remaining_sessions
-        HAVING total_hours >= 1
-        ORDER BY total_hours DESC
-        LIMIT 5";
-
-    $result = $conn->query($sql);
-    
-    if (!$result) {
-        echo "Error: " . $conn->error;
-    } else {
-        $rank = 1;
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-            ?>
-            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                <td class="px-6 py-4 text-white-500 dark:text-gray-300"><?php echo $rank++; ?></td>
-                <td class="px-6 py-4 text-white-800 dark:text-gray-200">
-                    <?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>
-                </td>
-                <td class="px-6 py-4 text-white-800 dark:text-gray-200"><?php echo $row['total_hours']; ?></td>
-                <td class="px-6 py-4 text-white-800 dark:text-gray-200"><?php echo $row['remaining_sessions']; ?></td>
-                <td class="px-6 py-4">
-                    <?php if ($row['remaining_sessions'] >= 30): ?>
-                        <span class="text-gray-400">Max sessions reached</span>
-                    <?php else: ?>
-                        <form method="POST" class="inline">
-                            <input type="hidden" name="student_id" value="<?php echo $row['student_id']; ?>">
-                            <button type="submit" name="add_session" 
-                                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
-                                Add Session
-                            </button>
-                        </form>
-                    <?php endif; ?>
-                </td>
-            </tr>
-            <?php
-            }
-        } else {
-            
-        }
-    }
-    $conn->close();
-    ?>
     <!-- Add this right after the header navigation -->
     <?php if (isset($_SESSION['success_message'])): ?>
         <div id="successAlert" class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">
