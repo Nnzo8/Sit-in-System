@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 28, 2025 at 06:15 PM
+-- Generation Time: May 06, 2025 at 12:38 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -56,7 +56,8 @@ CREATE TABLE `courses` (
 --
 
 INSERT INTO `courses` (`id`, `course_name`, `course_code`, `lab`, `schedule`, `instructor`, `created_at`) VALUES
-(6, 'Sysarch', '234124', 'Lab 524', '10:30 AM - 1:00 PM', 'Mr. Salimbangon', '2025-04-21 02:59:06');
+(6, 'Sysarch', '234124', 'Lab 524', '10:30 AM - 1:00 PM', 'Mr. Salimbangon', '2025-04-21 02:59:06'),
+(8, 'Trends', '246784', 'Lab 530', '7-8AM', 'Mr. Caminade', '2025-05-04 09:34:00');
 
 -- --------------------------------------------------------
 
@@ -90,7 +91,8 @@ INSERT INTO `direct_sitin` (`id`, `IDNO`, `lab_room`, `time_in`, `time_out`, `st
 (12, '2222', 'Lab 530', '2025-04-21 11:34:48', '2025-04-21 11:34:51', 'completed', 'C#', '2025-04-21 03:34:48', 0),
 (13, '888', 'Lab 528', '2025-04-25 09:31:42', '2025-04-25 09:31:53', 'completed', 'C++', '2025-04-25 01:31:42', 0),
 (14, '2323', 'Lab 524', '2025-04-25 09:47:46', '2025-04-25 09:48:06', 'completed', 'C++', '2025-04-25 01:47:46', 1),
-(15, '1111', 'Lab 528', '2025-04-12 12:11:41', '2025-04-29 00:15:11', 'completed', 'Database', '2025-04-28 16:15:11', 0);
+(15, '1111', 'Lab 528', '2025-04-12 12:11:41', '2025-04-29 00:15:11', 'completed', 'Database', '2025-04-28 16:15:11', 0),
+(16, '44444', 'Lab 542', '2025-04-28 23:50:55', '2025-04-29 08:49:05', 'completed', 'Webdev', '2025-04-29 00:49:05', 1);
 
 -- --------------------------------------------------------
 
@@ -109,6 +111,34 @@ CREATE TABLE `feedback` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `pc_status`
+--
+
+CREATE TABLE `pc_status` (
+  `id` int(11) NOT NULL,
+  `lab_room` varchar(50) NOT NULL,
+  `pc_number` int(11) NOT NULL,
+  `is_disabled` tinyint(1) NOT NULL DEFAULT 0,
+  `disabled_reason` text DEFAULT NULL,
+  `disabled_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `pc_status`
+--
+
+INSERT INTO `pc_status` (`id`, `lab_room`, `pc_number`, `is_disabled`, `disabled_reason`, `disabled_at`) VALUES
+(1, 'Lab 528', 1, 0, '', '2025-05-06 09:39:36'),
+(2, 'Lab 526', 3, 0, '', '2025-05-06 09:40:07'),
+(3, 'Lab 526', 2, 0, '', '2025-05-06 09:40:11'),
+(4, 'Lab 528', 2, 0, '', '2025-05-06 09:45:38'),
+(10, 'Lab 524', 2, 1, 'asda', '2025-05-06 09:50:35'),
+(11, 'Lab 524', 3, 1, 'guba mc', '2025-05-06 09:56:06'),
+(12, 'Lab 524', 4, 0, '', '2025-05-06 10:11:19');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `reservation`
 --
 
@@ -123,6 +153,13 @@ CREATE TABLE `reservation` (
   `IDNO` int(11) NOT NULL,
   `status` varchar(100) NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `reservation`
+--
+
+INSERT INTO `reservation` (`reservation_id`, `reservation_date`, `time_in`, `time_out`, `pc`, `lab`, `purpose`, `IDNO`, `status`) VALUES
+(0, '2025-05-06', 1030, 1130, 1, 'Lab 524', 'Python', 2323, 'pending');
 
 -- --------------------------------------------------------
 
@@ -147,7 +184,8 @@ CREATE TABLE `sit_in_records` (
 --
 
 INSERT INTO `sit_in_records` (`id`, `IDNO`, `lab_room`, `pc_number`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`) VALUES
-(8, '44444', 'Lab 542', 1, '2025-04-28 23:50:55', NULL, 'active', 'Webdev', '2025-04-28 15:50:55');
+(8, '44444', 'Lab 542', 1, '2025-04-28 23:50:55', '2025-04-29 08:49:05', 'completed', 'Webdev', '2025-04-28 15:50:55'),
+(9, '2323', 'Lab 524', 1, '2025-05-06 17:50:10', NULL, 'active', 'Python', '2025-05-06 09:50:10');
 
 -- --------------------------------------------------------
 
@@ -198,12 +236,12 @@ CREATE TABLE `student_points` (
 
 INSERT INTO `student_points` (`id`, `IDNO`, `points`, `last_updated`) VALUES
 (1, 1111, 13, '2025-04-24 14:07:38'),
-(2, 2323, 17, '2025-04-28 13:50:15'),
+(2, 2323, 18, '2025-05-05 03:13:27'),
 (3, 22683361, 5, '2025-04-24 13:34:06'),
 (4, 888, 19, '2025-04-28 12:24:56'),
 (5, 2222, 16, '2025-04-24 14:07:44'),
-(6, 55555, 9, '2025-04-28 13:50:39'),
-(7, 44444, 3, '2025-04-28 13:50:11');
+(6, 55555, 19, '2025-05-05 14:44:08'),
+(7, 44444, 5, '2025-05-05 03:17:22');
 
 -- --------------------------------------------------------
 
@@ -221,28 +259,11 @@ CREATE TABLE `student_session` (
 --
 
 INSERT INTO `student_session` (`id_number`, `remaining_sessions`) VALUES
-(2323, 20),
+(2323, 25),
 (1111, 23),
 (2222, 30),
 (55555, 30),
 (44444, 30);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `pc_status`
---
-
-CREATE TABLE IF NOT EXISTS `pc_status` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `lab_room` varchar(50) NOT NULL,
-  `pc_number` int(11) NOT NULL,
-  `status` varchar(20) NOT NULL DEFAULT 'available',
-  `disabled_reason` text DEFAULT NULL,
-  `disabled_at` timestamp NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `lab_pc` (`lab_room`, `pc_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indexes for dumped tables
@@ -259,6 +280,13 @@ ALTER TABLE `courses`
 --
 ALTER TABLE `direct_sitin`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `pc_status`
+--
+ALTER TABLE `pc_status`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `lab_pc` (`lab_room`,`pc_number`);
 
 --
 -- Indexes for table `sit_in_records`
@@ -286,19 +314,25 @@ ALTER TABLE `student_points`
 -- AUTO_INCREMENT for table `courses`
 --
 ALTER TABLE `courses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `direct_sitin`
 --
 ALTER TABLE `direct_sitin`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `pc_status`
+--
+ALTER TABLE `pc_status`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `sit_in_records`
 --
 ALTER TABLE `sit_in_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `students`
