@@ -166,24 +166,26 @@ include '../header.php';
                     </select>
                 </div>
 
-                <div id="pcGrid" class="grid grid-cols-6 gap-4 mt-4">
-                    <p class="col-span-6 text-center text-gray-500 dark:text-gray-400">Please select a lab room</p>
-                </div>
+                
+                <div id="pcGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
+    <p class="col-span-full text-center text-gray-500 dark:text-gray-400">Please select a lab room</p>
+</div>
 
                 <!-- Status Legend -->
-                <div class="mt-6 flex gap-4 justify-center">
-                    <div class="flex items-center">
-                        <div class="w-4 h-4 rounded bg-green-100 dark:bg-green-900 mr-2"></div>
-                        <span class="text-sm text-gray-600 dark:text-gray-300">Available</span>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="w-4 h-4 rounded bg-red-100 dark:bg-red-900 mr-2"></div>
-                        <span class="text-sm text-gray-600 dark:text-gray-300">In Use</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="mt-6 flex gap-4 justify-center">
+    <div class="flex items-center">
+        <div class="w-4 h-4 rounded bg-green-100 dark:bg-green-900 mr-2"></div>
+        <span class="text-sm text-gray-600 dark:text-gray-300">Available</span>
     </div>
+    <div class="flex items-center">
+        <div class="w-4 h-4 rounded bg-red-100 dark:bg-red-900 mr-2"></div>
+        <span class="text-sm text-gray-600 dark:text-gray-300">In Use</span>
+    </div>
+    <div class="flex items-center">
+        <div class="w-4 h-4 rounded bg-gray-300 dark:bg-gray-600 mr-2"></div>
+        <span class="text-sm text-gray-600 dark:text-gray-300">Disabled</span>
+    </div>
+</div>
 
     <!-- Add Course Modal -->
     <div id="addCourseModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
@@ -482,8 +484,8 @@ include '../header.php';
             }
         }
 
-        // Add this after your existing scripts
-        document.addEventListener('DOMContentLoaded', function() {
+         // Add this after your existing scripts
+         document.addEventListener('DOMContentLoaded', function() {
             const labFilter = document.getElementById('labFilter');
             const pcGrid = document.getElementById('pcGrid');
 
@@ -529,71 +531,6 @@ include '../header.php';
                 }
             }, 30000);
         });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const labFilter = document.getElementById('labFilter');
-            const pcGrid = document.getElementById('pcGrid');
-
-            function createPCGrid(labRoom) {
-                fetch(`get_pc_status.php?lab=${encodeURIComponent(labRoom)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        pcGrid.innerHTML = ''; // Clear existing grid
-                        
-                        // Create 6x5 grid for 30 PCs
-                        for (let i = 1; i <= 30; i++) {
-                            // Find if this PC is in use
-                            const pcStatus = data.find(pc => parseInt(pc.pc_number) === i);
-                            const isInUse = pcStatus ? true : false;
-                            
-                            const pcElement = document.createElement('div');
-                            pcElement.className = `
-                                p-4 rounded-lg 
-                                ${isInUse ? 'bg-red-100 dark:bg-red-900' : 'bg-green-100 dark:bg-green-900'} 
-                                text-center transition-all duration-200 transform hover:scale-105 hover:shadow-lg
-                            `;
-                            
-                            pcElement.innerHTML = `
-                                <i class="fas fa-desktop text-2xl ${isInUse ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}"></i>
-                                <p class="mt-2 font-semibold ${isInUse ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">
-                                    PC ${i}
-                                </p>
-                                <p class="text-sm ${isInUse ? 'text-red-500 dark:text-red-300' : 'text-green-500 dark:text-green-300'}">
-                                    ${isInUse ? 'In Use' : 'Available'}
-                                </p>
-                                ${isInUse ? `
-                                    <p class="text-xs text-red-500 dark:text-red-300 mt-1">
-                                        ID: ${pcStatus.student_id}
-                                    </p>
-                                ` : ''}
-                            `;
-                            
-                            pcGrid.appendChild(pcElement);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        pcGrid.innerHTML = '<p class="col-span-6 text-center text-red-500">Error loading PC status</p>';
-                    });
-            }
-
-            // Event listener for lab filter changes
-            labFilter.addEventListener('change', function() {
-                if (this.value) {
-                    createPCGrid(this.value);
-                } else {
-                    pcGrid.innerHTML = '<p class="col-span-6 text-center text-gray-500 dark:text-gray-400">Please select a lab room</p>';
-                }
-            });
-
-            // Auto-refresh every 30 seconds if a lab is selected
-            setInterval(() => {
-                if (labFilter.value) {
-                    createPCGrid(labFilter.value);
-                }
-            }, 30000);
-        });
         // Dark mode toggle functionality
  document.addEventListener('DOMContentLoaded', function() {
             const darkModeToggle = document.getElementById('darkModeToggle');
@@ -618,5 +555,158 @@ include '../header.php';
             });
         });
     </script>
+  <script>
+window.updatePcStatus = function() {
+    const pcNumber = document.getElementById('selectedPcNumber').textContent;
+    const status = document.querySelector('input[name="pcStatus"]:checked').value;
+    const reason = document.getElementById('disableReason').value;
+    const labRoom = document.getElementById('labFilter').value;
+
+    fetch('update_pc_status.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            lab_room: labRoom,
+            pc_number: pcNumber,
+            status: status,
+            reason: reason
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closePcStatusModal();
+            createPCGrid(labRoom); // Refresh the grid
+        } else {
+            alert('Failed to update PC status: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update PC status');
+    });
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const labFilter = document.getElementById('labFilter');
+    
+    function createPCGrid(labRoom) {
+        fetch(`get_pc_status.php?lab=${encodeURIComponent(labRoom)}`)
+            .then(response => response.json())
+            .then(data => {
+                const pcGrid = document.getElementById('pcGrid');
+                pcGrid.innerHTML = '';
+                
+                for (let i = 1; i <= 30; i++) {
+                    const pcStatus = data.find(pc => parseInt(pc.pc_number) === i) || { status: 'available' };
+                    const pcElement = document.createElement('div');
+                    pcElement.className = `p-4 rounded-lg cursor-pointer ${
+                        pcStatus.status === 'disabled' ? 'bg-gray-300 dark:bg-gray-600' :
+                        pcStatus.status === 'in-use' ? 'bg-red-100 dark:bg-red-900' :
+                        'bg-green-100 dark:bg-green-900'
+                    } text-center hover:scale-105 transition-transform`;
+                    
+                    pcElement.innerHTML = `
+                        <i class="fas fa-desktop text-2xl"></i>
+                        <p class="mt-2 font-semibold">PC ${i}</p>
+                        <p class="text-sm">${pcStatus.status}</p>
+                        ${pcStatus.student_id ? `<p class="text-xs">User: ${pcStatus.student_id}</p>` : ''}
+                    `;
+                    
+                    // Add click event listener directly to the element
+                    pcElement.addEventListener('click', () => {
+                        openPcStatusModal(i, pcStatus.status || 'available');
+                    });
+                    
+                    pcGrid.appendChild(pcElement);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Event listener for lab selection
+    labFilter.addEventListener('change', function() {
+        if (this.value) {
+            createPCGrid(this.value);
+        }
+    });
+
+    // Make sure modal functions are in global scope
+    window.openPcStatusModal = function(pcNumber, currentStatus) {
+        const modal = document.getElementById('pcStatusModal');
+        const statusInputs = modal.querySelectorAll('input[name="pcStatus"]');
+        
+        document.getElementById('selectedPcNumber').textContent = pcNumber;
+        modal.classList.remove('hidden');
+        
+        // Set current status
+        statusInputs.forEach(input => {
+            if (input.value === currentStatus) {
+                input.checked = true;
+            }
+        });
+        
+        // Show/hide reason textarea
+        document.getElementById('disableReasonContainer').classList.toggle(
+            'hidden',
+            currentStatus !== 'disabled'
+        );
+    };
+
+    window.closePcStatusModal = function() {
+        document.getElementById('pcStatusModal').classList.add('hidden');
+    };
+
+    // Add event listeners for radio buttons
+    const radioButtons = document.querySelectorAll('input[name="pcStatus"]');
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('disableReasonContainer').classList.toggle(
+                'hidden',
+                this.value !== 'disabled'
+            );
+        });
+    });
+});
+</script>
+<!-- Add this modal HTML before the closing body tag -->
+<div id="pcStatusModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Manage PC Status</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">PC: <span id="selectedPcNumber"></span></p>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Status</label>
+                <div class="space-y-2">
+                    <label class="flex items-center space-x-2">
+                        <input type="radio" name="pcStatus" value="available" class="form-radio">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Available</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="radio" name="pcStatus" value="in-use" class="form-radio">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">In Use</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="radio" name="pcStatus" value="disabled" class="form-radio">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Disabled</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div id="disableReasonContainer" class="mb-4 hidden">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Reason for Disabling</label>
+                <textarea id="disableReason" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <button onclick="closePcStatusModal()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Cancel</button>
+                <button onclick="updatePcStatus()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

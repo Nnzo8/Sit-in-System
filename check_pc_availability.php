@@ -25,7 +25,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'available' => true
         );
     }
-    
+
+$query = "SELECT pc FROM reservation 
+          WHERE lab = ? 
+          AND reservation_date = ? 
+          AND status != 'declined'
+          AND time_in <= ? 
+          AND time_out >= ?
+          UNION
+          SELECT pc_number 
+          FROM pc_status 
+          WHERE lab_room = ? 
+          AND is_disabled = 1";
+
+$stmt = $conn->prepare($query);
+$stmt->bind_param("sssss", $lab_room, $date, $time_int, $time_int, $lab_room);
     // Check reservations
     $query = "SELECT pc FROM reservation 
               WHERE lab = ? 
