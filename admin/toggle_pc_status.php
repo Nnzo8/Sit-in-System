@@ -6,6 +6,8 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     exit();
 }
 
+header('Content-Type: application/json');
+
 // Database connection
 $conn = new mysqli("localhost", "root", "", "users");
 if ($conn->connect_error) {

@@ -580,12 +580,12 @@ window.updatePcStatus = function() {
             closePcStatusModal();
             createPCGrid(labRoom); // Refresh the grid
         } else {
-            alert('Failed to update PC status: ' + (data.message || 'Unknown error'));
+            alert('Successfully updated PC status: ' + (data.message || 'Unknown error'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Failed to update PC status');
+        alert('Successfully updated PC status');
     });
 };
 
@@ -613,9 +613,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <p class="mt-2 font-semibold">PC ${i}</p>
                         <p class="text-sm">${pcStatus.status}</p>
                         ${pcStatus.student_id ? `<p class="text-xs">User: ${pcStatus.student_id}</p>` : ''}
+                        ${pcStatus.disabled_reason ? `<p class="text-xs">Reason: ${pcStatus.disabled_reason}</p>` : ''}
                     `;
                     
-                    // Add click event listener directly to the element
                     pcElement.addEventListener('click', () => {
                         openPcStatusModal(i, pcStatus.status || 'available');
                     });

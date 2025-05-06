@@ -347,24 +347,34 @@ $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
                 formData.append('date', currentDate);
                 formData.append('time_in', currentTime);
 
-                // Fetch available PCs
+                // Fetch PC availability including disabled status
                 fetch('check_pc_availability.php', {
                     method: 'POST',
                     body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Clear current options
                     pcSelect.innerHTML = '<option value="">Select PC</option>';
                     
-                    // Add new options
                     data.forEach(pc => {
                         const option = document.createElement('option');
                         option.value = pc.number;
-                        option.textContent = `PC ${pc.number} ${pc.available ? '(Available)' : '(In Use)'}`;
-                        option.disabled = !pc.available;
+                        
+                        if (pc.is_disabled) {
+                            option.textContent = `PC ${pc.number} (Disabled${pc.disabled_reason ? ': ' + pc.disabled_reason : ''})`;
+                            option.disabled = true;
+                            option.classList.add('text-red-500');
+                        } else {
+                            option.textContent = `PC ${pc.number} (${pc.available ? 'Available' : 'In Use'})`;
+                            option.disabled = !pc.available;
+                        }
+                        
                         pcSelect.appendChild(option);
                     });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    pcSelect.innerHTML = '<option value="">Error loading PCs</option>';
                 });
             } else {
                 pcSelect.innerHTML = '<option value="">Select Lab Room First</option>';

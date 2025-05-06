@@ -227,6 +227,23 @@ INSERT INTO `student_session` (`id_number`, `remaining_sessions`) VALUES
 (55555, 30),
 (44444, 30);
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pc_status`
+--
+
+CREATE TABLE IF NOT EXISTS `pc_status` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `lab_room` varchar(50) NOT NULL,
+  `pc_number` int(11) NOT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'available',
+  `disabled_reason` text DEFAULT NULL,
+  `disabled_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `lab_pc` (`lab_room`, `pc_number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Indexes for dumped tables
 --
