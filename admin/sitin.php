@@ -301,15 +301,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
-                                        <?php 
-                                            // Convert integer time (HHMM) to formatted time
-                                            $time_int = $row['time_in'];
-                                            $hours = floor($time_int / 100);
-                                            $minutes = $time_int % 100;
-                                            $time = sprintf("%02d:%02d", $hours, $minutes);
-                                            echo date('g:i A', strtotime($time)); 
-                                        ?>
-                                    </td>
+                                            <?php 
+                                                // Assuming $row['time_in'] contains the time from database
+                                                if (!empty($row['time_in'])) {
+                                                    // Format the time to 12-hour format with AM/PM
+                                                    echo date('g:i A', strtotime($row['time_in']));
+                                                } else {
+                                                    echo "No time selected";
+                                                }
+                                            ?>
+                                        </td>
                                     <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
                                         <div class="flex space-x-2">
                                             <button onclick="handleReservation(<?= $row['id'] ?>, 'approve')" 
