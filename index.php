@@ -364,24 +364,30 @@ if ($result->num_rows > 0) {
             .then(response => response.json())
             .then(data => {
                 console.log('Notification data:', data);
-                notificationList.innerHTML = ''; // Clear existing notifications
                 
-                if (data.notifications && data.notifications.length > 0) {
-                    notificationCount.textContent = data.notifications.length;
-                    notificationCount.classList.remove('hidden');
+                // Only update if the dropdown is hidden (not being viewed)
+                if (notificationDropdown.classList.contains('hidden')) {
+                    notificationList.innerHTML = ''; // Clear existing notifications only when hidden
                     
-                    data.notifications.forEach(notification => {
-                        const notificationHTML = formatNotification(notification);
-                        notificationList.insertAdjacentHTML('beforeend', notificationHTML);
-                    });
-                } else {
-                    notificationCount.classList.add('hidden');
-                    notificationList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center p-4">No notifications found</p>';
+                    if (data.notifications && data.notifications.length > 0) {
+                        notificationCount.textContent = data.notifications.length;
+                        notificationCount.classList.remove('hidden');
+                        
+                        data.notifications.forEach(notification => {
+                            const notificationHTML = formatNotification(notification);
+                            notificationList.insertAdjacentHTML('beforeend', notificationHTML);
+                        });
+                    } else {
+                        notificationCount.classList.add('hidden');
+                        notificationList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center p-4">No notifications found</p>';
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                notificationList.innerHTML = '<p class="text-red-500 text-center p-4">Failed to load notifications</p>';
+                if (notificationDropdown.classList.contains('hidden')) {
+                    notificationList.innerHTML = '<p class="text-red-500 text-center p-4">Failed to load notifications</p>';
+                }
             });
     }
 
@@ -392,14 +398,30 @@ if ($result->num_rows > 0) {
         const notificationCount = document.getElementById('notificationCount');
         const notificationList = document.getElementById('notificationList');
 
-        notificationButton.addEventListener('click', () => {
-            notificationDropdown.classList.toggle('hidden');
-            checkNotifications();
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!notificationButton.contains(event.target) && 
+                !notificationDropdown.contains(event.target)) {
+                notificationDropdown.classList.add('hidden');
+            }
         });
 
-        // Check for notifications immediately and every 30 seconds
+        notificationButton.addEventListener('click', () => {
+            notificationDropdown.classList.toggle('hidden');
+            if (!notificationDropdown.classList.contains('hidden')) {
+                checkNotifications(); // Only check when opening the dropdown
+            }
+        });
+
+        // Initial check for notifications
         checkNotifications();
-        setInterval(checkNotifications, 30000);
+        
+        // Check for new notifications every 30 seconds only when dropdown is closed
+        setInterval(() => {
+            if (notificationDropdown.classList.contains('hidden')) {
+                checkNotifications();
+            }
+        }, 30000);
     });
     </script>
 </body>

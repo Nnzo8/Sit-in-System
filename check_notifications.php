@@ -28,10 +28,12 @@ $sql = "SELECT
             r.lab,
             r.reservation_date,
             r.purpose,
+            r.notification_read,
             CURRENT_TIMESTAMP as created_at
         FROM reservation r 
         WHERE r.IDNO = ? 
         AND r.status IN ('approved', 'declined')
+        AND (r.notification_read = 0 OR r.notification_read IS NULL)
         ORDER BY r.reservation_date DESC, r.time_in DESC 
         LIMIT 10";  // Limit to 10 most recent notifications
 
@@ -68,6 +70,14 @@ while ($row = $result->fetch_assoc()) {
         'time' => date('M j, Y g:i A'),
         'status' => $row['status']
     ];
+}
+
+// After processing notifications, mark them as read
+if (!empty($notifications)) {
+    $notification_ids = array_column($notifications, 'id');
+    $ids_string = implode(',', $notification_ids);
+    $update_sql = "UPDATE reservation SET notification_read = 1 WHERE reservation_id IN ($ids_string)";
+    $conn->query($update_sql);
 }
 
 // Debug log the final output
