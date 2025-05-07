@@ -28,7 +28,11 @@ $pending_sql = "SELECT
     r.lab as lab_room,
     r.pc as pc_number,
     r.reservation_date,
-    r.time_in,
+    CONCAT(
+        LPAD(FLOOR(r.time_in / 100), 2, '0'),    -- Extract hours
+        ':',
+        LPAD(MOD(r.time_in, 100), 2, '0')        -- Extract minutes
+    ) as time_value,
     s.First_Name,
     s.Last_Name,
     s.Course,
@@ -258,7 +262,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                     r.lab as lab_room,
                     r.pc as pc_number,
                     r.reservation_date,
-                    DATE_FORMAT(STR_TO_DATE(r.time_in, '%H%i'), '%H:%i') as time_in,
+                    CONCAT(
+                        LPAD(FLOOR(r.time_in / 100), 2, '0'),    -- Extract hours
+                        ':',
+                        LPAD(MOD(r.time_in, 100), 2, '0')        -- Extract minutes
+                    ) as time_value,
                     s.First_Name,
                     s.Last_Name,
                     s.Course,
@@ -301,11 +309,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
-                                            <?php 
+                                    <?php 
                                                 // Assuming $row['time_in'] contains the time from database
-                                                if (!empty($row['time_in'])) {
-                                                    // Format the time to 12-hour format with AM/PM
-                                                    echo date('g:i A', strtotime($row['time_in']));
+                                                if (!empty($row['time_value'])) {
+                                                    echo date('g:i A', strtotime($row['time_value']));
                                                 } else {
                                                     echo "No time selected";
                                                 }

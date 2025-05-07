@@ -150,6 +150,21 @@ if ($result->num_rows > 0) {
                         <a href="reservation.php" class="nav-link text-white hover:text-gray-200">Reservation</a>
                         <a href="history.php" class="nav-link text-white hover:text-gray-200">History</a>
                         <a href="login.php" class="nav-link text-white hover:text-gray-200">Logout</a>
+                        <!-- Add notification button before dark mode toggle -->
+                        <div class="relative">
+                            <button id="notificationButton" class="text-white hover:text-gray-200 mr-2">
+                                <i class="fas fa-bell"></i>
+                                <span id="notificationCount" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center hidden">0</span>
+                            </button>
+                            <div id="notificationDropdown" class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hidden z-50">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Notifications</h3>
+                                    <div id="notificationList" class="space-y-4 max-h-96 overflow-y-auto">
+                                        <!-- Notifications will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <button id="darkModeToggle" class="text-white hover:text-gray-200">
                             <svg id="darkModeIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -313,6 +328,75 @@ if ($result->num_rows > 0) {
                 localStorage.setItem('userDarkMode', null);
             }
         });
+    });
+
+    // Replace the existing notification script with this updated version
+    document.addEventListener('DOMContentLoaded', function() {
+        const notificationButton = document.getElementById('notificationButton');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationCount = document.getElementById('notificationCount');
+        const notificationList = document.getElementById('notificationList');
+
+        // Toggle dropdown
+        notificationButton.addEventListener('click', () => {
+            notificationDropdown.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!notificationButton.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                notificationDropdown.classList.add('hidden');
+            }
+        });
+
+        // Function to format the notification message
+        function formatNotification(notification) {
+            const statusColor = notification.status === 'approved' 
+                ? 'bg-green-50 dark:bg-green-900 text-green-800 dark:text-green-200' 
+                : 'bg-red-50 dark:bg-red-900 text-red-800 dark:text-red-200';
+
+            return `
+                <div class="p-3 ${statusColor} rounded-lg mb-2">
+                    <div class="flex items-center mb-1">
+                        <i class="fas ${notification.status === 'approved' ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600'} mr-2"></i>
+                        <span class="font-semibold">${notification.status.toUpperCase()}</span>
+                    </div>
+                    <p class="text-sm">${notification.message}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${notification.time}</p>
+                </div>
+            `;
+        }
+
+        // Function to check for notifications
+        function checkNotifications() {
+            fetch('check_notifications.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.notifications && data.notifications.length > 0) {
+                        // Show notification count
+                        notificationCount.textContent = data.notifications.length;
+                        notificationCount.classList.remove('hidden');
+                        
+                        // Update notification list with formatted messages
+                        notificationList.innerHTML = data.notifications
+                            .map(notification => formatNotification(notification))
+                            .join('');
+                            
+                        // Play notification sound (optional)
+                        if (data.notifications.length > 0) {
+                            new Audio('notification.mp3').play().catch(e => console.log('Audio play failed'));
+                        }
+                    } else {
+                        notificationCount.classList.add('hidden');
+                        notificationList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center">No new notifications</p>';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Check notifications immediately and then every 30 seconds
+        checkNotifications();
+        setInterval(checkNotifications, 30000);
     });
     </script>
 </body>
