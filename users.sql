@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 07, 2025 at 06:03 PM
+-- Generation Time: May 07, 2025 at 06:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -82,7 +82,9 @@ CREATE TABLE `direct_sitin` (
 --
 
 INSERT INTO `direct_sitin` (`id`, `IDNO`, `lab_room`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`, `pc_number`) VALUES
-(23, '2323', 'Lab 528', '2025-05-07 23:49:48', '2025-05-07 23:53:25', 'completed', 'ASP.Net', '2025-05-07 15:53:25', 18);
+(23, '2323', 'Lab 528', '2025-05-07 23:49:48', '2025-05-07 23:53:25', 'completed', 'ASP.Net', '2025-05-07 15:53:25', 18),
+(24, '2323', 'Lab 542', '2025-05-08 00:09:15', '2025-05-08 00:09:28', 'completed', 'C', '2025-05-07 16:09:28', 12),
+(25, '2323', 'Lab 528', '2025-05-08 00:18:35', '2025-05-08 00:21:10', 'completed', 'C++', '2025-05-07 16:21:10', 15);
 
 -- --------------------------------------------------------
 
@@ -149,6 +151,21 @@ CREATE TABLE `reservation` (
   `notification_timestamp` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `reservation`
+--
+
+INSERT INTO `reservation` (`reservation_id`, `reservation_date`, `time_in`, `time_out`, `pc`, `lab`, `purpose`, `IDNO`, `status`, `is_notified`, `created_at`, `updated_at`, `notification_read`, `notification_timestamp`) VALUES
+(7, '2025-05-07', 730, 830, 17, 'Lab 517', 'C', 2323, 'declined', 0, '2025-05-07 16:06:47', '2025-05-07 16:06:52', 1, '2025-05-07 16:06:47'),
+(8, '2025-05-07', 730, 830, 18, 'Lab 542', 'Java', 2323, 'declined', 0, '2025-05-07 16:08:55', '2025-05-07 16:09:01', 1, '2025-05-07 16:08:55'),
+(9, '2025-05-07', 730, 830, 12, 'Lab 542', 'C', 2323, 'approved', 0, '2025-05-07 16:09:11', '2025-05-07 16:09:18', 1, '2025-05-07 16:09:11'),
+(10, '2025-05-07', 730, 830, 15, 'Lab 528', 'C++', 2323, 'approved', 0, '2025-05-07 16:18:28', '2025-05-07 16:18:39', 1, '2025-05-07 16:18:28'),
+(11, '2025-05-07', 730, 830, 16, 'Lab 517', 'C', 2323, 'declined', 0, '2025-05-07 16:21:18', '2025-05-07 16:21:25', 1, '2025-05-07 16:21:18'),
+(12, '2025-05-07', 730, 830, 17, 'Lab 542', 'C#', 2323, 'declined', 0, '2025-05-07 16:24:58', '2025-05-07 16:25:04', 1, '2025-05-07 16:24:58'),
+(13, '2025-05-07', 730, 830, 16, 'Lab 544', 'ASP.Net', 2323, 'declined', 0, '2025-05-07 16:25:21', '2025-05-07 16:25:30', 1, '2025-05-07 16:25:21'),
+(14, '2025-05-07', 730, 830, 18, 'Lab 542', 'Python', 2323, 'declined', 0, '2025-05-07 16:43:45', '2025-05-07 16:43:51', 1, '2025-05-07 16:43:45'),
+(15, '2025-05-07', 730, 830, 18, 'Lab 517', 'ASP.Net', 2323, 'approved', 0, '2025-05-07 16:43:59', '2025-05-07 16:44:04', 1, '2025-05-07 16:43:59');
+
 -- --------------------------------------------------------
 
 --
@@ -174,7 +191,10 @@ CREATE TABLE `sit_in_records` (
 --
 
 INSERT INTO `sit_in_records` (`id`, `IDNO`, `lab_room`, `pc_number`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`, `is_notified`, `created_at`) VALUES
-(15, '2323', 'Lab 528', 18, '2025-05-07 23:49:48', '2025-05-07 23:53:25', 'completed', 'ASP.Net', '2025-05-07 15:49:48', 0, '2025-05-07 15:49:48');
+(15, '2323', 'Lab 528', 18, '2025-05-07 23:49:48', '2025-05-07 23:53:25', 'completed', 'ASP.Net', '2025-05-07 15:49:48', 0, '2025-05-07 15:49:48'),
+(16, '2323', 'Lab 542', 12, '2025-05-08 00:09:15', '2025-05-08 00:09:28', 'completed', 'C', '2025-05-07 16:09:15', 0, '2025-05-07 16:09:15'),
+(17, '2323', 'Lab 528', 15, '2025-05-08 00:18:35', '2025-05-08 00:21:10', 'completed', 'C++', '2025-05-07 16:18:35', 0, '2025-05-07 16:18:35'),
+(18, '2323', 'Lab 517', 18, '2025-05-08 00:44:02', NULL, 'active', 'ASP.Net', '2025-05-07 16:44:02', 0, '2025-05-07 16:44:02');
 
 -- --------------------------------------------------------
 
@@ -248,7 +268,7 @@ CREATE TABLE `student_session` (
 --
 
 INSERT INTO `student_session` (`id_number`, `remaining_sessions`) VALUES
-(2323, 18),
+(2323, 16),
 (1111, 23),
 (2222, 30),
 (55555, 30),
@@ -315,7 +335,7 @@ ALTER TABLE `courses`
 -- AUTO_INCREMENT for table `direct_sitin`
 --
 ALTER TABLE `direct_sitin`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `pc_status`
@@ -327,13 +347,13 @@ ALTER TABLE `pc_status`
 -- AUTO_INCREMENT for table `reservation`
 --
 ALTER TABLE `reservation`
-  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `sit_in_records`
 --
 ALTER TABLE `sit_in_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `students`
