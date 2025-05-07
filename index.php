@@ -330,71 +330,74 @@ if ($result->num_rows > 0) {
         });
     });
 
-    // Replace the existing notification script with this updated version
+    // Add this function before the other notification code
+    function formatNotification(notification) {
+        const statusColor = notification.status === 'approved' 
+            ? 'bg-green-100 dark:bg-green-800 border-green-200 dark:border-green-700' 
+            : 'bg-red-100 dark:bg-red-800 border-red-200 dark:border-red-700';
+            
+        const statusTextColor = notification.status === 'approved'
+            ? 'text-green-800 dark:text-green-200'
+            : 'text-red-800 dark:text-red-200';
+            
+        const icon = notification.status === 'approved'
+            ? '<i class="fas fa-check-circle text-green-600 dark:text-green-400"></i>'
+            : '<i class="fas fa-times-circle text-red-600 dark:text-red-400"></i>';
+
+        return `
+            <div class="p-4 ${statusColor} rounded-lg border mb-3">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center">
+                        ${icon}
+                        <span class="ml-2 font-semibold ${statusTextColor}">${notification.status.toUpperCase()}</span>
+                    </div>
+                    <span class="text-xs opacity-75">${notification.time}</span>
+                </div>
+                <p class="text-sm ${statusTextColor}">${notification.message}</p>
+            </div>
+        `;
+    }
+
+    // Update the notification checking function
+    function checkNotifications() {
+        fetch('check_notifications.php')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Notification data:', data);
+                notificationList.innerHTML = ''; // Clear existing notifications
+                
+                if (data.notifications && data.notifications.length > 0) {
+                    notificationCount.textContent = data.notifications.length;
+                    notificationCount.classList.remove('hidden');
+                    
+                    data.notifications.forEach(notification => {
+                        const notificationHTML = formatNotification(notification);
+                        notificationList.insertAdjacentHTML('beforeend', notificationHTML);
+                    });
+                } else {
+                    notificationCount.classList.add('hidden');
+                    notificationList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center p-4">No notifications found</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                notificationList.innerHTML = '<p class="text-red-500 text-center p-4">Failed to load notifications</p>';
+            });
+    }
+
+    // Initialize notification handling
     document.addEventListener('DOMContentLoaded', function() {
         const notificationButton = document.getElementById('notificationButton');
         const notificationDropdown = document.getElementById('notificationDropdown');
         const notificationCount = document.getElementById('notificationCount');
         const notificationList = document.getElementById('notificationList');
 
-        // Toggle dropdown
         notificationButton.addEventListener('click', () => {
             notificationDropdown.classList.toggle('hidden');
+            checkNotifications();
         });
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!notificationButton.contains(e.target) && !notificationDropdown.contains(e.target)) {
-                notificationDropdown.classList.add('hidden');
-            }
-        });
-
-        // Function to format the notification message
-        function formatNotification(notification) {
-            const statusColor = notification.status === 'approved' 
-                ? 'bg-green-50 dark:bg-green-900 text-green-800 dark:text-green-200' 
-                : 'bg-red-50 dark:bg-red-900 text-red-800 dark:text-red-200';
-
-            return `
-                <div class="p-3 ${statusColor} rounded-lg mb-2">
-                    <div class="flex items-center mb-1">
-                        <i class="fas ${notification.status === 'approved' ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600'} mr-2"></i>
-                        <span class="font-semibold">${notification.status.toUpperCase()}</span>
-                    </div>
-                    <p class="text-sm">${notification.message}</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${notification.time}</p>
-                </div>
-            `;
-        }
-
-        // Function to check for notifications
-        function checkNotifications() {
-            fetch('check_notifications.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.notifications && data.notifications.length > 0) {
-                        // Show notification count
-                        notificationCount.textContent = data.notifications.length;
-                        notificationCount.classList.remove('hidden');
-                        
-                        // Update notification list with formatted messages
-                        notificationList.innerHTML = data.notifications
-                            .map(notification => formatNotification(notification))
-                            .join('');
-                            
-                        // Play notification sound (optional)
-                        if (data.notifications.length > 0) {
-                            new Audio('notification.mp3').play().catch(e => console.log('Audio play failed'));
-                        }
-                    } else {
-                        notificationCount.classList.add('hidden');
-                        notificationList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center">No new notifications</p>';
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        // Check notifications immediately and then every 30 seconds
+        // Check for notifications immediately and every 30 seconds
         checkNotifications();
         setInterval(checkNotifications, 30000);
     });

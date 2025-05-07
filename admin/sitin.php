@@ -810,12 +810,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                     const purpose = row.querySelector('td:nth-child(3)').textContent.trim();
                     const labRoom = row.querySelector('td:nth-child(4)').textContent.trim();
 
+                    // Include student ID from the row
+                    const studentId = row.querySelector('td:nth-child(1)').textContent.trim();
+
+                    // Modified to include student notification data
                     fetch('handle_reservation.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
                         },
-                        body: `action=${action}&record_id=${recordId}`
+                        body: `action=${action}&record_id=${recordId}&student_id=${studentId}`
                     })
                     .then(response => response.json())
                     .then(data => {

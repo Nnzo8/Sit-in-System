@@ -20,55 +20,60 @@ if ($conn->connect_error) {
 
 $student_id = $_SESSION['IDNO'];
 
-// Get recent reservation updates
 $sql = "SELECT 
-            id,
-            status,
-            reservation_date,
-            time_in,
-            time_out,
-            pc,
-            lab,
-            created_at,
-            is_notified
-        FROM reservation 
-        WHERE IDNO = ? 
-        AND status IN ('approved', 'declined')
-        AND is_notified = 0
-        ORDER BY created_at DESC";
+            r.reservation_id as notification_id,
+            r.status,
+            r.time_in,
+            r.pc,
+            r.lab,
+            r.reservation_date,
+            r.purpose,
+            CURRENT_TIMESTAMP as created_at
+        FROM reservation r 
+        WHERE r.IDNO = ? 
+        AND r.status IN ('approved', 'declined')
+        ORDER BY r.reservation_date DESC, r.time_in DESC 
+        LIMIT 10";  // Limit to 10 most recent notifications
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $student_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
+// Enhanced debug logging
+error_log("SQL Query: " . $sql);
+error_log("Student ID: " . $student_id);
+error_log("Number of notifications found: " . $result->num_rows);
+
 $notifications = [];
 while ($row = $result->fetch_assoc()) {
-    $status = ucfirst($row['status']);
-    $message = "Your reservation for {$row['lab']} (PC {$row['pc']}) on " . 
+    $time_in = sprintf("%04d", $row['time_in']);
+    $hour = substr($time_in, 0, 2);
+    $minute = substr($time_in, 2, 2);
+    $formatted_time = $hour . ':' . $minute;
+    
+    $status_text = $row['status'] === 'approved' ? 'has been APPROVED' : 'has been DECLINED';
+    $extra_text = $row['status'] === 'approved' 
+        ? "You may now proceed to the laboratory. Purpose: {$row['purpose']}" 
+        : "Please make another reservation.";
+    
+    $message = "Your sit-in reservation for {$row['lab']} (PC {$row['pc']}) on " . 
                date('F j, Y', strtotime($row['reservation_date'])) . 
-               " at " . date('g:i A', strtotime($row['time_in'])) . 
-               " has been {$row['status']}.";
-               
+               " at " . date('g:i A', strtotime($formatted_time)) . 
+               " {$status_text}. {$extra_text}";
+    
     $notifications[] = [
-        'id' => $row['id'],
+        'id' => $row['notification_id'],
         'message' => $message,
-        'time' => date('M j, Y g:i A', strtotime($row['created_at'])),
+        'time' => date('M j, Y g:i A'),
         'status' => $row['status']
     ];
 }
 
-// Mark notifications as read
-if (!empty($notifications)) {
-    $update_sql = "UPDATE reservation 
-                   SET is_notified = 1 
-                   WHERE IDNO = ? 
-                   AND status IN ('approved', 'declined')
-                   AND is_notified = 0";
-    $stmt = $conn->prepare($update_sql);
-    $stmt->bind_param("s", $student_id);
-    $stmt->execute();
-}
+// Debug log the final output
+error_log("Final notifications array: " . json_encode($notifications));
 
-echo json_encode(['notifications' => $notifications]);
+header('Content-Type: application/json');
 $conn->close();
+echo json_encode(['notifications' => $notifications]);
+exit;

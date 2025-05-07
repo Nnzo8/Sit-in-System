@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 06, 2025 at 12:38 PM
+-- Generation Time: May 07, 2025 at 06:03 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -82,17 +82,7 @@ CREATE TABLE `direct_sitin` (
 --
 
 INSERT INTO `direct_sitin` (`id`, `IDNO`, `lab_room`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`, `pc_number`) VALUES
-(6, '2323', 'Lab 530', '2025-03-20 08:00:03', '2025-04-28 23:10:57', 'completed', 'Python', '2025-03-20 00:00:03', 0),
-(7, '2323', 'Lab 530', '2025-03-31 13:27:10', '2025-03-31 13:27:31', 'completed', 'Java', '2025-03-31 05:27:10', 0),
-(8, '1111', 'Lab 528', '2025-04-12 12:11:41', '2025-04-29 00:15:11', 'completed', 'Database', '2025-04-12 04:11:41', 0),
-(9, '2222', 'Lab 530', '2025-04-12 12:17:40', '2025-04-12 12:17:48', 'completed', 'Embedded System & IOT', '2025-04-12 04:17:40', 0),
-(10, '2222', 'Lab 530', '2025-04-12 12:20:26', '2025-04-12 12:20:34', 'completed', 'SysArch', '2025-04-12 04:20:26', 0),
-(11, '2222', 'Lab 544', '2025-04-12 12:28:06', '2025-04-12 12:28:16', 'completed', 'SysArch', '2025-04-12 04:28:06', 0),
-(12, '2222', 'Lab 530', '2025-04-21 11:34:48', '2025-04-21 11:34:51', 'completed', 'C#', '2025-04-21 03:34:48', 0),
-(13, '888', 'Lab 528', '2025-04-25 09:31:42', '2025-04-25 09:31:53', 'completed', 'C++', '2025-04-25 01:31:42', 0),
-(14, '2323', 'Lab 524', '2025-04-25 09:47:46', '2025-04-25 09:48:06', 'completed', 'C++', '2025-04-25 01:47:46', 1),
-(15, '1111', 'Lab 528', '2025-04-12 12:11:41', '2025-04-29 00:15:11', 'completed', 'Database', '2025-04-28 16:15:11', 0),
-(16, '44444', 'Lab 542', '2025-04-28 23:50:55', '2025-04-29 08:49:05', 'completed', 'Webdev', '2025-04-29 00:49:05', 1);
+(23, '2323', 'Lab 528', '2025-05-07 23:49:48', '2025-05-07 23:53:25', 'completed', 'ASP.Net', '2025-05-07 15:53:25', 18);
 
 -- --------------------------------------------------------
 
@@ -133,7 +123,7 @@ INSERT INTO `pc_status` (`id`, `lab_room`, `pc_number`, `is_disabled`, `disabled
 (3, 'Lab 526', 2, 0, '', '2025-05-06 09:40:11'),
 (4, 'Lab 528', 2, 0, '', '2025-05-06 09:45:38'),
 (10, 'Lab 524', 2, 1, 'asda', '2025-05-06 09:50:35'),
-(11, 'Lab 524', 3, 1, 'guba mc', '2025-05-06 09:56:06'),
+(11, 'Lab 524', 3, 0, '', '2025-05-06 09:56:06'),
 (12, 'Lab 524', 4, 0, '', '2025-05-06 10:11:19');
 
 -- --------------------------------------------------------
@@ -151,15 +141,13 @@ CREATE TABLE `reservation` (
   `lab` varchar(25) NOT NULL,
   `purpose` varchar(100) NOT NULL,
   `IDNO` int(11) NOT NULL,
-  `status` varchar(100) NOT NULL DEFAULT 'pending'
+  `status` varchar(100) NOT NULL DEFAULT 'pending',
+  `is_notified` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `notification_read` tinyint(1) DEFAULT 0,
+  `notification_timestamp` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `reservation`
---
-
-INSERT INTO `reservation` (`reservation_id`, `reservation_date`, `time_in`, `time_out`, `pc`, `lab`, `purpose`, `IDNO`, `status`) VALUES
-(0, '2025-05-06', 1030, 1130, 1, 'Lab 524', 'Python', 2323, 'pending');
 
 -- --------------------------------------------------------
 
@@ -176,16 +164,17 @@ CREATE TABLE `sit_in_records` (
   `time_out` datetime DEFAULT NULL,
   `status` enum('pending','active','completed','declined') NOT NULL DEFAULT 'pending',
   `purpose` varchar(100) NOT NULL,
-  `date_updated` timestamp NOT NULL DEFAULT current_timestamp()
+  `date_updated` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_notified` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `sit_in_records`
 --
 
-INSERT INTO `sit_in_records` (`id`, `IDNO`, `lab_room`, `pc_number`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`) VALUES
-(8, '44444', 'Lab 542', 1, '2025-04-28 23:50:55', '2025-04-29 08:49:05', 'completed', 'Webdev', '2025-04-28 15:50:55'),
-(9, '2323', 'Lab 524', 1, '2025-05-06 17:50:10', NULL, 'active', 'Python', '2025-05-06 09:50:10');
+INSERT INTO `sit_in_records` (`id`, `IDNO`, `lab_room`, `pc_number`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`, `is_notified`, `created_at`) VALUES
+(15, '2323', 'Lab 528', 18, '2025-05-07 23:49:48', '2025-05-07 23:53:25', 'completed', 'ASP.Net', '2025-05-07 15:49:48', 0, '2025-05-07 15:49:48');
 
 -- --------------------------------------------------------
 
@@ -259,7 +248,7 @@ CREATE TABLE `student_session` (
 --
 
 INSERT INTO `student_session` (`id_number`, `remaining_sessions`) VALUES
-(2323, 25),
+(2323, 18),
 (1111, 23),
 (2222, 30),
 (55555, 30),
@@ -287,6 +276,12 @@ ALTER TABLE `direct_sitin`
 ALTER TABLE `pc_status`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `lab_pc` (`lab_room`,`pc_number`);
+
+--
+-- Indexes for table `reservation`
+--
+ALTER TABLE `reservation`
+  ADD PRIMARY KEY (`reservation_id`);
 
 --
 -- Indexes for table `sit_in_records`
@@ -320,19 +315,25 @@ ALTER TABLE `courses`
 -- AUTO_INCREMENT for table `direct_sitin`
 --
 ALTER TABLE `direct_sitin`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `pc_status`
 --
 ALTER TABLE `pc_status`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `reservation`
+--
+ALTER TABLE `reservation`
+  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `sit_in_records`
 --
 ALTER TABLE `sit_in_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `students`
