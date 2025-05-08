@@ -2,6 +2,12 @@
 session_start();
 include '../header.php';
 
+// Check if user is admin
+if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
+    header("Location: ../login.php");
+    exit();
+}
+
 // Database connection
 $servername = "localhost";
 $username = "root";
@@ -10,12 +16,28 @@ $database = "users";
 
 $conn = new mysqli($servername, $username, $password, $database);
 
-// Fetch feedbacks from database with student details
-$sql = "SELECT f.*, s.First_Name, s.Last_Name, d.lab_room 
-        FROM feedback f 
-        LEFT JOIN students s ON f.IDNO = s.IDNO 
-        LEFT JOIN direct_sitin d ON f.IDNO = d.IDNO AND DATE(f.date) = DATE(d.time_in)
-        ORDER BY f.date DESC";
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Fetch all reservation logs
+$sql = "SELECT 
+            r.reservation_id,
+            r.IDNO,
+            r.purpose,
+            r.lab,
+            r.pc,
+            r.reservation_date,
+            r.time_in,
+            r.status,
+            s.First_Name,
+            s.Last_Name,
+            s.Course,
+            s.Year_lvl
+        FROM reservation r
+        JOIN students s ON r.IDNO = s.IDNO
+        ORDER BY r.reservation_date DESC, r.time_in DESC";
+
 $result = $conn->query($sql);
 ?>
 
@@ -24,8 +46,10 @@ $result = $conn->query($sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student's Feedbacks</title>
+    <title>Sit-in Logs</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/admin-dark-mode.css">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -39,25 +63,19 @@ $result = $conn->query($sql);
             }
         }
     </script>
-    <style>
-        /* Add transition styles */
-        * {
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }
-    </style>
-    <link rel="stylesheet" href="../css/admin-dark-mode.css">
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">
     <!-- Navigation -->
-   <nav class="bg-primary shadow-lg">
+    <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
-                <span class="text-white text-xl font-bold py-4">Admin Dashboard</span>
+                <span class="text-white text-xl font-bold py-4">Current Sit-in</span>
                 <div class="flex space-x-4">
                     <div class="hidden md:flex items-center space-x-4">
                         <a href="dashboard.php" class="nav-link text-white hover:text-gray-200">Dashboard</a>
                         <a href="search.php" class="nav-link text-white hover:text-gray-200">Search</a>
                         <a href="students.php" class="nav-link text-white hover:text-gray-200">Students</a>
+                        
                         <!-- Replace the sitin link with this dropdown -->
                         <div class="relative group">
                             <button class="nav-link text-white hover:text-gray-200 flex items-center">
@@ -68,7 +86,7 @@ $result = $conn->query($sql);
                             </button>
                             <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                                 <div class="py-1 rounded-md bg-white dark:bg-gray-800 shadow-xs">
-                                    <a href="sitin.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Lab Sit-ins</a>
+                                    <a href="sitin.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Current Sit-in</a>
                                     <a href="sitin_logs.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Sit-in Logs</a>
                                 </div>
                             </div>
@@ -97,11 +115,9 @@ $result = $conn->query($sql);
                         <a href="feedback.php" class="nav-link text-white hover:text-gray-200">View Feedbacks</a>
                         <a href="../logout.php" class="nav-link text-white hover:text-gray-200">Logout</a>
                         <button id="darkModeToggle" class="p-2 rounded-lg text-white hover:text-gray-200">
-                            <!-- Sun icon - Shows in light mode -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
-                            <!-- Moon icon - Shows in dark mode -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                             </svg>
@@ -129,89 +145,104 @@ $result = $conn->query($sql);
             </div>
         </div>
     </nav>
-    <script> // Dark mode toggle functionality
+
+    <div class="max-w-7xl mx-auto py-6 px-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Sit-in Logs</h2>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date Created</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Student Info</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Lab Details</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Purpose</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
+                        <?php if ($result->num_rows > 0): ?>
+                            <?php while($row = $result->fetch_assoc()): ?>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">
+                                            <?= date('M d, Y', strtotime($row['reservation_date'])) ?>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            <?= sprintf('%04d', $row['time_in']) ?>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                            <?= htmlspecialchars($row['First_Name'] . ' ' . $row['Last_Name']) ?>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            <?= htmlspecialchars($row['IDNO']) ?> | 
+                                            <?= htmlspecialchars($row['Course']) ?> - 
+                                            <?= htmlspecialchars($row['Year_lvl']) ?>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm text-gray-900 dark:text-white">
+                                            Lab <?= htmlspecialchars($row['lab']) ?>
+                                        </div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            PC <?= htmlspecialchars($row['pc']) ?>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="text-sm text-gray-900 dark:text-white">
+                                            <?= htmlspecialchars($row['purpose']) ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            <?php 
+                                            echo match($row['status']) {
+                                                'approved' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                                                'declined' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+                                                default => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                            }; 
+                                            ?>">
+                                            <?= ucfirst(htmlspecialchars($row['status'])) ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                    No sit-in logs found
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode toggle functionality
         document.addEventListener('DOMContentLoaded', function() {
             const darkModeToggle = document.getElementById('darkModeToggle');
             const html = document.documentElement;
             
-            // Check for saved dark mode preference
             const darkMode = localStorage.getItem('adminDarkMode');
             if (darkMode === 'enabled') {
                 html.classList.add('dark');
             }
             
-            // Toggle dark mode
             darkModeToggle.addEventListener('click', function() {
                 html.classList.toggle('dark');
-                
-                // Save preference
                 if (html.classList.contains('dark')) {
                     localStorage.setItem('adminDarkMode', 'enabled');
                 } else {
                     localStorage.setItem('adminDarkMode', null);
                 }
             });
-        });</script>
-    <div class="max-w-7xl mx-auto py-6 px-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Student Feedbacks</h2>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-                    <thead class="bg-gray-50 dark:bg-gray-700">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Student Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">ID Number</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Lab Room</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Message</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
-                        <?php
-                        if ($result->num_rows > 0) {
-                            while($row = $result->fetch_assoc()) {
-                                echo "<tr class='hover:bg-gray-50 dark:hover:bg-gray-700'>";
-                                echo "<td class='px-6 py-4 text-gray-800 dark:text-gray-200'>" . htmlspecialchars($row['First_Name'] . " " . $row['Last_Name']) . "</td>";
-                                echo "<td class='px-6 py-4 text-gray-800 dark:text-gray-200'>" . htmlspecialchars($row['IDNO']) . "</td>";
-                                echo "<td class='px-6 py-4 text-gray-800 dark:text-gray-200'>" . htmlspecialchars($row['lab_room']) . "</td>";
-                                echo "<td class='px-6 py-4 text-gray-800 dark:text-gray-200'>" . htmlspecialchars($row['date']) . "</td>";
-                                echo "<td class='px-6 py-4 text-gray-800 dark:text-gray-200'>" . htmlspecialchars($row['message']) . "</td>";
-                                echo "</tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='5' class='px-6 py-4 text-center text-gray-500 dark:text-gray-400'>No feedbacks found</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <style>
-    .group:hover .group-hover\:opacity-100 {
-        opacity: 1;
-    }
-    .group:hover .group-hover\:visible {
-        visibility: visible;
-    }
-    .nav-link {
-        position: relative;
-        padding: 0.5rem;
-    }
-    .nav-link:after {
-        content: '';
-        position: absolute;
-        width: 0;
-        height: 2px;
-        bottom: 0;
-        left: 0;
-        background-color: white;
-        transition: width 0.3s ease;
-    }
-    .nav-link:hover:after {
-        width: 100%;
-    }
-</style>
+        });
+    </script>
 </body>
 </html>

@@ -4,6 +4,55 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header("Location: ../login.php");
     exit();
 }
+
+// Add this form handling code before including header.php
+if (isset($_POST['add_schedule'])) {
+    $lab_room = $_POST['lab_room'];
+    $course_name = $_POST['course_name'];
+    $schedule = $_POST['schedule'];
+    $instructor = $_POST['instructor'];
+    
+    // Handle file upload
+    $image_path = null;
+    if (isset($_FILES['schedule_image']) && $_FILES['schedule_image']['error'] == 0) {
+        $target_dir = "../uploads/schedules/";
+        if (!file_exists($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+        
+        $file_extension = strtolower(pathinfo($_FILES["schedule_image"]["name"], PATHINFO_EXTENSION));
+        $file_name = uniqid() . '.' . $file_extension;
+        $target_file = $target_dir . $file_name;
+        
+        if (move_uploaded_file($_FILES["schedule_image"]["tmp_name"], $target_file)) {
+            $image_path = 'uploads/schedules/' . $file_name;  // Store relative path
+        }
+    }
+    
+    // Database connection
+    $conn = new mysqli("localhost", "root", "", "users");
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    
+    $sql = "INSERT INTO courses (lab, course_name, schedule, instructor, schedule_image) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssss", $lab_room, $course_name, $schedule, $instructor, $image_path);
+    
+    if ($stmt->execute()) {
+        $_SESSION['success_message'] = "Schedule added successfully!";
+    } else {
+        $_SESSION['error_message'] = "Error adding schedule: " . $stmt->error;
+    }
+    
+    $stmt->close();
+    $conn->close();
+    
+    // Redirect to prevent form resubmission
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
 include '../header.php';
 ?>
 
@@ -38,6 +87,21 @@ include '../header.php';
     <link rel="stylesheet" href="../css/admin-dark-mode.css">
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 transition-all duration-300">
+    <!-- Success/Error Messages -->
+    <?php if (isset($_SESSION['success_message'])): ?>
+        <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50" id="successAlert">
+            <span class="block sm:inline"><?php echo $_SESSION['success_message']; ?></span>
+        </div>
+        <?php unset($_SESSION['success_message']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error_message'])): ?>
+        <div class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50" id="errorAlert">
+            <span class="block sm:inline"><?php echo $_SESSION['error_message']; ?></span>
+        </div>
+        <?php unset($_SESSION['error_message']); ?>
+    <?php endif; ?>
+
     <!-- Navigation -->
     <nav class="bg-primary shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
@@ -48,7 +112,21 @@ include '../header.php';
                         <a href="dashboard.php" class="nav-link text-white hover:text-gray-200">Dashboard</a>
                         <a href="search.php" class="nav-link text-white hover:text-gray-200">Search</a>
                         <a href="students.php" class="nav-link text-white hover:text-gray-200">Students</a>
-                        <a href="sitin.php" class="nav-link text-white hover:text-gray-200">Sit-in</a>
+                        <!-- Replace the sitin link with this dropdown -->
+                        <div class="relative group">
+                            <button class="nav-link text-white hover:text-gray-200 flex items-center">
+                                Sit-in
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="py-1 rounded-md bg-white dark:bg-gray-800 shadow-xs">
+                                    <a href="sitin.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Lab Sit-ins</a>
+                                    <a href="sitin_logs.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Sit-in Logs</a>
+                                </div>
+                            </div>
+                        </div>
                         
                         <!-- New Lab Dropdown -->
                         <div class="relative group">
@@ -133,6 +211,14 @@ include '../header.php';
         <!-- Dashboard Header -->
         <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Lab Schedule</h1>
         
+        <!-- Add Schedule Button -->
+        <div class="mb-6">
+            <button onclick="openAddScheduleModal()" 
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                <i class="fas fa-plus mr-2"></i>Add New Schedule
+            </button>
+        </div>
+
         <!-- Lab Rooms Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <?php
@@ -160,45 +246,55 @@ include '../header.php';
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
                         <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white"><?php echo htmlspecialchars($lab_room); ?></h2>
                         <div class="space-y-4">
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full">
-                                    <thead class="bg-gray-50 dark:bg-gray-700">
-                                        <tr>
-                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Course</th>
-                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Schedule</th>
-                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Instructor</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-                                        <?php
-                                        $courses_sql = "SELECT course_name, schedule, instructor FROM courses WHERE lab = ? ORDER BY schedule";
-                                        $stmt = $conn->prepare($courses_sql);
-                                        $stmt->bind_param("s", $lab_room);
-                                        $stmt->execute();
-                                        $courses_result = $stmt->get_result();
+                            <?php
+                            $courses_sql = "SELECT id, course_name, schedule, instructor, schedule_image FROM courses WHERE lab = ? ORDER BY schedule";
+                            $stmt = $conn->prepare($courses_sql);
+                            $stmt->bind_param("s", $lab_room);
+                            $stmt->execute();
+                            $courses_result = $stmt->get_result();
 
-                                        if ($courses_result->num_rows > 0) {
-                                            while($course = $courses_result->fetch_assoc()) {
-                                                ?>
-                                                <tr>
-                                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300"><?php echo htmlspecialchars($course['course_name']); ?></td>
-                                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300"><?php echo htmlspecialchars($course['schedule']); ?></td>
-                                                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300"><?php echo htmlspecialchars($course['instructor']); ?></td>
-                                                </tr>
-                                                <?php
-                                            }
-                                        } else {
-                                            ?>
-                                            <tr>
-                                                <td colspan="3" class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 text-center">No courses scheduled</td>
-                                            </tr>
-                                            <?php
-                                        }
-                                        $stmt->close();
-                                        ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                            if ($courses_result->num_rows > 0) {
+                                while($course = $courses_result->fetch_assoc()) {
+                                    // Display schedule image if exists
+                                    if ($course['schedule_image']) {
+                                        echo '<div class="mb-4">';
+                                        echo '<a href="../' . htmlspecialchars($course['schedule_image']) . '" target="_blank" 
+                                                class="block w-full h-48 overflow-hidden rounded-lg shadow-sm hover:opacity-90 transition-opacity">';
+                                        echo '<img src="../' . htmlspecialchars($course['schedule_image']) . '" 
+                                                alt="Schedule Image" 
+                                                class="w-full h-full object-cover">';
+                                        echo '</a>';
+                                        echo '<p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">Click image to view full size</p>';
+                                        echo '</div>';
+                                    }
+                                    ?>
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+                                        <div class="mb-2">
+                                            <span class="font-semibold text-gray-700 dark:text-gray-300">Course: </span>
+                                            <span class="text-gray-600 dark:text-gray-400"><?php echo htmlspecialchars($course['course_name']); ?></span>
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="font-semibold text-gray-700 dark:text-gray-300">Schedule: </span>
+                                            <span class="text-gray-600 dark:text-gray-400"><?php echo htmlspecialchars($course['schedule']); ?></span>
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="font-semibold text-gray-700 dark:text-gray-300">Instructor: </span>
+                                            <span class="text-gray-600 dark:text-gray-400"><?php echo htmlspecialchars($course['instructor']); ?></span>
+                                        </div>
+                                        <div class="text-right">
+                                            <button onclick="deleteCourse(<?php echo $course['id']; ?>)" 
+                                                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <?php
+                                }
+                            } else {
+                                echo '<p class="text-center text-gray-500 dark:text-gray-400">No courses scheduled</p>';
+                            }
+                            $stmt->close();
+                            ?>
                         </div>
                     </div>
                     <?php
@@ -211,7 +307,83 @@ include '../header.php';
         </div>
     </div>
 
+    <!-- Add Schedule Modal -->
+    <div id="addScheduleModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <div class="mt-3">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Add New Schedule</h2>
+                <form action="" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="lab_room" class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">Lab Room</label>
+                            <select id="lab_room" name="lab_room" required 
+                                class="mt-1 block w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <option value="">Select a Lab</option>
+                                <option value="Lab 524">Lab 524</option>
+                                <option value="Lab 526">Lab 526</option>
+                                <option value="Lab 528">Lab 528</option>
+                                <option value="Lab 530">Lab 530</option>
+                                <option value="Lab 542">Lab 542</option>
+                                <option value="Lab 544">Lab 544</option>
+                                <option value="Lab 517">Lab 517</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="course_name" class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">Subject/Course</label>
+                            <input type="text" id="course_name" name="course_name" required 
+                                class="mt-1 block w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="schedule" class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">Schedule</label>
+                            <input type="text" id="schedule" name="schedule" required 
+                                class="mt-1 block w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="instructor" class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">Instructor</label>
+                            <input type="text" id="instructor" name="instructor" required 
+                                class="mt-1 block w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="schedule_image" class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">Schedule Image (Optional)</label>
+                            <input type="file" id="schedule_image" name="schedule_image" accept="image/*"
+                                class="mt-1 block w-full px-4 py-3 text-base text-gray-500 dark:text-gray-300
+                                file:mr-4 file:py-3 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-base file:font-semibold
+                                file:bg-blue-50 file:text-blue-700
+                                hover:file:bg-blue-100
+                                dark:file:bg-gray-700 dark:file:text-gray-300">
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-4">
+                        <button type="button" onclick="closeAddScheduleModal()" 
+                            class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Cancel</button>
+                        <button type="submit" name="add_schedule" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Add Schedule</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Add these functions before the existing script
+        function openAddScheduleModal() {
+            document.getElementById('addScheduleModal').classList.remove('hidden');
+        }
+
+        function closeAddScheduleModal() {
+            document.getElementById('addScheduleModal').classList.add('hidden');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addScheduleModal');
+            if (event.target == modal) {
+                closeAddScheduleModal();
+            }
+        }
+
         // Mobile navigation toggle function
         function toggleNav() {
             const navbarNav = document.getElementById('navbarNav');
@@ -240,6 +412,23 @@ include '../header.php';
                 }
             });
         });
+        
+        // Add delete functionality
+        function deleteCourse(id) {
+            if (confirm('Are you sure you want to delete this schedule?')) {
+                fetch(`delete_schedule.php?id=${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error deleting schedule');
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>

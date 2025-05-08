@@ -20,8 +20,9 @@ if ($conn->connect_error) {
 
 $student_id = $_SESSION['IDNO'];
 
+// Fetch recent approved/declined reservations that haven't been read
 $sql = "SELECT 
-            r.reservation_id as notification_id,
+            r.reservation_id,
             r.status,
             r.time_in,
             r.pc,
@@ -35,17 +36,12 @@ $sql = "SELECT
         AND r.status IN ('approved', 'declined')
         AND (r.notification_read = 0 OR r.notification_read IS NULL)
         ORDER BY r.reservation_date DESC, r.time_in DESC 
-        LIMIT 10";  // Limit to 10 most recent notifications
+        LIMIT 10";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $student_id);
 $stmt->execute();
 $result = $stmt->get_result();
-
-// Enhanced debug logging
-error_log("SQL Query: " . $sql);
-error_log("Student ID: " . $student_id);
-error_log("Number of notifications found: " . $result->num_rows);
 
 $notifications = [];
 while ($row = $result->fetch_assoc()) {
@@ -65,14 +61,14 @@ while ($row = $result->fetch_assoc()) {
                " {$status_text}. {$extra_text}";
     
     $notifications[] = [
-        'id' => $row['notification_id'],
+        'id' => $row['reservation_id'],
         'message' => $message,
-        'time' => date('M j, Y g:i A'),
+        'time' => date('M j, Y g:i A', strtotime($row['created_at'])),
         'status' => $row['status']
     ];
 }
 
-// After processing notifications, mark them as read
+// Mark notifications as read
 if (!empty($notifications)) {
     $notification_ids = array_column($notifications, 'id');
     $ids_string = implode(',', $notification_ids);
@@ -80,10 +76,6 @@ if (!empty($notifications)) {
     $conn->query($update_sql);
 }
 
-// Debug log the final output
-error_log("Final notifications array: " . json_encode($notifications));
-
 header('Content-Type: application/json');
-$conn->close();
 echo json_encode(['notifications' => $notifications]);
-exit;
+$conn->close();

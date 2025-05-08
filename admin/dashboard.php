@@ -226,7 +226,21 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                         <a href="dashboard.php" class="nav-link text-white hover:text-gray-200">Dashboard</a>
                         <a href="search.php" class="nav-link text-white hover:text-gray-200">Search</a>
                         <a href="students.php" class="nav-link text-white hover:text-gray-200">Students</a>
-                        <a href="sitin.php" class="nav-link text-white hover:text-gray-200">Sit-in</a>
+                        <!-- Replace the sitin link with this dropdown -->
+                        <div class="relative group">
+                            <button class="nav-link text-white hover:text-gray-200 flex items-center">
+                                Sit-in
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="py-1 rounded-md bg-white dark:bg-gray-800 shadow-xs">
+                                    <a href="sitin.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Lab Sit-ins</a>
+                                    <a href="sitin_logs.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Sit-in Logs</a>
+                                </div>
+                            </div>
+                        </div>
                         
                         <!-- New Lab Dropdown -->
                         <div class="relative group">
@@ -250,6 +264,11 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                         
                         <a href="feedback.php" class="nav-link text-white hover:text-gray-200">View Feedbacks</a>
                         <a href="../logout.php" class="nav-link text-white hover:text-gray-200">Logout</a>
+                        <!-- Add notification bell before dark mode toggle -->
+                        <button id="notificationBell" class="p-2 rounded-lg text-white hover:text-gray-200 relative">
+                            <i class="fas fa-bell"></i>
+                            <span id="notification-count" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full">0</span>
+                        </button>
                         <button id="darkModeToggle" class="p-2 rounded-lg text-white hover:text-gray-200">
                             <!-- Sun icon - Shows in light mode -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -285,6 +304,28 @@ $total_sitins = $result->fetch_assoc()['total_count'];
     </nav>
 
     <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Add notification modal here, before the grid -->
+        <div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+            <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-2xl">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl">
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <h3 class="text-xl font-semibold text-blue-600 dark:text-blue-400">
+                            <i class="fas fa-bell mr-2"></i>Notifications
+                        </h3>
+                        <button id="closeNotificationModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="p-4 max-h-[70vh] overflow-y-auto">
+                        <div id="notifications-container" class="space-y-4">
+                            <!-- Notifications will be loaded here -->
+                            <p class="text-gray-500 dark:text-gray-400 italic text-center py-4">Loading notifications...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Statistics Panel -->
             <div class="bg-white p-6 rounded-lg shadow-lg">
@@ -581,6 +622,224 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                 }
             });
         });
+
+        // Add this right after your existing document.ready function
+        document.addEventListener('DOMContentLoaded', function() {
+            const notificationBell = document.getElementById('notificationBell');
+            const notificationModal = document.getElementById('notificationModal');
+            const closeNotificationModal = document.getElementById('closeNotificationModal');
+
+            notificationBell.addEventListener('click', () => {
+                notificationModal.classList.remove('hidden');
+                // Fetch latest notifications when opening modal
+                fetchNotifications();
+            });
+
+            closeNotificationModal.addEventListener('click', () => {
+                notificationModal.classList.add('hidden');
+            });
+
+            // Close modal when clicking outside
+            notificationModal.addEventListener('click', (e) => {
+                if (e.target === notificationModal) {
+                    notificationModal.classList.add('hidden');
+                }
+            });
+
+            // Add escape key listener
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !notificationModal.classList.contains('hidden')) {
+                    notificationModal.classList.add('hidden');
+                }
+            });
+        });
+
+        // Update your existing fetchNotifications function to include approve/decline buttons
+        function fetchNotifications() {
+            fetch('fetch_notifications.php')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const container = document.getElementById('notifications-container');
+                const count = document.getElementById('notification-count');
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                count.textContent = data.length;
+                
+                if (data.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 dark:text-gray-400 italic text-center py-4">No pending reservations</p>';
+                    return;
+                }
+
+                container.innerHTML = data.map(notification => `
+                    <div class="bg-blue-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <div class="flex flex-col space-y-3">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-user-clock text-blue-500 text-2xl"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="font-semibold text-gray-800 dark:text-white">
+                                        ${notification.First_Name} ${notification.Last_Name} (${notification.IDNO})
+                                    </p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                                        ${notification.Course} - ${notification.Year_lvl} Year
+                                    </p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                                        Lab ${notification.lab} | PC ${notification.pc} | Purpose: ${notification.purpose}
+                                    </p>
+                                    <p class="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                                        <i class="fas fa-calendar-alt mr-1"></i> ${notification.reservation_date}
+                                        <i class="fas fa-clock ml-2 mr-1"></i> ${notification.formatted_time}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-2">
+                                <button onclick="handleReservation(${notification.reservation_id}, 'approve')" 
+                                    class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                                    <i class="fas fa-check mr-2"></i>Approve
+                                </button>
+                                <button onclick="handleReservation(${notification.reservation_id}, 'decline')" 
+                                    class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                                    <i class="fas fa-times mr-2"></i>Decline
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Error fetching notifications:', error);
+                document.getElementById('notifications-container').innerHTML = 
+                    `<p class="text-red-500 italic text-center py-4">Error loading notifications: ${error.message}</p>`;
+            });
+        }
+
+        // Add new function to handle reservation actions
+        function handleReservation(recordId, action) {
+            fetch('handle_reservation.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=${action}&record_id=${recordId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Refresh notifications after action
+                    fetchNotifications();
+                } else {
+                    console.error('Error:', data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function toggleNav() {
+            document.getElementById('navbarNav').classList.toggle('hidden');
+        }
+
+        // Close nav when clicking outside
+        document.addEventListener('click', function(event) {
+            const nav = document.getElementById('navbarNav');
+            const toggleBtn = document.querySelector('.mobile-menu-button');
+            if (!nav.contains(event.target) && !toggleBtn.contains(event.target)) {
+                nav.classList.add('hidden');
+            }
+        });
+
+        // Dark mode toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const html = document.documentElement;
+            
+            // Check for saved dark mode preference
+            const darkMode = localStorage.getItem('adminDarkMode');
+            if (darkMode === 'enabled') {
+                html.classList.add('dark');
+            }
+            
+            // Toggle dark mode
+            darkModeToggle.addEventListener('click', function() {
+                html.classList.toggle('dark');
+                
+                // Save preference
+                if (html.classList.contains('dark')) {
+                    localStorage.setItem('adminDarkMode', 'enabled');
+                } else {
+                    localStorage.setItem('adminDarkMode', null);
+                }
+            });
+        });
+
+        // Add these new functions for notifications
+        function fetchNotifications() {
+            fetch('fetch_notifications.php')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const container = document.getElementById('notifications-container');
+                const count = document.getElementById('notification-count');
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                count.textContent = data.length;
+                
+                if (data.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 dark:text-gray-400 italic text-center py-4">No pending reservations</p>';
+                    return;
+                }
+
+                container.innerHTML = data.map(notification => `
+                    <div class="bg-blue-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-user-clock text-blue-500 text-2xl"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="font-semibold text-gray-800 dark:text-white">
+                                    ${notification.First_Name} ${notification.Last_Name} (${notification.IDNO})
+                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">
+                                    ${notification.Course} - ${notification.Year_lvl} Year
+                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">
+                                    Lab ${notification.lab} | PC ${notification.pc} | Purpose: ${notification.purpose}
+                                </p>
+                                <p class="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                                    <i class="fas fa-calendar-alt mr-1"></i> ${notification.reservation_date}
+                                    <i class="fas fa-clock ml-2 mr-1"></i> ${notification.formatted_time}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Error fetching notifications:', error);
+                document.getElementById('notifications-container').innerHTML = 
+                    `<p class="text-red-500 italic text-center py-4">Error loading notifications: ${error.message}</p>`;
+            });
+        }
+
+        // Fetch notifications every 30 seconds
+        setInterval(fetchNotifications, 30000);
+        // Initial fetch
+        fetchNotifications();
     </script>
     <style>
     .group:hover .group-hover\:opacity-100 {

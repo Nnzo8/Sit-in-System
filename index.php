@@ -156,9 +156,14 @@ if ($result->num_rows > 0) {
                                 <i class="fas fa-bell"></i>
                                 <span id="notificationCount" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center hidden">0</span>
                             </button>
-                            <div id="notificationDropdown" class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hidden z-50">
+                            <div id="notificationDropdown" class="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-lg hidden z-50">
                                 <div class="p-4">
-                                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Notifications</h3>
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Notifications</h3>
+                                        <button id="closeNotificationButton" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
                                     <div id="notificationList" class="space-y-4 max-h-96 overflow-y-auto">
                                         <!-- Notifications will be inserted here -->
                                     </div>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 07, 2025 at 06:45 PM
+-- Generation Time: May 08, 2025 at 02:04 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -48,16 +48,16 @@ CREATE TABLE `courses` (
   `lab` varchar(50) NOT NULL,
   `schedule` varchar(100) NOT NULL,
   `instructor` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `schedule_image` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `courses`
 --
 
-INSERT INTO `courses` (`id`, `course_name`, `course_code`, `lab`, `schedule`, `instructor`, `created_at`) VALUES
-(6, 'Sysarch', '234124', 'Lab 524', '10:30 AM - 1:00 PM', 'Mr. Salimbangon', '2025-04-21 02:59:06'),
-(8, 'Trends', '246784', 'Lab 530', '7-8AM', 'Mr. Caminade', '2025-05-04 09:34:00');
+INSERT INTO `courses` (`id`, `course_name`, `course_code`, `lab`, `schedule`, `instructor`, `created_at`, `schedule_image`) VALUES
+(11, 'Sysarch', '', 'Lab 526', '9-10 AM', 'Mr Salimbangon', '2025-05-08 11:34:05', 'uploads/schedules/681c96adc2956.jpg');
 
 -- --------------------------------------------------------
 
@@ -82,9 +82,9 @@ CREATE TABLE `direct_sitin` (
 --
 
 INSERT INTO `direct_sitin` (`id`, `IDNO`, `lab_room`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`, `pc_number`) VALUES
-(23, '2323', 'Lab 528', '2025-05-07 23:49:48', '2025-05-07 23:53:25', 'completed', 'ASP.Net', '2025-05-07 15:53:25', 18),
-(24, '2323', 'Lab 542', '2025-05-08 00:09:15', '2025-05-08 00:09:28', 'completed', 'C', '2025-05-07 16:09:28', 12),
-(25, '2323', 'Lab 528', '2025-05-08 00:18:35', '2025-05-08 00:21:10', 'completed', 'C++', '2025-05-07 16:21:10', 15);
+(31, '2323', 'Lab 530', '2025-05-08 19:35:36', '2025-05-08 19:41:58', 'completed', 'ASP.Net', '2025-05-08 11:35:36', 1),
+(32, '11111', 'Lab 526', '2025-05-08 19:58:46', '2025-05-08 19:58:51', 'completed', 'ASP.Net', '2025-05-08 11:58:46', 1),
+(33, '55555', 'Lab 544', '2025-05-08 19:59:04', '2025-05-08 19:59:11', 'completed', 'Python', '2025-05-08 11:59:04', 1);
 
 -- --------------------------------------------------------
 
@@ -103,6 +103,29 @@ CREATE TABLE `feedback` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `lab_resources`
+--
+
+CREATE TABLE `lab_resources` (
+  `id` int(11) NOT NULL,
+  `resource_name` varchar(255) NOT NULL,
+  `resource_code` varchar(50) NOT NULL,
+  `website_url` varchar(255) DEFAULT NULL,
+  `image_path` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `lab_resources`
+--
+
+INSERT INTO `lab_resources` (`id`, `resource_name`, `resource_code`, `website_url`, `image_path`, `created_at`) VALUES
+(1, 'Python', '2234', 'https://www.w3schools.com/python/', 'uploads/resources/681c94991cad9.webp', '2025-05-08 11:25:13'),
+(3, 'AI', '23452', 'https://www.w3schools.com/ai/ai_whatis.asp', 'uploads/resources/681c95de0e955.jpg', '2025-05-08 11:30:38');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `pc_status`
 --
 
@@ -114,19 +137,6 @@ CREATE TABLE `pc_status` (
   `disabled_reason` text DEFAULT NULL,
   `disabled_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `pc_status`
---
-
-INSERT INTO `pc_status` (`id`, `lab_room`, `pc_number`, `is_disabled`, `disabled_reason`, `disabled_at`) VALUES
-(1, 'Lab 528', 1, 0, '', '2025-05-06 09:39:36'),
-(2, 'Lab 526', 3, 0, '', '2025-05-06 09:40:07'),
-(3, 'Lab 526', 2, 0, '', '2025-05-06 09:40:11'),
-(4, 'Lab 528', 2, 0, '', '2025-05-06 09:45:38'),
-(10, 'Lab 524', 2, 1, 'asda', '2025-05-06 09:50:35'),
-(11, 'Lab 524', 3, 0, '', '2025-05-06 09:56:06'),
-(12, 'Lab 524', 4, 0, '', '2025-05-06 10:11:19');
 
 -- --------------------------------------------------------
 
@@ -156,15 +166,10 @@ CREATE TABLE `reservation` (
 --
 
 INSERT INTO `reservation` (`reservation_id`, `reservation_date`, `time_in`, `time_out`, `pc`, `lab`, `purpose`, `IDNO`, `status`, `is_notified`, `created_at`, `updated_at`, `notification_read`, `notification_timestamp`) VALUES
-(7, '2025-05-07', 730, 830, 17, 'Lab 517', 'C', 2323, 'declined', 0, '2025-05-07 16:06:47', '2025-05-07 16:06:52', 1, '2025-05-07 16:06:47'),
-(8, '2025-05-07', 730, 830, 18, 'Lab 542', 'Java', 2323, 'declined', 0, '2025-05-07 16:08:55', '2025-05-07 16:09:01', 1, '2025-05-07 16:08:55'),
-(9, '2025-05-07', 730, 830, 12, 'Lab 542', 'C', 2323, 'approved', 0, '2025-05-07 16:09:11', '2025-05-07 16:09:18', 1, '2025-05-07 16:09:11'),
-(10, '2025-05-07', 730, 830, 15, 'Lab 528', 'C++', 2323, 'approved', 0, '2025-05-07 16:18:28', '2025-05-07 16:18:39', 1, '2025-05-07 16:18:28'),
-(11, '2025-05-07', 730, 830, 16, 'Lab 517', 'C', 2323, 'declined', 0, '2025-05-07 16:21:18', '2025-05-07 16:21:25', 1, '2025-05-07 16:21:18'),
-(12, '2025-05-07', 730, 830, 17, 'Lab 542', 'C#', 2323, 'declined', 0, '2025-05-07 16:24:58', '2025-05-07 16:25:04', 1, '2025-05-07 16:24:58'),
-(13, '2025-05-07', 730, 830, 16, 'Lab 544', 'ASP.Net', 2323, 'declined', 0, '2025-05-07 16:25:21', '2025-05-07 16:25:30', 1, '2025-05-07 16:25:21'),
-(14, '2025-05-07', 730, 830, 18, 'Lab 542', 'Python', 2323, 'declined', 0, '2025-05-07 16:43:45', '2025-05-07 16:43:51', 1, '2025-05-07 16:43:45'),
-(15, '2025-05-07', 730, 830, 18, 'Lab 517', 'ASP.Net', 2323, 'approved', 0, '2025-05-07 16:43:59', '2025-05-07 16:44:04', 1, '2025-05-07 16:43:59');
+(36, '2025-05-08', 730, 830, 8, 'Lab 530', 'ASP.Net', 2323, 'approved', 0, '2025-05-08 11:42:13', '2025-05-08 11:42:33', 1, '2025-05-08 11:42:13'),
+(37, '2025-05-08', 730, 830, 18, 'Lab 542', 'ASP.Net', 44444, 'declined', 0, '2025-05-08 11:58:06', '2025-05-08 11:58:14', 1, '2025-05-08 11:58:06'),
+(38, '2025-05-08', 730, 830, 17, 'Lab 517', 'ASP.Net', 2323, 'approved', 0, '2025-05-08 12:00:22', '2025-05-08 12:00:30', 1, '2025-05-08 12:00:22'),
+(39, '2025-05-08', 730, 830, 17, 'Lab 530', 'C', 2323, 'declined', 0, '2025-05-08 12:01:06', '2025-05-08 12:01:25', 0, '2025-05-08 12:01:06');
 
 -- --------------------------------------------------------
 
@@ -191,10 +196,8 @@ CREATE TABLE `sit_in_records` (
 --
 
 INSERT INTO `sit_in_records` (`id`, `IDNO`, `lab_room`, `pc_number`, `time_in`, `time_out`, `status`, `purpose`, `date_updated`, `is_notified`, `created_at`) VALUES
-(15, '2323', 'Lab 528', 18, '2025-05-07 23:49:48', '2025-05-07 23:53:25', 'completed', 'ASP.Net', '2025-05-07 15:49:48', 0, '2025-05-07 15:49:48'),
-(16, '2323', 'Lab 542', 12, '2025-05-08 00:09:15', '2025-05-08 00:09:28', 'completed', 'C', '2025-05-07 16:09:15', 0, '2025-05-07 16:09:15'),
-(17, '2323', 'Lab 528', 15, '2025-05-08 00:18:35', '2025-05-08 00:21:10', 'completed', 'C++', '2025-05-07 16:18:35', 0, '2025-05-07 16:18:35'),
-(18, '2323', 'Lab 517', 18, '2025-05-08 00:44:02', NULL, 'active', 'ASP.Net', '2025-05-07 16:44:02', 0, '2025-05-07 16:44:02');
+(23, '2323', 'Lab 530', 8, '2025-05-08 19:42:25', '2025-05-08 19:42:38', 'completed', 'ASP.Net', '2025-05-08 11:42:25', 0, '2025-05-08 11:42:25'),
+(24, '2323', 'Lab 517', 17, '2025-05-08 20:00:28', '2025-05-08 20:00:57', 'completed', 'ASP.Net', '2025-05-08 12:00:28', 0, '2025-05-08 12:00:28');
 
 -- --------------------------------------------------------
 
@@ -222,9 +225,11 @@ CREATE TABLE `students` (
 --
 
 INSERT INTO `students` (`StudID`, `IDNO`, `Last_Name`, `First_Name`, `Mid_Name`, `Course`, `Year_lvl`, `Username`, `Password`, `profile_image`, `Email`, `Address`) VALUES
-(1, 2323, 'asdas', 'dasdas', 'dasdas', 'College of Engineering', 1, 'asdasd', '$2y$10$E3lrN9Gylvi2a/wdGIuvSepFpR3Yjwx71kZ8q1oeTYVGPuFsBuKMi', 'uploads/67d94937c06be.png', 'asdas@gmail.com', 'asdasd'),
-(12, 55555, 'Eight', 'Ninzo', 'Dumandan', 'BSIT', 3, 'zxczxc', '$2y$10$xDPjRvdRE6eHNUlQ9NCtIesT1Z7XEQ3gsvWqYSnbuzJPLRZez85bW', 'uploads/680f75f6c2e2d.png', 'egiht@mgail.com', 'asdreghieht'),
-(13, 44444, 'Foure', 'San', 'Men', 'BSHM', 2, 'qweqwe', '$2y$10$FC7qA9Doqso8CqIoV529luKUNcL23Wh0szRx481ml9iRnl6DRJqpK', 'uploads/680f75d175235.jpg', 'asdad@gmail.com', 'asdasdas');
+(1, 2323, 'asdas', 'dasdas', 'dasdas', 'College of Engineering', 1, 'asdasd', '$2y$10$E3lrN9Gylvi2a/wdGIuvSepFpR3Yjwx71kZ8q1oeTYVGPuFsBuKMi', 'uploads/681c97be2ad2a.jpg', 'asdas@gmail.com', 'asdasd'),
+(12, 55555, 'Eight', 'Ninzo', 'Dumandan', 'BSIT', 3, 'zxczxc', '$2y$10$xDPjRvdRE6eHNUlQ9NCtIesT1Z7XEQ3gsvWqYSnbuzJPLRZez85bW', 'uploads/681c98f8025fc.png', 'egiht@mgail.com', 'asdreghieht'),
+(13, 44444, 'Foure', 'San', 'Men', 'BSHM', 2, 'qweqwe', '$2y$10$FC7qA9Doqso8CqIoV529luKUNcL23Wh0szRx481ml9iRnl6DRJqpK', 'uploads/681c990611bcf.jpg', 'asdad@gmail.com', 'asdasdas'),
+(14, 11111, 'Uno', 'One', '', 'BSHM', 2, 'uno', '$2y$10$madTzUurtqW8X7ZX4MG7seJjA5JCsSjRbqnCKYH4NY6WwwrG7O2lS', '', '', ''),
+(15, 22222, 'Duha', 'Dos', '', 'College of Education', 3, 'dos', '$2y$10$nuE4frU14G/yRe2uoZte7.rnkMykTsyahL9mZ55OwPPSoBmYbb48i', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -268,11 +273,13 @@ CREATE TABLE `student_session` (
 --
 
 INSERT INTO `student_session` (`id_number`, `remaining_sessions`) VALUES
-(2323, 16),
-(1111, 23),
+(2323, 27),
+(1111, 30),
 (2222, 30),
-(55555, 30),
-(44444, 30);
+(55555, 29),
+(44444, 30),
+(11111, 29),
+(22222, 30);
 
 --
 -- Indexes for dumped tables
@@ -288,6 +295,12 @@ ALTER TABLE `courses`
 -- Indexes for table `direct_sitin`
 --
 ALTER TABLE `direct_sitin`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `lab_resources`
+--
+ALTER TABLE `lab_resources`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -329,37 +342,43 @@ ALTER TABLE `student_points`
 -- AUTO_INCREMENT for table `courses`
 --
 ALTER TABLE `courses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `direct_sitin`
 --
 ALTER TABLE `direct_sitin`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+
+--
+-- AUTO_INCREMENT for table `lab_resources`
+--
+ALTER TABLE `lab_resources`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `pc_status`
 --
 ALTER TABLE `pc_status`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `reservation`
 --
 ALTER TABLE `reservation`
-  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `reservation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `sit_in_records`
 --
 ALTER TABLE `sit_in_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `StudID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `StudID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `student_points`

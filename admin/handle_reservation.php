@@ -18,6 +18,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $record_id = $_POST['record_id'];
     $student_id = $_POST['student_id'];
 
+    // Add this new condition in your action handling
+    if ($_POST['action'] === 'mark_all_read') {
+        try {
+            $sql = "UPDATE reservation SET status = 'read' WHERE status = 'pending'";
+            if ($conn->query($sql)) {
+                echo json_encode(['status' => 'success']);
+            } else {
+                throw new Exception("Error updating records");
+            }
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+        exit();
+    }
+
     // Start transaction
     $conn->begin_transaction();
 

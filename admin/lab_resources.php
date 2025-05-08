@@ -73,7 +73,21 @@ include '../header.php';
                         <a href="dashboard.php" class="nav-link text-white hover:text-gray-200">Dashboard</a>
                         <a href="search.php" class="nav-link text-white hover:text-gray-200">Search</a>
                         <a href="students.php" class="nav-link text-white hover:text-gray-200">Students</a>
-                        <a href="sitin.php" class="nav-link text-white hover:text-gray-200">Sit-in</a>
+                        <!-- Replace the sitin link with this dropdown -->
+                        <div class="relative group">
+                            <button class="nav-link text-white hover:text-gray-200 flex items-center">
+                                Sit-in
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="py-1 rounded-md bg-white dark:bg-gray-800 shadow-xs">
+                                    <a href="sitin.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Lab Sit-ins</a>
+                                    <a href="sitin_logs.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Sit-in Logs</a>
+                                </div>
+                            </div>
+                        </div>
                         
                         <!-- New Lab Dropdown -->
                         <div class="relative group">
@@ -132,20 +146,280 @@ include '../header.php';
     <div class="max-w-7xl mx-auto py-6 px-4">
         <!-- Dashboard Header -->
         <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Lab Resources</h1>
-        <!-- Courses Section -->
-        <div class="mt-8 mb-8">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Courses Using Lab Resources</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-       
-                <!-- Add Course Card -->
-                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center">
-                    <button onclick="openAddCourseModal()" class="text-gray-500 dark:text-gray-400 hover:text-primary">
-                        <i class="fas fa-plus text-2xl"></i>
-                        <p class="mt-2">Add New Course</p>
-                    </button>
+        
+        <!-- Lab Resources Section -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-white">Lab Resources</h2>
+            </div>
+            <div id="resourcesContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <?php
+                // Connect to database
+                $conn = new mysqli("localhost", "root", "", "users");
+                if ($conn->connect_error) {
+                    die("Connection failed: " . $conn->connect_error);
+                }
+
+                // Fetch resources
+                $sql = "SELECT * FROM lab_resources ORDER BY id DESC";
+                $result = $conn->query($sql);
+
+                if ($result->num_rows > 0) {
+                    while($row = $result->fetch_assoc()) {
+                        echo '<div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">';
+                        // Image section
+                        if ($row['image_path']) {
+                            echo '<div class="h-48 w-full overflow-hidden">';
+                            echo '<img src="../' . htmlspecialchars($row['image_path']) . '" 
+                                      alt="' . htmlspecialchars($row['resource_name']) . '" 
+                                      class="w-full h-full object-cover">';
+                            echo '</div>';
+                        } else {
+                            echo '<div class="h-48 w-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">';
+                            echo '<i class="fas fa-image text-4xl text-gray-400 dark:text-gray-500"></i>';
+                            echo '</div>';
+                        }
+                        // Details section
+                        echo '<div class="p-4">';
+                        echo '<h3 class="text-lg font-semibold text-gray-800 dark:text-white">' . 
+                             htmlspecialchars($row['resource_name']) . '</h3>';
+                        echo '<p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Code: ' . 
+                             htmlspecialchars($row['resource_code']) . '</p>';
+                        if ($row['website_url']) {
+                            echo '<a href="' . htmlspecialchars($row['website_url']) . '" 
+                                    target="_blank" 
+                                    class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm mt-2 inline-block">
+                                    <i class="fas fa-external-link-alt mr-1"></i>Visit Website
+                                 </a>';
+                        }
+                        // Edit and Delete buttons
+                        echo '<div class="flex justify-end gap-2 mt-4">';
+                        echo '<button onclick="editResource(' . $row['id'] . ')" 
+                                class="text-blue-600 hover:text-blue-800 dark:text-blue-400">
+                                <i class="fas fa-edit"></i>
+                              </button>';
+                        echo '<button onclick="deleteResource(' . $row['id'] . ')" 
+                                class="text-red-600 hover:text-red-800 dark:text-red-400">
+                                <i class="fas fa-trash"></i>
+                              </button>';
+                        echo '</div>';
+                        echo '</div>'; // Close details section
+                        echo '</div>'; // Close card
+                    }
+                }
+                $conn->close();
+                ?>
+                <!-- Add Resource Card -->
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" onclick="openAddResourceModal()">
+                    <div class="text-center">
+                        <i class="fas fa-plus text-2xl text-gray-500 dark:text-gray-400"></i>
+                        <p class="mt-2 text-gray-500 dark:text-gray-400">Add New Resource</p>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Add Resource Modal -->
+        <div id="addResourceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+                <div class="mt-3">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Add Lab Resource</h3>
+                    <form id="addResourceForm" enctype="multipart/form-data">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Resource Name</label>
+                                <input type="text" name="resource_name" required
+                                    class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Resource Code</label>
+                                <input type="text" name="resource_code" required
+                                    class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Website URL</label>
+                                <input type="url" name="website_url" required
+                                    class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    placeholder="https://example.com">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Resource Image</label>
+                                <input type="file" name="image" accept="image/*"
+                                    class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/80">
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-4 mt-6">
+                            <button type="button" onclick="closeAddResourceModal()"
+                                class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Cancel</button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Add Resource</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Resource Modal -->
+        <div id="editResourceModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+                <div class="mt-3">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Edit Lab Resource</h3>
+                    <form id="editResourceForm" enctype="multipart/form-data">
+                        <input type="hidden" id="editResourceId" name="id">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Resource Name</label>
+                                <input type="text" id="editResourceName" name="resource_name" required
+                                    class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Resource Code</label>
+                                <input type="text" id="editResourceCode" name="resource_code" required
+                                    class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Website URL</label>
+                                <input type="url" id="editWebsiteUrl" name="website_url" required
+                                    class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    placeholder="https://example.com">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Update Image</label>
+                                <input type="file" name="image" accept="image/*"
+                                    class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/80">
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-4 mt-6">
+                            <button type="button" onclick="closeEditResourceModal()"
+                                class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Cancel</button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add this before existing script tags -->
+        <script>
+            function openAddResourceModal() {
+                document.getElementById('addResourceModal').classList.remove('hidden');
+            }
+
+            function closeAddResourceModal() {
+                document.getElementById('addResourceModal').classList.add('hidden');
+            }
+
+            document.getElementById('addResourceForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                formData.append('action', 'add');
+
+                fetch('lab_resource_operations.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Resource added successfully!');
+                        closeAddResourceModal();
+                        location.reload();
+                    } else {
+                        alert('Error adding resource: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
+                });
+            });
+
+            // Close modal when clicking outside
+            document.getElementById('addResourceModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeAddResourceModal();
+                }
+            });
+
+            function editResource(id) {
+                fetch('lab_resource_operations.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=get&id=${id}`
+                })
+                .then(response => response.json())
+                .then(resource => {
+                    document.getElementById('editResourceId').value = resource.id;
+                    document.getElementById('editResourceName').value = resource.resource_name;
+                    document.getElementById('editResourceCode').value = resource.resource_code;
+                    document.getElementById('editWebsiteUrl').value = resource.website_url;
+                    document.getElementById('editResourceModal').classList.remove('hidden');
+                });
+            }
+
+            function closeEditResourceModal() {
+                document.getElementById('editResourceModal').classList.add('hidden');
+            }
+
+            document.getElementById('editResourceForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                formData.append('action', 'edit');
+
+                fetch('lab_resource_operations.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Resource updated successfully!');
+                        closeEditResourceModal();
+                        location.reload();
+                    } else {
+                        alert('Error updating resource: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
+                });
+            });
+
+            function deleteResource(id) {
+                if (confirm('Are you sure you want to delete this resource?')) {
+                    fetch('lab_resource_operations.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `action=delete&id=${id}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error deleting resource: ' + (data.message || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error);
+                    });
+                }
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('editResourceModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeEditResourceModal();
+                }
+            });
+        </script>
+
+      
 
         <!-- PC Status Monitor Section -->
         <div class="mt-8">
@@ -187,301 +461,11 @@ include '../header.php';
     </div>
 </div>
 
-    <!-- Add Course Modal -->
-    <div id="addCourseModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
-            <div class="mt-3">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Add New Course</h3>
-                <form id="addCourseForm">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="courseName">
-                            Course Name
-                        </label>
-                        <input type="text" id="courseName" name="courseName" required
-                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="courseCode">
-                            Course Code
-                        </label>
-                        <input type="text" id="courseCode" name="courseCode" required
-                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="lab">
-                            Lab
-                        </label>
-                        <select id="lab" name="lab" required
-                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="">Select a Lab</option>
-                            <option value="Lab 524">Lab 524</option>
-                            <option value="Lab 526">Lab 526</option>
-                            <option value="Lab 528">Lab 528</option>
-                            <option value="Lab 530">Lab 530</option>
-                            <option value="Lab 542">Lab 542</option>
-                            <option value="Lab 544">Lab 544</option>
-                            <option value="Lab 517">Lab 517</option>
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="schedule">
-                            Schedule
-                        </label>
-                        <input type="text" id="schedule" name="schedule" required
-                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="instructor">
-                            Instructor
-                        </label>
-                        <input type="text" id="instructor" name="instructor" required
-                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    </div>
-                    <div class="flex justify-end gap-4">
-                        <button type="button" onclick="closeAddCourseModal()"
-                            class="px-4 py-2 bg-red-500 text-white-700 rounded hover:bg-gray-400">Cancel</button>
-                        <button type="submit"
-                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Add Course</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Course Modal -->
-    <div id="editCourseModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
-            <div class="mt-3">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Edit Course</h3>
-                <form id="editCourseForm">
-                    <input type="hidden" id="editCourseId">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editCourseName">
-                            Course Name
-                        </label>
-                        <input type="text" id="editCourseName" name="courseName" required
-                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    </div>
-                    <!-- Same fields as add form but with edit prefix -->
-                    <div class="mb-4">
-                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editCourseCode">
-                            Course Code
-                        </label>
-                        <input type="text" id="editCourseCode" name="courseCode" required
-                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editLab">
-                            Lab
-                        </label>
-                        <select id="editLab" name="lab" required
-                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="">Select a Lab</option>
-                            <option value="Lab 524">Lab 524</option>
-                            <option value="Lab 526">Lab 526</option>
-                            <option value="Lab 528">Lab 528</option>
-                            <option value="Lab 530">Lab 530</option>
-                            <option value="Lab 542">Lab 542</option>
-                            <option value="Lab 544">Lab 544</option>
-                            <option value="Lab 517">Lab 517</option>
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editSchedule">
-                            Schedule
-                        </label>
-                        <input type="text" id="editSchedule" name="schedule" required
-                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="editInstructor">
-                            Instructor
-                        </label>
-                        <input type="text" id="editInstructor" name="instructor" required
-                            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    </div>
-                    <div class="flex justify-end gap-4">
-                        <button type="button" onclick="closeEditCourseModal()"
-                            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Cancel</button>
-                        <button type="submit"
-                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Mobile navigation toggle function
         function toggleNav() {
             const navbarNav = document.getElementById('navbarNav');
             navbarNav.classList.toggle('hidden');
-        }
-
-    
-
-        // Modal functions
-        function openAddCourseModal() {
-            document.getElementById('addCourseModal').classList.remove('hidden');
-        }
-
-        function closeAddCourseModal() {
-            document.getElementById('addCourseModal').classList.add('hidden');
-        }
-
-        function openEditCourseModal() {
-            document.getElementById('editCourseModal').classList.remove('hidden');
-        }
-
-        function closeEditCourseModal() {
-            document.getElementById('editCourseModal').classList.add('hidden');
-        }
-
-        // Form submission for adding course
-        document.getElementById('addCourseForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            formData.append('action', 'add');
-            
-            fetch('course_operations.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Course added successfully!');
-                    closeAddCourseModal();
-                    loadCourses();
-                    this.reset();
-                } else {
-                    alert('Error adding course: ' + (data.message || 'Unknown error'));
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-                console.error('Error:', error);
-            });
-        });
-
-        // Load courses from database
-        function loadCourses() {
-            fetch('course_operations.php')
-                .then(response => response.json())
-                .then(courses => {
-                    const coursesContainer = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-3');
-                    let coursesHTML = '';
-
-                    courses.forEach(course => {
-                        coursesHTML += `
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-700 dark:text-white">${course.course_name}</h3>
-                                        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: ${course.course_code}</p>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button onclick="editCourse(${course.id})" class="text-blue-500 hover:text-blue-700">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button onclick="deleteCourse(${course.id})" class="text-red-500 hover:text-red-700">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="mt-4">
-                                    <p class="text-sm text-gray-600 dark:text-gray-300">Lab: ${course.lab}</p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: ${course.schedule}</p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: ${course.instructor}</p>
-                                </div>
-                            </div>
-                        `;
-                    });
-
-                    // Add the "Add Course" card
-                    coursesHTML += `
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center">
-                            <button onclick="openAddCourseModal()" class="text-gray-500 dark:text-gray-400 hover:text-primary">
-                                <i class="fas fa-plus text-2xl"></i>
-                                <p class="mt-2">Add New Course</p>
-                            </button>
-                        </div>
-                    `;
-
-                    coursesContainer.innerHTML = coursesHTML;
-                });
-        }
-
-        // Load courses when page loads
-        document.addEventListener('DOMContentLoaded', loadCourses);
-
-        // Edit course functions
-        function editCourse(id) {
-            fetch('course_operations.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `action=get&id=${id}`
-            })
-            .then(response => response.json())
-            .then(course => {
-                document.getElementById('editCourseId').value = course.id;
-                document.getElementById('editCourseName').value = course.course_name;
-                document.getElementById('editCourseCode').value = course.course_code;
-                document.getElementById('editLab').value = course.lab;
-                document.getElementById('editSchedule').value = course.schedule;
-                document.getElementById('editInstructor').value = course.instructor;
-                document.getElementById('editCourseModal').classList.remove('hidden');
-            });
-        }
-
-        // Edit Course Form Submission
-        document.getElementById('editCourseForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            formData.append('action', 'edit');
-            formData.append('id', document.getElementById('editCourseId').value);
-            
-            fetch('course_operations.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Course updated successfully!');
-                    closeEditCourseModal();
-                    loadCourses();
-                } else {
-                    alert('Error updating course: ' + (data.message || 'Unknown error'));
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-                console.error('Error:', error);
-            });
-        });
-
-        // Delete course function
-        function deleteCourse(id) {
-            if (confirm('Are you sure you want to delete this course?')) {
-                fetch('course_operations.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=delete&id=${id}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        loadCourses();
-                    }
-                });
-            }
         }
 
          // Add this after your existing scripts

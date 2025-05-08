@@ -44,15 +44,26 @@ LEFT JOIN student_session ss ON r.IDNO = ss.id_number
 WHERE r.status = 'pending'
 ORDER BY r.reservation_date ASC, r.time_in ASC";
 
-// Modified query to only fetch from sit_in_records table
+// Modified query to fetch from both sit_in_records and direct_sitin tables
 $active_sql = "
-    SELECT sr.id, sr.IDNO, sr.lab_room, sr.time_in, sr.purpose, 
+    SELECT sr.id, sr.IDNO, sr.lab_room, sr.time_in, sr.purpose, sr.pc_number,
            s.First_Name, s.Last_Name, s.Course, s.Year_lvl,
-           ss.remaining_sessions
+           ss.remaining_sessions,
+           'sit_in_records' as source_table
     FROM sit_in_records sr
     JOIN students s ON sr.IDNO = s.IDNO
     LEFT JOIN student_session ss ON sr.IDNO = ss.id_number
     WHERE sr.status = 'active'
+    UNION ALL
+    SELECT d.id, d.IDNO, d.lab_room, d.time_in, d.purpose, d.pc_number,
+           s.First_Name, s.Last_Name, s.Course, s.Year_lvl,
+           ss.remaining_sessions,
+           'direct_sitin' as source_table
+    FROM direct_sitin d
+    JOIN students s ON d.IDNO = s.IDNO
+    LEFT JOIN student_session ss ON d.IDNO = ss.id_number
+    WHERE d.status = 'active'
+    ORDER BY time_in DESC
 ";
 
 $active_result = $conn->query($active_sql);
@@ -74,67 +85,60 @@ $lab_room_count = array_count_values($lab_rooms);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
     $record_id = $_POST['record_id'];
+    $table = $_POST['table']; // Get the source table
     
     // Start transaction
     $conn->begin_transaction();
 
     try {
-        // Fetch the reservation details from sit_in_records
-        $fetch_sql = "SELECT * FROM sit_in_records WHERE id = ?";
-        $stmt = $conn->prepare($fetch_sql);
-        $stmt->bind_param('i', $record_id);
-        $stmt->execute();
-        $reservation_details = $stmt->get_result()->fetch_assoc();
-
-        if ($reservation_details) {
-            $time_out = date('Y-m-d H:i:s');
-            
-            // Update status to completed in sit_in_records
-            $update_sql = "UPDATE sit_in_records SET time_out = ?, status = 'completed' WHERE id = ?";
+        $time_out = date('Y-m-d H:i:s');
+        
+        if ($table === 'direct_sitin') {
+            // Update direct_sitin table
+            $update_sql = "UPDATE direct_sitin SET time_out = ?, status = 'completed' WHERE id = ?";
             $stmt = $conn->prepare($update_sql);
             $stmt->bind_param('si', $time_out, $record_id);
             $stmt->execute();
 
-            // Insert into direct_sitin
-            $insert_sql = "INSERT INTO direct_sitin (IDNO, lab_room, time_in, time_out, status, purpose, pc_number) 
-                          VALUES (?, ?, ?, ?, 'completed', ?, ?)";
-            $stmt2 = $conn->prepare($insert_sql);
-            $stmt2->bind_param('sssssi', 
-                $reservation_details['IDNO'],
-                $reservation_details['lab_room'],
-                $reservation_details['time_in'],
-                $time_out,
-                $reservation_details['purpose'],
-                $reservation_details['pc_number']
-            );
-            $stmt2->execute();
+            // Get the student details for session update
+            $fetch_sql = "SELECT IDNO FROM direct_sitin WHERE id = ?";
+            $stmt = $conn->prepare($fetch_sql);
+            $stmt->bind_param('i', $record_id);
+            $stmt->execute();
+            $student_id = $stmt->get_result()->fetch_assoc()['IDNO'];
+        } else {
+            // Original sit_in_records logic
+            $fetch_sql = "SELECT * FROM sit_in_records WHERE id = ?";
+            $stmt = $conn->prepare($fetch_sql);
+            $stmt->bind_param('i', $record_id);
+            $stmt->execute();
+            $reservation_details = $stmt->get_result()->fetch_assoc();
 
-            // Update remaining sessions
+            if ($reservation_details) {
+                // Update status to completed in sit_in_records
+                $update_sql = "UPDATE sit_in_records SET time_out = ?, status = 'completed' WHERE id = ?";
+                $stmt = $conn->prepare($update_sql);
+                $stmt->bind_param('si', $time_out, $record_id);
+                $stmt->execute();
+                
+                $student_id = $reservation_details['IDNO'];
+            }
+        }
+
+        // Update remaining sessions for both types
+        if (isset($student_id)) {
             $update_sessions = "UPDATE student_session SET remaining_sessions = remaining_sessions - 1 
                               WHERE id_number = ? AND remaining_sessions > 0";
-            $stmt3 = $conn->prepare($update_sessions);
-            $stmt3->bind_param('s', $reservation_details['IDNO']);
-            $stmt3->execute();
-
-            $conn->commit();
-
-            // Format time for display
-            $formatted_time_out = date('g:i A', strtotime($time_out));
-
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'Student timed out successfully.',
-                'data' => [
-                    'IDNO' => $reservation_details['IDNO'],
-                    'lab_room' => $reservation_details['lab_room'],
-                    'purpose' => $reservation_details['purpose'],
-                    'time_in' => date('g:i A', strtotime($reservation_details['time_in'])),
-                    'time_out' => $formatted_time_out
-                ]
-            ]);
-        } else {
-            throw new Exception('Record not found');
+            $stmt = $conn->prepare($update_sessions);
+            $stmt->bind_param('s', $student_id);
+            $stmt->execute();
         }
+
+        $conn->commit();
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Student timed out successfully.'
+        ]);
     } catch (Exception $e) {
         $conn->rollback();
         echo json_encode([
@@ -189,7 +193,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                         <a href="dashboard.php" class="nav-link text-white hover:text-gray-200">Dashboard</a>
                         <a href="search.php" class="nav-link text-white hover:text-gray-200">Search</a>
                         <a href="students.php" class="nav-link text-white hover:text-gray-200">Students</a>
-                        <a href="sitin.php" class="nav-link text-white hover:text-gray-200">Sit-in</a>
+                       <!-- Replace the sitin link with this dropdown -->
+                       <div class="relative group">
+                            <button class="nav-link text-white hover:text-gray-200 flex items-center">
+                                Sit-in
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="py-1 rounded-md bg-white dark:bg-gray-800 shadow-xs">
+                                    <a href="sitin.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Lab Sit-ins</a>
+                                    <a href="sitin_logs.php" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Sit-in Logs</a>
+                                </div>
+                            </div>
+                        </div>
                         
                         <!-- New Lab Dropdown -->
                         <div class="relative group">
@@ -476,7 +494,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                             <?php 
                             $active_result->data_seek(0);
                             while ($row = $active_result->fetch_assoc()): 
-                                $table = isset($row['pc_number']) ? 'sit_in_records' : 'direct_sitin'; // Determine table
+                                $source_table = $row['source_table'];
                             ?>
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700" id="student-row-<?= $row['id'] ?>">
                                     <td class="px-6 py-4">
@@ -492,7 +510,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout_student'])) {
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
-                                        <form class="flex gap-2 timeout-form" data-id="<?= $row['id'] ?>" data-table="<?= $table ?>">
+                                        <form class="flex gap-2 timeout-form" data-id="<?= $row['id'] ?>" data-table="<?= $source_table ?>">
                                             <button type="button" 
                                                     class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 flex items-center timeout-button">
                                                 <i class="fas fa-sign-out-alt mr-1"></i> Timeout
