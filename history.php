@@ -249,8 +249,7 @@ $history_result = $stmt->get_result();
 <div id="feedbackModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
     <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-96">
         <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Submit Feedback</h2>
-        <form id="feedbackForm" action="submit_feedback.php" method="POST">
-            <input type="hidden" id="feedbackIdno" name="idno">
+        <form id="feedbackForm" action="submit_feedback.php" method="POST">            <input type="hidden" id="feedbackIdno" name="idno">
             <input type="hidden" id="feedbackLab" name="lab">
             <input type="hidden" name="date" value="<?= date('Y-m-d') ?>">
             
@@ -286,7 +285,8 @@ $history_result = $stmt->get_result();
     </div>
 </div>
 
-<!-- Add this script before the closing body tag -->
+
+
 <script>
 function toggleNav() {
     document.getElementById('navbarNav').classList.toggle('show');
@@ -298,20 +298,14 @@ function closeNav() {
     document.querySelector('.nav-overlay').classList.remove('show');
 }
 
-// Close nav when clicking outside
-document.addEventListener('click', function(event) {
-    const nav = document.getElementById('navbarNav');
-    const toggleBtn = document.querySelector('.navbar-toggler');
-    if (!nav.contains(event.target) && !toggleBtn.contains(event.target)) {
-        closeNav();
-    }
-});
-
 function openFeedbackModal(idno, lab) {
     document.getElementById('feedbackModal').classList.remove('hidden');
     document.getElementById('feedbackModal').classList.add('flex');
     document.getElementById('feedbackIdno').value = idno;
     document.getElementById('feedbackLab').value = lab;
+    
+    // Reset form
+    document.getElementById('feedbackForm').reset();
 }
 
 function closeFeedbackModal() {
@@ -335,6 +329,21 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             localStorage.setItem('userDarkMode', null);
         }
+    });    // Add form submission handler
+    const feedbackForm = document.getElementById('feedbackForm');
+    feedbackForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate form
+        const message = document.getElementById('message').value.trim();
+        
+        if (!message) {
+            alert('Please enter your feedback');
+            return;
+        }
+        
+        // Submit form
+        this.submit();
     });
 });
 </script>

@@ -16,12 +16,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $idno = $_POST['idno'];
     $lab = $_POST['lab'];
     $message = $_POST['message'];
-    $rating = (int)$_POST['rating'];
-    $date = $_POST['date'];
-
-    $sql = "INSERT INTO feedback (IDNO, lab_room, message, rating, date) VALUES (?, ?, ?, ?, ?)";
+    $date = $_POST['date'];    $sql = "INSERT INTO feedback (IDNO, lab, message, date) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssis", $idno, $lab, $message, $rating, $date);
+    $stmt->bind_param("ssss", $idno, $lab, $message, $date);
 
     if ($stmt->execute()) {
         header("Location: history.php?status=success");

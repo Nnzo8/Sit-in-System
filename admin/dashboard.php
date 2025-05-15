@@ -107,6 +107,7 @@ if (isset($_POST['submit_announcement'])) {
     if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
         $message = trim($_POST['announcement_text']);
         $admin_username = ADMIN_USERNAME; // Changed from admin to ADMIN_USERNAME constant
+        date_default_timezone_set('Asia/Manila'); // Set timezone to Philippines
         $date = date('Y-m-d');
         $time = date('H:i:s'); // Current time
         
@@ -440,8 +441,10 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                                 <div class="border-b border-gray-200 pb-4">
                                     <p class="text-gray-600 text-sm">
                                         CCS Admin | <?php 
-                                            echo date('F d, Y', strtotime($announcement['date'])) . ' at ' . 
-                                            date('h:i A', strtotime($announcement['time'])); 
+                                            date_default_timezone_set('Asia/Manila');
+                                            $datetime = strtotime($announcement['date'] . ' ' . $announcement['time']);
+                                            echo date('F d, Y', $datetime) . ' at ' . 
+                                                 date('h:i A', $datetime); 
                                         ?>
                                     </p>
                                     <p class="mt-1"><?php echo htmlspecialchars($announcement['message']); ?></p>
@@ -586,45 +589,62 @@ $total_sitins = $result->fetch_assoc()['total_count'];
             });
         });
 
-        function toggleNav() {
-            document.getElementById('navbarNav').classList.toggle('hidden');
-        }
-
-        // Close nav when clicking outside
-        document.addEventListener('click', function(event) {
-            const nav = document.getElementById('navbarNav');
-            const toggleBtn = document.querySelector('.mobile-menu-button');
-            if (!nav.contains(event.target) && !toggleBtn.contains(event.target)) {
-                nav.classList.add('hidden');
-            }
-        });
-
-        // Dark mode toggle functionality
+        // Single document ready handler for all initializations
         document.addEventListener('DOMContentLoaded', function() {
+            // Dark mode initialization
             const darkModeToggle = document.getElementById('darkModeToggle');
             const html = document.documentElement;
             
             // Check for saved dark mode preference
-            const darkMode = localStorage.getItem('adminDarkMode');
-            if (darkMode === 'enabled') {
+            if (localStorage.getItem('adminDarkMode') === 'enabled') {
                 html.classList.add('dark');
+                updateDarkModeIcons(true);
             }
             
             // Toggle dark mode
             darkModeToggle.addEventListener('click', function() {
-                html.classList.toggle('dark');
-                
-                // Save preference
-                if (html.classList.contains('dark')) {
-                    localStorage.setItem('adminDarkMode', 'enabled');
-                } else {
-                    localStorage.setItem('adminDarkMode', null);
-                }
+                const isDarkMode = html.classList.toggle('dark');
+                localStorage.setItem('adminDarkMode', isDarkMode ? 'enabled' : null);
+                updateDarkModeIcons(isDarkMode);
             });
+
+            // Initialize other components
+            initializeNotifications();
+            initializeNavigation();
         });
 
-        // Add this right after your existing document.ready function
-        document.addEventListener('DOMContentLoaded', function() {
+        function updateDarkModeIcons(isDarkMode) {
+            const sunIcon = darkModeToggle.querySelector('.dark\\:block');
+            const moonIcon = darkModeToggle.querySelector('.block');
+            
+            if (isDarkMode) {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        }
+
+        function initializeNavigation() {
+            const nav = document.getElementById('navbarNav');
+            const toggleBtn = document.querySelector('.mobile-menu-button');
+
+            // Toggle nav
+            toggleBtn?.addEventListener('click', () => {
+                nav.classList.toggle('hidden');
+            });
+
+            // Close nav when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!nav.contains(event.target) && !toggleBtn.contains(event.target)) {
+                    nav.classList.add('hidden');
+                }
+            });
+        }
+
+        function initializeNotifications() {
+            // Add this right after your existing document.ready function
             const notificationBell = document.getElementById('notificationBell');
             const notificationModal = document.getElementById('notificationModal');
             const closeNotificationModal = document.getElementById('closeNotificationModal');
@@ -652,7 +672,7 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                     notificationModal.classList.add('hidden');
                 }
             });
-        });
+        }
 
         // Update your existing fetchNotifications function to include approve/decline buttons
         function fetchNotifications() {
@@ -741,99 +761,6 @@ $total_sitins = $result->fetch_assoc()['total_count'];
                 }
             })
             .catch(error => console.error('Error:', error));
-        }
-
-        function toggleNav() {
-            document.getElementById('navbarNav').classList.toggle('hidden');
-        }
-
-        // Close nav when clicking outside
-        document.addEventListener('click', function(event) {
-            const nav = document.getElementById('navbarNav');
-            const toggleBtn = document.querySelector('.mobile-menu-button');
-            if (!nav.contains(event.target) && !toggleBtn.contains(event.target)) {
-                nav.classList.add('hidden');
-            }
-        });
-
-        // Dark mode toggle functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const html = document.documentElement;
-            
-            // Check for saved dark mode preference
-            const darkMode = localStorage.getItem('adminDarkMode');
-            if (darkMode === 'enabled') {
-                html.classList.add('dark');
-            }
-            
-            // Toggle dark mode
-            darkModeToggle.addEventListener('click', function() {
-                html.classList.toggle('dark');
-                
-                // Save preference
-                if (html.classList.contains('dark')) {
-                    localStorage.setItem('adminDarkMode', 'enabled');
-                } else {
-                    localStorage.setItem('adminDarkMode', null);
-                }
-            });
-        });
-
-        // Add these new functions for notifications
-        function fetchNotifications() {
-            fetch('fetch_notifications.php')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                const container = document.getElementById('notifications-container');
-                const count = document.getElementById('notification-count');
-                
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
-                count.textContent = data.length;
-                
-                if (data.length === 0) {
-                    container.innerHTML = '<p class="text-gray-500 dark:text-gray-400 italic text-center py-4">No pending reservations</p>';
-                    return;
-                }
-
-                container.innerHTML = data.map(notification => `
-                    <div class="bg-blue-50 dark:bg-gray-700 p-4 rounded-lg">
-                        <div class="flex items-center space-x-4">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-user-clock text-blue-500 text-2xl"></i>
-                            </div>
-                            <div class="flex-grow">
-                                <p class="font-semibold text-gray-800 dark:text-white">
-                                    ${notification.First_Name} ${notification.Last_Name} (${notification.IDNO})
-                                </p>
-                                <p class="text-sm text-gray-600 dark:text-gray-300">
-                                    ${notification.Course} - ${notification.Year_lvl} Year
-                                </p>
-                                <p class="text-sm text-gray-600 dark:text-gray-300">
-                                    Lab ${notification.lab} | PC ${notification.pc} | Purpose: ${notification.purpose}
-                                </p>
-                                <p class="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                                    <i class="fas fa-calendar-alt mr-1"></i> ${notification.reservation_date}
-                                    <i class="fas fa-clock ml-2 mr-1"></i> ${notification.formatted_time}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            })
-            .catch(error => {
-                console.error('Error fetching notifications:', error);
-                document.getElementById('notifications-container').innerHTML = 
-                    `<p class="text-red-500 italic text-center py-4">Error loading notifications: ${error.message}</p>`;
-            });
         }
 
         // Fetch notifications every 30 seconds
