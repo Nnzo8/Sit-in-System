@@ -52,6 +52,78 @@ if (isset($_POST['add_schedule'])) {
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
+// Handle edit schedule form submission
+if (isset($_POST['edit_schedule'])) {
+    $schedule_id = $_POST['schedule_id'];
+    $lab_room = $_POST['lab_room'];
+    $course_name = $_POST['course_name'];
+    $schedule = $_POST['schedule'];
+    $instructor = $_POST['instructor'];
+    
+    // Database connection
+    $conn = new mysqli("localhost", "root", "", "users");
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    
+    // Handle file upload for edit
+    $image_path = null;
+    $update_image = false;
+    
+    if (isset($_FILES['schedule_image']) && $_FILES['schedule_image']['error'] == 0) {
+        $target_dir = "../uploads/schedules/";
+        if (!file_exists($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+        
+        $file_extension = strtolower(pathinfo($_FILES["schedule_image"]["name"], PATHINFO_EXTENSION));
+        $file_name = uniqid() . '.' . $file_extension;
+        $target_file = $target_dir . $file_name;
+        
+        if (move_uploaded_file($_FILES["schedule_image"]["tmp_name"], $target_file)) {
+            $image_path = 'uploads/schedules/' . $file_name;  // Store relative path
+            $update_image = true;
+        }
+    }
+    
+    // SQL statement depends on whether we're updating the image
+    if ($update_image) {
+        // Get old image path to delete it
+        $old_image_sql = "SELECT schedule_image FROM courses WHERE id = ?";
+        $old_stmt = $conn->prepare($old_image_sql);
+        $old_stmt->bind_param("i", $schedule_id);
+        $old_stmt->execute();
+        $old_result = $old_stmt->get_result();
+        if ($old_row = $old_result->fetch_assoc()) {
+            $old_image = $old_row['schedule_image'];
+            if ($old_image && file_exists("../" . $old_image)) {
+                unlink("../" . $old_image);
+            }
+        }
+        $old_stmt->close();
+        
+        $sql = "UPDATE courses SET lab = ?, course_name = ?, schedule = ?, instructor = ?, schedule_image = ? WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sssssi", $lab_room, $course_name, $schedule, $instructor, $image_path, $schedule_id);
+    } else {
+        $sql = "UPDATE courses SET lab = ?, course_name = ?, schedule = ?, instructor = ? WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssssi", $lab_room, $course_name, $schedule, $instructor, $schedule_id);
+    }
+    
+    if ($stmt->execute()) {
+        $_SESSION['success_message'] = "Schedule updated successfully!";
+    } else {
+        $_SESSION['error_message'] = "Error updating schedule: " . $stmt->error;
+    }
+    
+    $stmt->close();
+    $conn->close();
+    
+    // Redirect to prevent form resubmission
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
 
 include '../header.php';
 ?>

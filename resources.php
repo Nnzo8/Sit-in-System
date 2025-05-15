@@ -18,12 +18,12 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Get courses from the database
-$sql = "SELECT * FROM courses ORDER BY course_name";
+// Get lab resources from the database instead of courses
+$sql = "SELECT * FROM lab_resources ORDER BY resource_name";
 $result = $conn->query($sql);
 
 if (!$result) {
-    die("Error fetching courses: " . $conn->error);
+    die("Error fetching resources: " . $conn->error);
 }
 ?>
 
@@ -140,28 +140,44 @@ if (!$result) {
     </nav>
     <body class="bg-gray-100">
     <div class="container mx-auto px-4 py-8">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Available Lab Courses</h2>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Lab Resources</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <?php
             if ($result->num_rows > 0) {
-                while($course = $result->fetch_assoc()) {
-                    echo '<div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-700 dark:text-white">'.htmlspecialchars($course['course_name']).'</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Course Code: '.htmlspecialchars($course['course_code']).'</p>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Lab: '.htmlspecialchars($course['lab']).'</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Schedule: '.htmlspecialchars($course['schedule']).'</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">Instructor: '.htmlspecialchars($course['instructor']).'</p>
-                        </div>
-                    </div>';
+                while($resource = $result->fetch_assoc()) {
+                    echo '<div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">';
+                    
+                    // Display resource image if available
+                    if (!empty($resource['image_path'])) {
+                        echo '<div class="h-48 w-full overflow-hidden mb-4">';
+                        echo '<img src="' . htmlspecialchars($resource['image_path']) . '" 
+                                alt="' . htmlspecialchars($resource['resource_name']) . '" 
+                                class="w-full h-full object-cover">';
+                        echo '</div>';
+                    }
+                    
+                    echo '<div class="flex justify-between items-start">';
+                    echo '<div>';
+                    echo '<h3 class="text-lg font-semibold text-gray-700 dark:text-white">' . htmlspecialchars($resource['resource_name']) . '</h3>';
+                    echo '<p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Resource Code: ' . htmlspecialchars($resource['resource_code']) . '</p>';
+                    echo '</div>';
+                    echo '</div>';
+                    
+                    // Website link if available
+                    if (!empty($resource['website_url'])) {
+                        echo '<div class="mt-4">';
+                        echo '<a href="' . htmlspecialchars($resource['website_url']) . '" target="_blank" 
+                                class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fas fa-external-link-alt mr-1"></i>Visit Website
+                              </a>';
+                        echo '</div>';
+                    }
+                    
+                    echo '</div>';
                 }
             } else {
-                echo '<p class="col-span-3 text-center text-gray-500 dark:text-gray-400">No courses available at the moment.</p>';
+                echo '<p class="col-span-3 text-center text-gray-500 dark:text-gray-400">No resources available at the moment.</p>';
             }
             ?>
         </div>
@@ -218,3 +234,4 @@ if (!$result) {
     </script>
 </body>
 </html>
+        
