@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 08, 2025 at 02:04 PM
+-- Generation Time: May 15, 2025 at 01:03 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -47,6 +47,7 @@ CREATE TABLE `courses` (
   `course_code` varchar(50) NOT NULL,
   `lab` varchar(50) NOT NULL,
   `schedule` varchar(100) NOT NULL,
+  `schedule_end` time DEFAULT NULL,
   `instructor` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `schedule_image` varchar(255) DEFAULT NULL
@@ -56,8 +57,8 @@ CREATE TABLE `courses` (
 -- Dumping data for table `courses`
 --
 
-INSERT INTO `courses` (`id`, `course_name`, `course_code`, `lab`, `schedule`, `instructor`, `created_at`, `schedule_image`) VALUES
-(11, 'Sysarch', '', 'Lab 526', '9-10 AM', 'Mr Salimbangon', '2025-05-08 11:34:05', 'uploads/schedules/681c96adc2956.jpg');
+INSERT INTO `courses` (`id`, `course_name`, `course_code`, `lab`, `schedule`, `schedule_end`, `instructor`, `created_at`, `schedule_image`) VALUES
+(12, 'Sysarch', '', 'Lab 524', '07:30', '12:00:00', 'Mr Salimbangon', '2025-05-15 10:22:01', 'uploads/schedules/6825c049aecfb.webp');
 
 -- --------------------------------------------------------
 
@@ -120,7 +121,6 @@ CREATE TABLE `lab_resources` (
 --
 
 INSERT INTO `lab_resources` (`id`, `resource_name`, `resource_code`, `website_url`, `image_path`, `created_at`) VALUES
-(1, 'Python', '2234', 'https://www.w3schools.com/python/', 'uploads/resources/681c94991cad9.webp', '2025-05-08 11:25:13'),
 (3, 'AI', '23452', 'https://www.w3schools.com/ai/ai_whatis.asp', 'uploads/resources/681c95de0e955.jpg', '2025-05-08 11:30:38');
 
 -- --------------------------------------------------------
@@ -169,7 +169,7 @@ INSERT INTO `reservation` (`reservation_id`, `reservation_date`, `time_in`, `tim
 (36, '2025-05-08', 730, 830, 8, 'Lab 530', 'ASP.Net', 2323, 'approved', 0, '2025-05-08 11:42:13', '2025-05-08 11:42:33', 1, '2025-05-08 11:42:13'),
 (37, '2025-05-08', 730, 830, 18, 'Lab 542', 'ASP.Net', 44444, 'declined', 0, '2025-05-08 11:58:06', '2025-05-08 11:58:14', 1, '2025-05-08 11:58:06'),
 (38, '2025-05-08', 730, 830, 17, 'Lab 517', 'ASP.Net', 2323, 'approved', 0, '2025-05-08 12:00:22', '2025-05-08 12:00:30', 1, '2025-05-08 12:00:22'),
-(39, '2025-05-08', 730, 830, 17, 'Lab 530', 'C', 2323, 'declined', 0, '2025-05-08 12:01:06', '2025-05-08 12:01:25', 0, '2025-05-08 12:01:06');
+(39, '2025-05-08', 730, 830, 17, 'Lab 530', 'C', 2323, 'declined', 0, '2025-05-08 12:01:06', '2025-05-15 10:22:49', 1, '2025-05-08 12:01:06');
 
 -- --------------------------------------------------------
 
@@ -342,7 +342,7 @@ ALTER TABLE `student_points`
 -- AUTO_INCREMENT for table `courses`
 --
 ALTER TABLE `courses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `direct_sitin`
