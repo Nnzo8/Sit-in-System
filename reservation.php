@@ -361,7 +361,7 @@ $studentName = $_SESSION['firstname'] . ' ' . $_SESSION['lastname'];
                         option.value = pc.number;
                         
                         if (pc.is_disabled) {
-                            option.textContent = `PC ${pc.number} (Disabled${pc.disabled_reason ? ': ' + pc.disabled_reason : ''})`;
+                            option.textContent = `PC ${pc.number} (Under Maintenance${pc.disabled_reason ? ': ' + pc.disabled_reason : ''})`;
                             option.disabled = true;
                             option.classList.add('text-red-500');
                         } else {

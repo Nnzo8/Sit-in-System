@@ -10,6 +10,7 @@ if (isset($_POST['add_schedule'])) {
     $lab_room = $_POST['lab_room'];
     $course_name = $_POST['course_name'];
     $schedule = $_POST['schedule'];
+    $schedule_end = $_POST['schedule_end']; // Add this line to capture end time
     $instructor = $_POST['instructor'];
     
     // Handle file upload
@@ -35,9 +36,9 @@ if (isset($_POST['add_schedule'])) {
         die("Connection failed: " . $conn->connect_error);
     }
     
-    $sql = "INSERT INTO courses (lab, course_name, schedule, instructor, schedule_image) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO courses (lab, course_name, schedule, schedule_end, instructor, schedule_image) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssss", $lab_room, $course_name, $schedule, $instructor, $image_path);
+    $stmt->bind_param("ssssss", $lab_room, $course_name, $schedule, $schedule_end, $instructor, $image_path);
     
     if ($stmt->execute()) {
         $_SESSION['success_message'] = "Schedule added successfully!";
@@ -319,7 +320,7 @@ include '../header.php';
                         <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-white"><?php echo htmlspecialchars($lab_room); ?></h2>
                         <div class="space-y-4">
                             <?php
-                            $courses_sql = "SELECT id, course_name, schedule, instructor, schedule_image FROM courses WHERE lab = ? ORDER BY schedule";
+                            $courses_sql = "SELECT id, course_name, schedule, schedule_end, instructor, schedule_image FROM courses WHERE lab = ? ORDER BY schedule";
                             $stmt = $conn->prepare($courses_sql);
                             $stmt->bind_param("s", $lab_room);
                             $stmt->execute();
@@ -347,7 +348,23 @@ include '../header.php';
                                         </div>
                                         <div class="mb-2">
                                             <span class="font-semibold text-gray-700 dark:text-gray-300">Schedule: </span>
-                                            <span class="text-gray-600 dark:text-gray-400"><?php echo htmlspecialchars($course['schedule']); ?></span>
+                                            <span class="text-gray-600 dark:text-gray-400">
+                                                <?php 
+                                                    $start_time = strtotime($course['schedule']);
+                                                    $formatted_start = date("h:i A", $start_time);
+                                                    
+                                                    $schedule_display = $formatted_start;
+                                                    
+                                                    // Add end time if available
+                                                    if (!empty($course['schedule_end'])) {
+                                                        $end_time = strtotime($course['schedule_end']);
+                                                        $formatted_end = date("h:i A", $end_time);
+                                                        $schedule_display .= " - " . $formatted_end;
+                                                    }
+                                                    
+                                                    echo $schedule_display;
+                                                ?>
+                                            </span>
                                         </div>
                                         <div class="mb-2">
                                             <span class="font-semibold text-gray-700 dark:text-gray-300">Instructor: </span>
@@ -406,9 +423,22 @@ include '../header.php';
                                 class="mt-1 block w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         </div>
                         <div>
-                            <label for="schedule" class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">Schedule</label>
-                            <input type="text" id="schedule" name="schedule" required 
+                            <label for="schedule" class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">Schedule Start</label>
+                            <input type="time" id="schedule" name="schedule" required 
+                                min="07:30" 
+                                max="20:00"
+                                value="07:30"
                                 class="mt-1 block w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <small class="text-gray-500 dark:text-gray-400">Lab hours: 7:30 AM - 8:00 PM</small>
+                        </div>
+                        <div>
+                            <label for="schedule_end" class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">Schedule End</label>
+                            <input type="time" id="schedule_end" name="schedule_end" required 
+                                min="07:30" 
+                                max="20:00"
+                                value="09:00"
+                                class="mt-1 block w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <small class="text-gray-500 dark:text-gray-400">Lab hours: 7:30 AM - 8:00 PM</small>
                         </div>
                         <div>
                             <label for="instructor" class="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">Instructor</label>
@@ -492,7 +522,7 @@ include '../header.php';
                     method: 'DELETE'
                 })
                 .then(response => response.json())
-                .then(data => {
+                .then((data) => {
                     if (data.success) {
                         location.reload();
                     } else {

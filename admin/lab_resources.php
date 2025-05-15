@@ -457,7 +457,7 @@ include '../header.php';
     </div>
     <div class="flex items-center">
         <div class="w-4 h-4 rounded bg-gray-300 dark:bg-gray-600 mr-2"></div>
-        <span class="text-sm text-gray-600 dark:text-gray-300">Disabled</span>
+        <span class="text-sm text-gray-600 dark:text-gray-300">Under Maintenance</span>
     </div>
 </div>
 
@@ -482,16 +482,34 @@ include '../header.php';
                         for (let i = 1; i <= 30; i++) {
                             const pcStatus = data.find(pc => pc.pc_number === i) || { status: 'available' };
                             const isInUse = pcStatus.status === 'in-use';
+                            const isUnderMaintenance = pcStatus.status === 'disabled';
                             
                             const pcElement = document.createElement('div');
-                            pcElement.className = `p-4 rounded-lg ${isInUse ? 'bg-red-100 dark:bg-red-900' : 'bg-green-100 dark:bg-green-900'} text-center`;
+                            pcElement.className = `p-4 rounded-lg ${
+                                isUnderMaintenance ? 'bg-gray-300 dark:bg-gray-600' :
+                                isInUse ? 'bg-red-100 dark:bg-red-900' : 
+                                'bg-green-100 dark:bg-green-900'
+                            } text-center`;
                             pcElement.innerHTML = `
-                                <i class="fas fa-desktop text-2xl ${isInUse ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}"></i>
-                                <p class="mt-2 font-semibold ${isInUse ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">PC ${i}</p>
-                                <p class="text-sm ${isInUse ? 'text-red-500 dark:text-red-300' : 'text-green-500 dark:text-green-300'}">
-                                    ${isInUse ? 'In Use' : 'Available'}
+                                <i class="fas fa-desktop text-2xl ${
+                                    isUnderMaintenance ? 'text-gray-600 dark:text-gray-400' :
+                                    isInUse ? 'text-red-600 dark:text-red-400' : 
+                                    'text-green-600 dark:text-green-400'
+                                }"></i>
+                                <p class="mt-2 font-semibold ${
+                                    isUnderMaintenance ? 'text-gray-600 dark:text-gray-400' :
+                                    isInUse ? 'text-red-600 dark:text-red-400' : 
+                                    'text-green-600 dark:text-green-400'
+                                }">PC ${i}</p>
+                                <p class="text-sm ${
+                                    isUnderMaintenance ? 'text-gray-500 dark:text-gray-300' :
+                                    isInUse ? 'text-red-500 dark:text-red-300' : 
+                                    'text-green-500 dark:text-green-300'
+                                }">
+                                    ${isUnderMaintenance ? 'Under Maintenance' : isInUse ? 'In Use' : 'Available'}
                                 </p>
                                 ${isInUse ? `<p class="text-xs text-red-500 dark:text-red-300">User: ${pcStatus.student_id || 'N/A'}</p>` : ''}
+                                ${isUnderMaintenance && pcStatus.disabled_reason ? `<p class="text-xs text-gray-500 dark:text-gray-300">Reason: ${pcStatus.disabled_reason}</p>` : ''}
                             `;
                             pcGrid.appendChild(pcElement);
                         }
@@ -543,7 +561,9 @@ include '../header.php';
 window.updatePcStatus = function() {
     const pcNumber = document.getElementById('selectedPcNumber').textContent;
     const status = document.querySelector('input[name="pcStatus"]:checked').value;
-    const reason = document.getElementById('disableReason').value;
+    // Convert 'under-maintenance' to 'disabled' for database compatibility
+    const dbStatus = status === 'under-maintenance' ? 'disabled' : status;
+    const reason = document.getElementById('maintenanceReason').value;
     const labRoom = document.getElementById('labFilter').value;
 
     fetch('update_pc_status.php', {
@@ -554,7 +574,7 @@ window.updatePcStatus = function() {
         body: JSON.stringify({
             lab_room: labRoom,
             pc_number: pcNumber,
-            status: status,
+            status: dbStatus,
             reason: reason
         })
     })
@@ -592,10 +612,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         'bg-green-100 dark:bg-green-900'
                     } text-center hover:scale-105 transition-transform`;
                     
+                    const statusDisplay = pcStatus.status === 'disabled' ? 'Under Maintenance' : pcStatus.status;
+                    
                     pcElement.innerHTML = `
                         <i class="fas fa-desktop text-2xl"></i>
                         <p class="mt-2 font-semibold">PC ${i}</p>
-                        <p class="text-sm">${pcStatus.status}</p>
+                        <p class="text-sm">${statusDisplay}</p>
                         ${pcStatus.student_id ? `<p class="text-xs">User: ${pcStatus.student_id}</p>` : ''}
                         ${pcStatus.disabled_reason ? `<p class="text-xs">Reason: ${pcStatus.disabled_reason}</p>` : ''}
                     `;
@@ -625,18 +647,33 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('selectedPcNumber').textContent = pcNumber;
         modal.classList.remove('hidden');
         
-        // Set current status
+        // Set current status (map 'disabled' to 'under-maintenance')
         statusInputs.forEach(input => {
-            if (input.value === currentStatus) {
+            if ((currentStatus === 'disabled' && input.value === 'under-maintenance') || 
+                (currentStatus === 'available' && input.value === 'available')) {
                 input.checked = true;
             }
         });
         
-        // Show/hide reason textarea
-        document.getElementById('disableReasonContainer').classList.toggle(
-            'hidden',
-            currentStatus !== 'disabled'
-        );
+        // If PC is under maintenance, show the reason field and populate it
+        if (currentStatus === 'disabled') {
+            document.getElementById('maintenanceReasonContainer').classList.remove('hidden');
+            // Try to get the reason from the PC card if available
+            const pcCards = document.querySelectorAll('#pcGrid > div');
+            for (let card of pcCards) {
+                if (card.querySelector('p').textContent.includes('PC ' + pcNumber)) {
+                    const reasonElement = card.querySelector('p:last-child');
+                    if (reasonElement && reasonElement.textContent.startsWith('Reason:')) {
+                        document.getElementById('maintenanceReason').value = 
+                            reasonElement.textContent.replace('Reason:', '').trim();
+                        break;
+                    }
+                }
+            }
+        } else {
+            document.getElementById('maintenanceReasonContainer').classList.add('hidden');
+            document.getElementById('maintenanceReason').value = '';
+        }
     };
 
     window.closePcStatusModal = function() {
@@ -647,9 +684,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const radioButtons = document.querySelectorAll('input[name="pcStatus"]');
     radioButtons.forEach(radio => {
         radio.addEventListener('change', function() {
-            document.getElementById('disableReasonContainer').classList.toggle(
+            document.getElementById('maintenanceReasonContainer').classList.toggle(
                 'hidden',
-                this.value !== 'disabled'
+                this.value !== 'under-maintenance'
             );
         });
     });
@@ -670,21 +707,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="text-sm text-gray-700 dark:text-gray-300">Available</span>
                     </label>
                     <label class="flex items-center space-x-2">
-                        <input type="radio" name="pcStatus" value="in-use" class="form-radio">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">In Use</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                        <input type="radio" name="pcStatus" value="disabled" class="form-radio">
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Disabled</span>
+                        <input type="radio" name="pcStatus" value="under-maintenance" class="form-radio">
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Under Maintenance</span>
                     </label>
                 </div>
             </div>
             
-            <div id="disableReasonContainer" class="mb-4 hidden">
-                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Reason for Disabling</label>
-                <textarea id="disableReason" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+            <div id="maintenanceReasonContainer" class="mb-4 hidden">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Reason for Maintenance</label>
+                <textarea id="maintenanceReason" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
             </div>
-
+            
             <div class="flex justify-end gap-4">
                 <button onclick="closePcStatusModal()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Cancel</button>
                 <button onclick="updatePcStatus()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Update</button>
