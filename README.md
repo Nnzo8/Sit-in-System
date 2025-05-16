@@ -7,12 +7,13 @@ A web-based system for managing laboratory sit-in sessions in educational instit
 
 ## Features
 - Lab resource management
-- Schedule management
+- Lab Schedule management
 - Student sit-in tracking
 - Points system for lab usage
 - Dark/Light mode support
 - Administrative dashboard
 - Student records management
+- Student reservation feature
 
 ## Technical Stack
 - PHP
